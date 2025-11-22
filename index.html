@@ -853,6 +853,7 @@
   </div>
 
   <!-- Firebase SDK -->
+   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
@@ -877,14 +878,14 @@
     // 営業日キー計算（6:00切り替え）
     // =============================
     function getCurrentBusinessKey() {
-      const now = new Date();
+      const now = new Date(); // 店のPCが日本時間ならそのままJST
       const y = now.getFullYear();
       const m = now.getMonth();
       const d = now.getDate();
 
       const base = new Date(y, m, d);
 
-      // 0:00〜5:59 は前日扱い
+      // 0:00〜5:59 は「前日扱い」
       if (now.getHours() < 6) {
         base.setDate(base.getDate() - 1);
       }
@@ -892,7 +893,7 @@
       const yy = base.getFullYear();
       const mm = String(base.getMonth() + 1).padStart(2, '0');
       const dd = String(base.getDate()).padStart(2, '0');
-      return `${yy}-${mm}-${dd}`;
+      return `${yy}-${mm}-${dd}`; // 例: "2025-11-22"
     }
 
     // =============================
@@ -916,6 +917,7 @@
 
       const businessKey = getCurrentBusinessKey();
 
+      // 次の 6:00 を計算
       let nextReset = new Date();
       nextReset.setHours(6, 0, 0, 0);
       if (now >= nextReset) {
@@ -940,29 +942,93 @@
     updateTimeDisplay();
 
     // =============================
-    // DOM 準備できたらセット
+    // DOM 準備できたらセットアップ
     // =============================
     document.addEventListener('DOMContentLoaded', () => {
       // --------------------------------
-      // 1) チェックリスト Firestore 同期
+      // 1) タスク定義（taskSlots）からチェックリストを生成
       // --------------------------------
-      const checkboxMap = new Map();
-
-      const taskSections = Array.from(document.querySelectorAll('section.slot'));
-      taskSections.forEach((slotEl, slotIndex) => {
-        const taskLis = slotEl.querySelectorAll('ul.tasks li');
-        taskLis.forEach((li, taskIndex) => {
-          const checkbox = li.querySelector('input[type="checkbox"]');
-          if (!checkbox) return;
-          const id = `task-${slotIndex}-${taskIndex}`;
-          checkbox.dataset.taskId = id;
-          checkboxMap.set(id, checkbox);
-        });
-      });
-
+      const timeSlotIds = ['t6-8', 't9-11', 't12-14', 't15-17', 't18-20', 't21-23', 't0-2', 't3-5'];
+      const checkboxMap = new Map();        // taskId -> checkbox
+      let latestCheckedIds = new Set();     // Firestore から来たチェック済みID
       const taskDocRef = db.collection('tasks').doc('lawson-main');
       let applyingRemote = false;
 
+      // taskId の付け方：
+      //   例）"t6-8-A-0" ＝ 6〜8時の A グループ 0番目
+      function buildTasksFromDefinition(slotId, ul, tasks, groupLabel) {
+        ul.innerHTML = '';
+        tasks.forEach((text, index) => {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <label class="task-item">
+              <input type="checkbox">
+              <span class="task-text"></span>
+            </label>
+          `;
+          const cb   = li.querySelector('input[type="checkbox"]');
+          const span = li.querySelector('.task-text');
+          span.textContent = text;
+
+          const taskId = `${slotId}-${groupLabel}-${index}`;
+          cb.dataset.taskId = taskId;
+          checkboxMap.set(taskId, cb);
+
+          // 既に Firestore から状態が来ていたら反映
+          cb.checked = latestCheckedIds.has(taskId);
+
+          ul.appendChild(li);
+        });
+      }
+
+      async function loadTaskDefinitions() {
+        const taskSlotsRef = db.collection('taskSlots');
+
+        await Promise.all(
+          timeSlotIds.map(async (slotId) => {
+            const section = document.getElementById(slotId);
+            if (!section) return;
+
+            const ulA = section.querySelector('ul.tasks.a');
+            const ulB = section.querySelector('ul.tasks.b');
+            if (!ulA || !ulB) return;
+
+            try {
+              const snap = await taskSlotsRef.doc(slotId).get();
+              if (snap.exists) {
+                const data = snap.data() || {};
+                const tasksA = data.tasksA || [];
+                const tasksB = data.tasksB || [];
+
+                buildTasksFromDefinition(slotId, ulA, tasksA, 'A');
+                buildTasksFromDefinition(slotId, ulB, tasksB, 'B');
+              } else {
+                // Firestore に定義が無いとき：
+                // いま HTML に書かれている li から taskId を振る
+                const setupFromExisting = (ul, groupLabel) => {
+                  const lis = ul.querySelectorAll('li');
+                  lis.forEach((li, index) => {
+                    const cb = li.querySelector('input[type="checkbox"]');
+                    if (!cb) return;
+                    const taskId = `${slotId}-${groupLabel}-${index}`;
+                    cb.dataset.taskId = taskId;
+                    checkboxMap.set(taskId, cb);
+                    cb.checked = latestCheckedIds.has(taskId);
+                  });
+                };
+                setupFromExisting(ulA, 'A');
+                setupFromExisting(ulB, 'B');
+              }
+            } catch (e) {
+              console.error('タスク定義読み込みエラー:', slotId, e);
+            }
+          })
+        );
+      }
+
+      // --------------------------------
+      // 2) チェック状態 ↔ Firestore 同期
+      // --------------------------------
       function saveTasksToFirestore() {
         const checkedIds = [];
         checkboxMap.forEach((cb, id) => {
@@ -977,25 +1043,23 @@
 
       taskDocRef.onSnapshot((doc) => {
         const data = doc.exists ? doc.data() : {};
-        const storedKey = data.businessKey;
+        const storedKey  = data.businessKey;
         const currentKey = getCurrentBusinessKey();
 
         if (storedKey !== currentKey) {
+          // 日付が変わっていたらリセット
           taskDocRef.set(
             { checkedIds: [], businessKey: currentKey },
             { merge: true }
           );
-
-          applyingRemote = true;
-          checkboxMap.forEach((cb) => { cb.checked = false; });
-          applyingRemote = false;
-          return;
+          latestCheckedIds = new Set();
+        } else {
+          latestCheckedIds = new Set(data.checkedIds || []);
         }
 
-        const checkedIds = new Set(data.checkedIds || []);
         applyingRemote = true;
         checkboxMap.forEach((cb, id) => {
-          cb.checked = checkedIds.has(id);
+          cb.checked = latestCheckedIds.has(id);
         });
         applyingRemote = false;
       });
@@ -1007,48 +1071,45 @@
         saveTasksToFirestore();
       });
 
+      // 先にタスク定義をロード（チェック状態は onSnapshot で後から追従）
+      loadTaskDefinitions();
+
       // --------------------------------
-      // 2) 引き継ぎメモ Firestore 同期（全スロット共通）
+      // 3) 引き継ぎメモ（全員で共有）
+      //    ※ 今までと同じ構造：一番下の「引き継ぎメモ（全員で共有）」を使う
       // --------------------------------
-      const logEls = document.querySelectorAll('.handover-log');
-      const clearBtns = document.querySelectorAll('.handover-clear-btn');
+      const logEl    = document.getElementById('handover-log');
+      const clearBtn = document.getElementById('handover-clear-btn');
       const chipButtons = document.querySelectorAll('.handover-chip');
       const handoverColRef = db.collection('handover');
 
       function renderHandover(snapshot) {
-        logEls.forEach((logEl) => {
-          logEl.innerHTML = '';
-        });
-
+        if (!logEl) return;
+        logEl.innerHTML = '';
         snapshot.forEach((doc) => {
           const data = doc.data();
-          const text = data.text || '';
-          const timeLabel = data.timeLabel || '';
+          const li = document.createElement('li');
+          li.className = 'handover-item';
 
-          logEls.forEach((logEl) => {
-            const li = document.createElement('li');
-            li.className = 'handover-item';
+          const textSpan = document.createElement('span');
+          textSpan.className = 'handover-text';
+          textSpan.textContent = data.text || '';
 
-            const textSpan = document.createElement('span');
-            textSpan.className = 'handover-text';
-            textSpan.textContent = text;
+          const timeSpan = document.createElement('span');
+          timeSpan.className = 'handover-time';
+          timeSpan.textContent = data.timeLabel || '';
 
-            const timeSpan = document.createElement('span');
-            timeSpan.className = 'handover-time';
-            timeSpan.textContent = timeLabel;
-
-            const delBtn = document.createElement('button');
-            delBtn.className = 'handover-remove';
-            delBtn.textContent = '✕';
-            delBtn.addEventListener('click', () => {
-              doc.ref.delete();
-            });
-
-            li.appendChild(textSpan);
-            li.appendChild(timeSpan);
-            li.appendChild(delBtn);
-            logEl.appendChild(li);
+          const delBtn = document.createElement('button');
+          delBtn.className = 'handover-remove';
+          delBtn.textContent = '✕';
+          delBtn.addEventListener('click', () => {
+            doc.ref.delete();
           });
+
+          li.appendChild(textSpan);
+          li.appendChild(timeSpan);
+          li.appendChild(delBtn);
+          logEl.appendChild(li);
         });
       }
 
@@ -1074,18 +1135,18 @@
         });
       });
 
-      clearBtns.forEach((btn) => {
-        btn.addEventListener('click', async () => {
+      if (clearBtn) {
+        clearBtn.addEventListener('click', async () => {
           if (!confirm('引き継ぎメモを全部消しますか？')) return;
           const snap = await handoverColRef.get();
           const batch = db.batch();
           snap.forEach((doc) => batch.delete(doc.ref));
           await batch.commit();
         });
-      });
+      }
 
       // --------------------------------
-      // 3) 経営者お知らせ（ownerNews）読み込み
+      // 4) 経営者お知らせ（ownerNews）読み込み
       // --------------------------------
       const infoListEl = document.querySelector('.info-list');
       if (infoListEl) {
@@ -1108,7 +1169,7 @@
               snapshot.forEach((doc) => {
                 const data = doc.data();
                 const title = data.title || '';
-                const body = data.body || '';
+                const body  = data.body  || '';
 
                 const li = document.createElement('li');
                 if (title && body) {
@@ -1132,5 +1193,6 @@
       }
     });
   </script>
+
 </body>
 </html>
