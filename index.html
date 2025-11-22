@@ -1615,22 +1615,29 @@ if (jumpBtn) {
 
       // 余りがある場合だけ「もっと表示」トグルを出す
       if (chips.length > PRIMARY_COUNT) {
-        const toggleBtn = document.createElement("button");
-        toggleBtn.className = "handover-chips-toggle";
-        toggleBtn.textContent = "▼ もっと表示";
+  const toggleBtn = document.createElement("button");
+  toggleBtn.className = "handover-chips-toggle";
 
-        toggleBtn.addEventListener("click", () => {
-          const isHidden = extraContainer.classList.toggle("is-hidden");
-          toggleBtn.textContent = isHidden ? "▼ もっと表示" : "▲ 閉じる";
-        });
+  toggleBtn.innerHTML = `
+    <span class="arrow">▼</span>
+    <span class="label">もっと表示</span>
+  `;
 
-        chipsArea.appendChild(toggleBtn);
-      }
-    })
-    .catch((e) => {
-      console.error("handoverTemplates 読み込みエラー", e);
-    });
+  toggleBtn.addEventListener("click", () => {
+    const isHidden = extraContainer.classList.toggle("is-hidden");
+
+    if (isHidden) {
+      toggleBtn.classList.remove("open");
+      toggleBtn.querySelector(".label").textContent = "もっと表示";
+    } else {
+      toggleBtn.classList.add("open");
+      toggleBtn.querySelector(".label").textContent = "閉じる";
+    }
+  });
+
+  chipsArea.appendChild(toggleBtn);
 }
+
 
 
         if (clearBtn) {
