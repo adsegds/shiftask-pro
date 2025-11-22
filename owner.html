@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>南部町ローソン 経営者お知らせ管理</title>
+  <title>南部町ローソン 管理画面（オーナー用）</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -11,197 +11,292 @@
       background: #f5f5f5;
       color: #111;
       line-height: 1.6;
-    }
-    .app {
-      max-width: 800px;
-      margin: 0 auto;
       padding: 16px;
     }
-    h1 {
+
+    .app {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 16px;
+    }
+    header h1 {
       font-size: 18px;
       margin-bottom: 4px;
     }
-    p.desc {
+    header p {
       font-size: 12px;
-      color: #666;
-      margin-bottom: 16px;
+      color: #555;
     }
-    p.desc.small {
-      font-size: 11px;
-      margin-top: -6px;
-      margin-bottom: 10px;
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
+      gap: 16px;
+    }
+    @media (max-width: 900px) {
+      .grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
     }
 
     .card {
       background: #fff;
       border-radius: 12px;
-      padding: 12px 14px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
-      margin-bottom: 16px;
+      padding: 14px 16px 16px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    .card h2 {
+      font-size: 15px;
+      margin-bottom: 2px;
+    }
+    .card-sub {
+      font-size: 11px;
+      color: #777;
+      margin-bottom: 10px;
     }
 
     label {
+      display: block;
       font-size: 12px;
       font-weight: 600;
-      display: block;
       margin-bottom: 4px;
     }
+
     input[type="text"],
     textarea,
     select {
       width: 100%;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      padding: 6px 8px;
+      font-family: inherit;
       font-size: 13px;
-      resize: vertical;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      outline: none;
     }
     textarea {
       min-height: 80px;
+      resize: vertical;
+      line-height: 1.5;
     }
-    .form-row {
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+      border-color: #111;
+    }
+
+    select {
+      padding: 4px 8px;
+      font-size: 13px;
+      background: #fff;
+    }
+
+    .row {
       margin-bottom: 10px;
     }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
+
+    .hint {
+      font-size: 11px;
+      color: #777;
+      margin-top: 2px;
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+      margin-bottom: 4px;
+    }
+
+    button {
+      font-family: inherit;
+      font-size: 13px;
       border-radius: 999px;
       border: none;
-      padding: 6px 16px;
-      font-size: 13px;
+      padding: 6px 14px;
       cursor: pointer;
+    }
+    .btn-primary {
       background: #111;
       color: #fff;
     }
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: default;
-    }
-
-    .status {
-      font-size: 11px;
-      color: #666;
-      margin-top: 6px;
-      min-height: 14px;
-    }
-
-    .list-title {
-      font-size: 14px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-
-    .notice-list {
-      list-style: none;
-      font-size: 12px;
-    }
-    .notice-item {
-      border-bottom: 1px solid #eee;
-      padding: 8px 0;
-    }
-    .notice-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .notice-title {
-      font-weight: 600;
-      margin-right: 6px;
-    }
-    .notice-date {
-      font-size: 10px;
-      color: #777;
-      white-space: nowrap;
-    }
-    .notice-body {
-      margin-top: 4px;
-      white-space: pre-wrap;
-    }
-    .notice-actions {
-      margin-top: 4px;
-      text-align: right;
-    }
-    .btn-sm {
-      font-size: 10px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: none;
-      cursor: pointer;
+    .btn-secondary {
       background: #eee;
       color: #333;
     }
-    .btn-sm.danger {
-      background: #fbe3e3;
-      color: #c00;
+    .btn-danger {
+      background: #f44;
+      color: #fff;
+    }
+
+    .status {
+      font-size: 12px;
+      min-height: 18px;
+      margin-top: 2px;
+    }
+    .status.ok {
+      color: #007700;
+    }
+    .status.err {
+      color: #cc0000;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #eee;
+      margin: 10px 0;
+    }
+
+    /* ownerNews list */
+    .news-list {
+      list-style: none;
+      font-size: 12px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .news-item {
+      border-bottom: 1px solid #eee;
+      padding: 6px 0;
+      display: flex;
+      gap: 8px;
+    }
+    .news-main {
+      flex: 1;
+    }
+    .news-title {
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .news-body {
+      font-size: 12px;
+    }
+    .news-meta {
+      font-size: 10px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    .news-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: flex-end;
+    }
+
+    /* タスク表示 */
+    .slot-note {
+      font-size: 11px;
+      color: #666;
+      margin-top: -2px;
+      margin-bottom: 6px;
+    }
+
+    .small-list {
+      list-style: disc;
+      padding-left: 16px;
+      font-size: 11px;
+      color: #555;
+      margin-top: 4px;
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <h1>経営者専用 お知らせ管理</h1>
-    <p class="desc">
-      ここで登録した内容が、スタッフ用チェックリスト画面の「お知らせ」に表示されます。<br>
-      店の PC だけで開けるようにしておくと安心です。（例：ブックマークに「経営者用」など）
-    </p>
-
-    <!-- ◆ 経営者お知らせ 投稿フォーム -->
-    <section class="card">
-      <div class="form-row">
-        <label for="notice-title">タイトル</label>
-        <input type="text" id="notice-title" placeholder="例）今週の清掃重点エリア について">
-      </div>
-      <div class="form-row">
-        <label for="notice-body">本文</label>
-        <textarea id="notice-body" placeholder="スタッフへのメッセージや、重点ポイントなどを自由に書いてください。"></textarea>
-      </div>
-      <button type="button" class="btn" id="post-btn">お知らせを投稿する</button>
-      <div class="status" id="status-msg"></div>
-    </section>
-
-    <!-- ◆ 投稿済みお知らせ一覧 -->
-    <section class="card">
-      <div class="list-title">投稿済みお知らせ（新しい順 最大50件）</div>
-      <ul class="notice-list" id="notice-list">
-        <li>読み込み中です…</li>
-      </ul>
-    </section>
-
-    <!-- ◆ タスク編集（時間帯ごと） -->
-    <section class="card">
-      <div class="list-title">タスク編集（時間帯ごと）</div>
-      <p class="desc small">
-        A＝必須 / B＝余裕があれば。<br>
-        各テキストエリアで「1行 = 1タスク」として編集すると、スタッフ画面にそのまま反映されます。
+    <header>
+      <h1>南部町ローソン 管理画面（オーナー用）</h1>
+      <p>
+        スタッフ画面（業務チェック）の「中身」を編集するための管理ツールです。<br>
+        ・左：お知らせ（ownerNews）編集　・右：時間帯ごとのタスク定義編集
       </p>
+    </header>
 
-      <div class="form-row">
-        <label for="slot-select">編集する時間帯</label>
-        <select id="slot-select">
-          <option value="t6-8">6:00〜8:00（朝の立ち上げ）</option>
-          <option value="t9-11">9:00〜11:00（午前帯）</option>
-          <option value="t12-14">12:00〜14:00（昼帯）</option>
-          <option value="t15-17">15:00〜17:00（夕方前）</option>
-          <option value="t18-20">18:00〜20:00（夕方〜夜）</option>
-          <option value="t21-23">21:00〜23:00（夜帯）</option>
-          <option value="t0-2">0:00〜2:00（深夜前半）</option>
-          <option value="t3-5">3:00〜5:00（早朝）</option>
-        </select>
-      </div>
+    <div class="grid">
+      <!-- =========================
+           ① お知らせ（ownerNews）編集
+           ========================= -->
+      <section class="card" id="news-card">
+        <h2>お知らせ管理（ownerNews）</h2>
+        <p class="card-sub">
+          スタッフ画面の「お知らせ」欄に表示される内容を登録・削除できます。
+        </p>
 
-      <div class="form-row">
-        <label for="tasksA-input">A 必須タスク（1行1タスク）</label>
-        <textarea id="tasksA-input" placeholder="例）CDC納品・片づけ（2便）&#10;例）コーヒーマシン清掃（本体・コンディメント什器・周辺）"></textarea>
-      </div>
+        <div class="row">
+          <label for="newsTitle">タイトル</label>
+          <input type="text" id="newsTitle" placeholder="例）FF油交換について" />
+        </div>
+        <div class="row">
+          <label for="newsBody">本文</label>
+          <textarea id="newsBody" placeholder="例）今週は油交換の頻度を1日2回に増やしてください。夜勤帯で対応お願いします。"></textarea>
+        </div>
 
-      <div class="form-row">
-        <label for="tasksB-input">B 余裕タスク（1行1タスク）</label>
-        <textarea id="tasksB-input" placeholder="例）店内・店頭ゴミ箱の清掃&#10;例）サービスコーナー・イートイン清掃"></textarea>
-      </div>
+        <div class="btn-row">
+          <button type="button" class="btn-primary" id="newsAddBtn">お知らせを追加</button>
+          <button type="button" class="btn-secondary" id="newsClearFormBtn">入力をクリア</button>
+        </div>
+        <div class="status" id="newsStatus"></div>
 
-      <button type="button" class="btn" id="slot-save-btn">この時間帯のタスクを保存</button>
-      <div class="status" id="slot-status"></div>
-    </section>
+        <hr>
+
+        <p class="hint">※最新20件まで表示。古いものから順に削除してOKです。</p>
+        <ul class="news-list" id="newsList"></ul>
+      </section>
+
+      <!-- =========================
+           ② タスク定義（taskSlots）編集
+           ========================= -->
+      <section class="card" id="tasks-card">
+        <h2>時間帯ごとのタスク編集（taskSlots）</h2>
+        <p class="card-sub">
+          各時間帯の Aタスク（必須）・Bタスク（余裕）を編集できます。<br>
+          スタッフ画面のチェックリストはここで定義された内容から自動生成されます。
+        </p>
+
+        <div class="row">
+          <label for="slotSelect">編集する時間帯</label>
+          <select id="slotSelect">
+            <option value="t6-8">6:00〜8:00（朝の立ち上げ）</option>
+            <option value="t9-11">9:00〜11:00（午前帯）</option>
+            <option value="t12-14">12:00〜14:00（昼帯）</option>
+            <option value="t15-17">15:00〜17:00（夕方前）</option>
+            <option value="t18-20">18:00〜20:00（夕方〜夜）</option>
+            <option value="t21-23">21:00〜23:00（夜帯）</option>
+            <option value="t0-2">0:00〜2:00（深夜前半）</option>
+            <option value="t3-5">3:00〜5:00（早朝）</option>
+          </select>
+          <p class="slot-note">時間帯を変更すると、その時間帯のタスク定義を Firestore から読み込みます。</p>
+        </div>
+
+        <div class="row">
+          <label for="tasksAInput">Aタスク（必須）</label>
+          <textarea id="tasksAInput" placeholder="例）&#10;CDC納品・片づけ（2便）&#10;ベーカリー納品・片づけ（2便）"></textarea>
+          <div class="hint">1行につき1タスク。空行は無視されます。</div>
+        </div>
+
+        <div class="row">
+          <label for="tasksBInput">Bタスク（余裕あれば）</label>
+          <textarea id="tasksBInput" placeholder="例）&#10;店内・店頭ゴミ箱の清掃&#10;サービスコーナー清掃"></textarea>
+          <div class="hint">1行につき1タスク。空行は無視されます。</div>
+        </div>
+
+        <div class="btn-row">
+          <button type="button" class="btn-secondary" id="reloadSlotBtn">選択中の時間帯を再読み込み</button>
+          <button type="button" class="btn-primary" id="saveSlotBtn">この内容で保存</button>
+        </div>
+        <div class="status" id="taskStatus"></div>
+
+        <hr>
+
+        <p class="hint">
+          ※保存すると、その時間帯のチェック状態（完了チェック）だけリセットされます（他の時間帯はそのまま）。<br>
+          ※チェックリスト本体の HTML（スタッフ用画面）は書き換え不要です。この画面は定義だけをいじる役割。
+        </p>
+      </section>
+    </div>
   </div>
 
   <!-- Firebase SDK -->
@@ -209,7 +304,9 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
   <script>
-    // Firebase 設定（チェックリストと同じ）
+    // =============================
+    // Firebase 設定（スタッフ画面と同じ）
+    // =============================
     const firebaseConfig = {
       apiKey: "AIzaSyAPBMvTpzKCcPxLETncBqVR8fzf0cqKirc",
       authDomain: "lawson-workflow.firebaseapp.com",
@@ -223,30 +320,55 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // =============================
+    // 営業日キー（6:00切り替え）
+    // =============================
+    function getCurrentBusinessKey() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = now.getMonth();
+      const d = now.getDate();
+      const base = new Date(y, m, d);
+      if (now.getHours() < 6) {
+        base.setDate(base.getDate() - 1);
+      }
+      const yy = base.getFullYear();
+      const mm = String(base.getMonth() + 1).padStart(2, '0');
+      const dd = String(base.getDate()).padStart(2, '0');
+      return `${yy}-${mm}-${dd}`;
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-      // =============================
-      // 1) 経営者お知らせ
-      // =============================
-      const titleInput = document.getElementById('notice-title');
-      const bodyInput  = document.getElementById('notice-body');
-      const postBtn    = document.getElementById('post-btn');
-      const statusMsg  = document.getElementById('status-msg');
-      const listEl     = document.getElementById('notice-list');
+      // ==================================
+      // ① お知らせ（ownerNews）管理
+      // ==================================
+      const newsTitleEl      = document.getElementById('newsTitle');
+      const newsBodyEl       = document.getElementById('newsBody');
+      const newsAddBtn       = document.getElementById('newsAddBtn');
+      const newsClearFormBtn = document.getElementById('newsClearFormBtn');
+      const newsStatusEl     = document.getElementById('newsStatus');
+      const newsListEl       = document.getElementById('newsList');
 
       const ownerNewsColRef = db.collection('ownerNews');
 
-      // 投稿
-      postBtn.addEventListener('click', async () => {
-        const title = (titleInput.value || '').trim();
-        const body  = (bodyInput.value || '').trim();
+      function setNewsStatus(msg, type = '') {
+        newsStatusEl.textContent = msg;
+        newsStatusEl.className = 'status ' + (type ? type : '');
+      }
+
+      // 追加ボタン
+      newsAddBtn.addEventListener('click', async () => {
+        const title = newsTitleEl.value.trim();
+        const body  = newsBodyEl.value.trim();
 
         if (!title && !body) {
-          statusMsg.textContent = 'タイトルか本文のどちらかは入力してください。';
+          setNewsStatus('タイトルか本文のどちらかは入力してください。', 'err');
           return;
         }
 
-        postBtn.disabled = true;
-        statusMsg.textContent = '投稿中…';
+        if (!confirm('この内容でお知らせを追加しますか？')) return;
+
+        setNewsStatus('追加中...');
 
         try {
           await ownerNewsColRef.add({
@@ -254,142 +376,219 @@
             body,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
           });
-
-          titleInput.value = '';
-          bodyInput.value  = '';
-          statusMsg.textContent = '投稿しました。';
+          setNewsStatus('追加しました。', 'ok');
+          // フォームは残しておく（連続投稿用）。消したければ「入力をクリア」を押す運用。
         } catch (e) {
           console.error(e);
-          statusMsg.textContent = '投稿に失敗しました。ネット接続や設定を確認してください。';
-        } finally {
-          postBtn.disabled = false;
-          setTimeout(() => { statusMsg.textContent = ''; }, 3000);
+          setNewsStatus('追加エラー：' + e.message, 'err');
         }
       });
 
-      // 一覧表示
-      function renderNoticeList(snapshot) {
-        listEl.innerHTML = '';
+      // 入力クリア
+      newsClearFormBtn.addEventListener('click', () => {
+        newsTitleEl.value = '';
+        newsBodyEl.value = '';
+        setNewsStatus('入力をクリアしました。', 'ok');
+      });
 
-        if (snapshot.empty) {
-          const li = document.createElement('li');
-          li.textContent = 'まだお知らせはありません。';
-          listEl.appendChild(li);
-          return;
-        }
-
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          const li   = document.createElement('li');
-          li.className = 'notice-item';
-
-          const ts = data.createdAt ? data.createdAt.toDate() : null;
-          const dateLabel = ts
-            ? ts.toLocaleString('ja-JP', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                weekday: 'short',
-                hour: '2-digit',
-                minute: '2-digit'
-              })
-            : '';
-
-          li.innerHTML = `
-            <div class="notice-header">
-              <div class="notice-title">${data.title || '(タイトルなし)'}</div>
-              <div class="notice-date">${dateLabel}</div>
-            </div>
-            <div class="notice-body">${(data.body || '').replace(/\n/g, '<br>')}</div>
-            <div class="notice-actions">
-              <button class="btn-sm danger">削除</button>
-            </div>
-          `;
-
-          const deleteBtn = li.querySelector('.btn-sm.danger');
-          deleteBtn.addEventListener('click', async () => {
-            if (!confirm('このお知らせを削除しますか？')) return;
-            await doc.ref.delete();
-          });
-
-          listEl.appendChild(li);
-        });
-      }
-
+      // リアルタイムに ownerNews 一覧表示
       ownerNewsColRef
         .orderBy('createdAt', 'desc')
-        .limit(50)
-        .onSnapshot(renderNoticeList);
+        .limit(20)
+        .onSnapshot(
+          (snapshot) => {
+            newsListEl.innerHTML = '';
 
-      // =============================
-      // 2) タスク定義編集（taskSlots）
-      // =============================
-      const slotSelect    = document.getElementById('slot-select');
-      const tasksAInput   = document.getElementById('tasksA-input');
-      const tasksBInput   = document.getElementById('tasksB-input');
-      const slotSaveBtn   = document.getElementById('slot-save-btn');
-      const slotStatus    = document.getElementById('slot-status');
-      const taskSlotsRef  = db.collection('taskSlots');
+            if (snapshot.empty) {
+              const li = document.createElement('li');
+              li.textContent = '現在、お知らせはありません。';
+              li.style.fontSize = '11px';
+              li.style.color = '#888';
+              newsListEl.appendChild(li);
+              return;
+            }
 
-      async function loadSlot(slotId) {
-        slotStatus.textContent = '読み込み中…';
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              const title = data.title || '';
+              const body  = data.body  || '';
+              const createdAt = data.createdAt ? data.createdAt.toDate() : null;
+
+              const li = document.createElement('li');
+              li.className = 'news-item';
+
+              const main = document.createElement('div');
+              main.className = 'news-main';
+
+              const titleEl = document.createElement('div');
+              titleEl.className = 'news-title';
+              titleEl.textContent = title || '（タイトル無し）';
+
+              const bodyEl = document.createElement('div');
+              bodyEl.className = 'news-body';
+              bodyEl.textContent = body || '（本文無し）';
+
+              const metaEl = document.createElement('div');
+              metaEl.className = 'news-meta';
+              if (createdAt) {
+                metaEl.textContent = createdAt.toLocaleString('ja-JP', {
+                  month: '2-digit',
+                  day: '2-digit',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                });
+              } else {
+                metaEl.textContent = '日付不明';
+              }
+
+              main.appendChild(titleEl);
+              main.appendChild(bodyEl);
+              main.appendChild(metaEl);
+
+              const actions = document.createElement('div');
+              actions.className = 'news-actions';
+
+              const delBtn = document.createElement('button');
+              delBtn.className = 'btn-danger';
+              delBtn.textContent = '削除';
+              delBtn.addEventListener('click', async () => {
+                if (!confirm('このお知らせを削除しますか？')) return;
+                try {
+                  await doc.ref.delete();
+                  setNewsStatus('削除しました。', 'ok');
+                } catch (e) {
+                  console.error(e);
+                  setNewsStatus('削除エラー：' + e.message, 'err');
+                }
+              });
+
+              actions.appendChild(delBtn);
+
+              li.appendChild(main);
+              li.appendChild(actions);
+
+              newsListEl.appendChild(li);
+            });
+          },
+          (error) => {
+            console.error('ownerNews 読み込みエラー', error);
+            newsListEl.innerHTML = '';
+            const li = document.createElement('li');
+            li.textContent = 'お知らせの読み込みに失敗しました。';
+            li.style.fontSize = '11px';
+            li.style.color = '#c00';
+            newsListEl.appendChild(li);
+          }
+        );
+
+      // ==================================
+      // ② taskSlots（時間帯タスク）管理
+      // ==================================
+      const slotSelectEl   = document.getElementById('slotSelect');
+      const tasksAInputEl  = document.getElementById('tasksAInput');
+      const tasksBInputEl  = document.getElementById('tasksBInput');
+      const reloadSlotBtn  = document.getElementById('reloadSlotBtn');
+      const saveSlotBtn    = document.getElementById('saveSlotBtn');
+      const taskStatusEl   = document.getElementById('taskStatus');
+
+      const taskSlotsRef = db.collection('taskSlots');
+      const taskDocRef   = db.collection('tasks').doc('lawson-main');
+
+      function setTaskStatus(msg, type = '') {
+        taskStatusEl.textContent = msg;
+        taskStatusEl.className = 'status ' + (type ? type : '');
+      }
+
+      // 現在選択中スロットの定義読み込み
+      async function loadCurrentSlot() {
+        const slotId = slotSelectEl.value;
+        setTaskStatus('読み込み中...');
 
         try {
           const snap = await taskSlotsRef.doc(slotId).get();
-          const data = snap.exists ? snap.data() : {};
-          const tasksA = (data.tasksA || []).join('\n');
-          const tasksB = (data.tasksB || []).join('\n');
-
-          tasksAInput.value = tasksA;
-          tasksBInput.value = tasksB;
-          slotStatus.textContent = '読み込み完了。編集して「保存」を押すと反映されます。';
+          if (snap.exists) {
+            const data = snap.data() || {};
+            const tasksA = data.tasksA || [];
+            const tasksB = data.tasksB || [];
+            tasksAInputEl.value = tasksA.join('\n');
+            tasksBInputEl.value = tasksB.join('\n');
+            setTaskStatus('読み込み完了：' + slotId, 'ok');
+          } else {
+            // 未定義なら空
+            tasksAInputEl.value = '';
+            tasksBInputEl.value = '';
+            setTaskStatus('まだ定義がありません（新規作成）：' + slotId, 'ok');
+          }
         } catch (e) {
           console.error(e);
-          slotStatus.textContent = '読み込みに失敗しました。';
+          setTaskStatus('読み込みエラー：' + e.message, 'err');
         }
       }
 
-      // 保存
-      slotSaveBtn.addEventListener('click', async () => {
-        const slotId = slotSelect.value;
-        const tasksA = (tasksAInput.value || '')
-          .split('\n')
-          .map(line => line.trim())
-          .filter(line => line.length > 0);
+      // 保存：taskSlots を更新 ＋ その時間帯のチェック状態リセット
+      async function saveCurrentSlot() {
+        const slotId = slotSelectEl.value;
 
-        const tasksB = (tasksBInput.value || '')
+        const tasksA = tasksAInputEl.value
           .split('\n')
-          .map(line => line.trim())
-          .filter(line => line.length > 0);
+          .map(t => t.trim())
+          .filter(t => t.length > 0);
 
-        slotSaveBtn.disabled = true;
-        slotStatus.textContent = '保存中…';
+        const tasksB = tasksBInputEl.value
+          .split('\n')
+          .map(t => t.trim())
+          .filter(t => t.length > 0);
+
+        if (!confirm('時間帯「' + slotId + '」のタスクをこの内容で保存しますか？\n※この時間帯の完了チェックはリセットされます。')) {
+          return;
+        }
+
+        setTaskStatus('保存中...');
 
         try {
+          // 1) 定義を保存
           await taskSlotsRef.doc(slotId).set(
-            {
-              tasksA,
-              tasksB
-            },
+            { tasksA, tasksB },
             { merge: true }
           );
-          slotStatus.textContent = '保存しました。スタッフ画面をリロードすると反映されます。';
+
+          // 2) チェック状態から、この時間帯のIDだけ削除
+          const snap = await taskDocRef.get();
+          if (snap.exists) {
+            const data = snap.data() || {};
+            const checkedIds = Array.isArray(data.checkedIds) ? data.checkedIds : [];
+            const filtered = checkedIds.filter(id => !String(id).startsWith(slotId + '-'));
+
+            const updateData = {
+              checkedIds: filtered,
+              businessKey: getCurrentBusinessKey()
+            };
+            await taskDocRef.set(updateData, { merge: true });
+          } else {
+            // まだ tasks/lawson-main が無ければ作るだけ
+            await taskDocRef.set(
+              {
+                checkedIds: [],
+                businessKey: getCurrentBusinessKey()
+              },
+              { merge: true }
+            );
+          }
+
+          setTaskStatus('保存完了！スタッフ画面を開き直すと反映されます。', 'ok');
         } catch (e) {
           console.error(e);
-          slotStatus.textContent = '保存に失敗しました。';
-        } finally {
-          slotSaveBtn.disabled = false;
-          setTimeout(() => { slotStatus.textContent = ''; }, 4000);
+          setTaskStatus('保存エラー：' + e.message, 'err');
         }
-      });
+      }
 
-      // 時間帯切り替え
-      slotSelect.addEventListener('change', () => {
-        loadSlot(slotSelect.value);
-      });
+      // イベント
+      slotSelectEl.addEventListener('change', loadCurrentSlot);
+      reloadSlotBtn.addEventListener('click', loadCurrentSlot);
+      saveSlotBtn.addEventListener('click', saveCurrentSlot);
 
-      // 初期ロード（最初の時間帯）
-      loadSlot(slotSelect.value);
+      // 初期ロード
+      loadCurrentSlot();
     });
   </script>
 </body>
