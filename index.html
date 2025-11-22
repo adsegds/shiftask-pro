@@ -645,315 +645,298 @@
   <!-- ↓↓↓ ここから下で、今ある <script> を全部入れ替えてね ↓↓↓ -->
 
     <!-- Firebase SDK（CDN版）-->
-   <!-- Firebase SDK（CDN版）-->
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+    <!-- Firebase SDK（CDN版）-->
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
-<script>
-  // Firebase 設定
-  const firebaseConfig = {
-    apiKey: "AIzaSyAPBMvTpzKCcPxLETncBqVR8fzf0cqKirc",
-    authDomain: "lawson-workflow.firebaseapp.com",
-    projectId: "lawson-workflow",
-    storageBucket: "lawson-workflow.firebasestorage.app",
-    messagingSenderId: "335371795694",
-    appId: "1:335371795694:web:3b0950a616d368b284c7ff",
-    measurementId: "G-BGENZNZMRC"
-  };
+  <script>
+    // Firebase 設定
+    const firebaseConfig = {
+      apiKey: "AIzaSyAPBMvTpzKCcPxLETncBqVR8fzf0cqKirc",
+      authDomain: "lawson-workflow.firebaseapp.com",
+      projectId: "lawson-workflow",
+      storageBucket: "lawson-workflow.firebasestorage.app",
+      messagingSenderId: "335371795694",
+      appId: "1:335371795694:web:3b0950a616d368b284c7ff",
+      measurementId: "G-BGENZNZMRC"
+    };
 
-  // Firebase 初期化（compat 版）
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+    // Firebase 初期化（compat 版）
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-  // ▼ 営業日キー（6:00 切り替え）の計算
-  function getCurrentBusinessKey() {
-    const now = new Date(); // 端末のローカル時間（日本なら日本時間）
-    const y = now.getFullYear();
-    const m = now.getMonth(); // 0始まり
-    const d = now.getDate();
+    // ▼ 営業日キー（6:00 切り替え）の計算
+    function getCurrentBusinessKey() {
+      const now = new Date(); // 端末のローカル時間（日本なら日本時間）
+      const y = now.getFullYear();
+      const m = now.getMonth(); // 0始まり
+      const d = now.getDate();
 
-    // 今日の日付（0:00）を基準に作る
-    const base = new Date(y, m, d);
+      // 今日の日付（0:00）を基準に作る
+      const base = new Date(y, m, d);
 
-    // 0:00〜5:59 の間は「前日扱い」にする
-    if (now.getHours() < 6) {
-      base.setDate(base.getDate() - 1);
+      // 0:00〜5:59 の間は「前日扱い」にする
+      if (now.getHours() < 6) {
+        base.setDate(base.getDate() - 1);
+      }
+
+      const yy = base.getFullYear();
+      const mm = String(base.getMonth() + 1).padStart(2, '0');
+      const dd = String(base.getDate()).padStart(2, '0');
+      return `${yy}-${mm}-${dd}`; // 例: "2025-11-22"
     }
 
-    const yy = base.getFullYear();
-    const mm = String(base.getMonth() + 1).padStart(2, '0');
-    const dd = String(base.getDate()).padStart(2, '0');
-    return `${yy}-${mm}-${dd}`; // 例: "2025-11-22"
-  }
+    document.addEventListener('DOMContentLoaded', () => {
+      // =============================
+      // 1) チェックリスト Firestore 同期
+      // =============================
+      const checkboxMap = new Map();
 
-  document.addEventListener('DOMContentLoaded', () => {
-    // =============================
-    // 1) チェックリスト Firestore 同期
-    // =============================
-    const checkboxMap = new Map();
-
-    // 各タスクに固定IDをふる（画面の順番で task-0-0 みたいなIDがつく）
-    const taskSections = Array.from(document.querySelectorAll('section.slot'));
-    taskSections.forEach((slotEl, slotIndex) => {
-      const taskLis = slotEl.querySelectorAll('ul.tasks li');
-      taskLis.forEach((li, taskIndex) => {
-        const checkbox = li.querySelector('input[type="checkbox"]');
-        if (!checkbox) return;
-        const id = `task-${slotIndex}-${taskIndex}`;
-        checkbox.dataset.taskId = id;
-        checkboxMap.set(id, checkbox);
+      // 各タスクに固定IDをふる（画面の順番で task-0-0 みたいなIDがつく）
+      const taskSections = Array.from(document.querySelectorAll('section.slot'));
+      taskSections.forEach((slotEl, slotIndex) => {
+        const taskLis = slotEl.querySelectorAll('ul.tasks li');
+        taskLis.forEach((li, taskIndex) => {
+          const checkbox = li.querySelector('input[type="checkbox"]');
+          if (!checkbox) return;
+          const id = `task-${slotIndex}-${taskIndex}`;
+          checkbox.dataset.taskId = id;
+          checkboxMap.set(id, checkbox);
+        });
       });
-    });
 
-    // 1店舗分の状態を保存するドキュメント
-    const taskDocRef = db.collection('tasks').doc('lawson-main');
-    let applyingRemote = false; // Firestoreからの反映中フラグ
+      // 1店舗分の状態を保存するドキュメント
+      const taskDocRef = db.collection('tasks').doc('lawson-main');
+      let applyingRemote = false; // Firestoreからの反映中フラグ
 
-    // 画面 → Firestore へ保存
-    function saveTasksToFirestore() {
-      const checkedIds = [];
-      checkboxMap.forEach((cb, id) => {
-        if (cb.checked) checkedIds.push(id);
-      });
-      const businessKey = getCurrentBusinessKey();
-      taskDocRef.set(
-        { checkedIds, businessKey },
-        { merge: true }
-      );
-    }
-
-    // Firestore → 画面への反映（リアルタイム）
-    taskDocRef.onSnapshot((doc) => {
-      const data = doc.exists ? doc.data() : {};
-      const storedKey = data.businessKey;
-      const currentKey = getCurrentBusinessKey();
-
-      // ▼ 営業日が変わっていたら 6:00 以降のタイミングで全リセット
-      if (storedKey !== currentKey) {
-        // Firestore側も空で上書き
+      // 画面 → Firestore へ保存
+      function saveTasksToFirestore() {
+        const checkedIds = [];
+        checkboxMap.forEach((cb, id) => {
+          if (cb.checked) checkedIds.push(id);
+        });
+        const businessKey = getCurrentBusinessKey();
         taskDocRef.set(
-          { checkedIds: [], businessKey: currentKey },
+          { checkedIds, businessKey },
           { merge: true }
         );
+      }
 
-        // 画面上のチェックも全部外す
+      // Firestore → 画面への反映（リアルタイム）
+      taskDocRef.onSnapshot((doc) => {
+        const data = doc.exists ? doc.data() : {};
+        const storedKey = data.businessKey;
+        const currentKey = getCurrentBusinessKey();
+
+        // ▼ 営業日が変わっていたら 6:00 以降のタイミングで全リセット
+        if (storedKey !== currentKey) {
+          // Firestore側も空で上書き
+          taskDocRef.set(
+            { checkedIds: [], businessKey: currentKey },
+            { merge: true }
+          );
+
+          // 画面上のチェックも全部外す
+          applyingRemote = true;
+          checkboxMap.forEach((cb) => {
+            cb.checked = false;
+          });
+          applyingRemote = false;
+
+          return; // ここで一旦終了（次の snapshot で新しい状態が来る）
+        }
+
+        // ▼ 営業日が同じなら、Firestoreの checkedIds をそのまま反映
+        const checkedIds = new Set(data.checkedIds || []);
         applyingRemote = true;
-        checkboxMap.forEach((cb) => {
-          cb.checked = false;
+        checkboxMap.forEach((cb, id) => {
+          cb.checked = checkedIds.has(id);
         });
         applyingRemote = false;
+      });
 
-        return; // ここで一旦終了（次の snapshot で新しい状態が来る）
+      // チェックが変わったら保存
+      document.body.addEventListener('change', (e) => {
+        const target = e.target;
+        if (!target.matches('input[type="checkbox"][data-task-id]')) return;
+        if (applyingRemote) return; // Firestoreからの反映中なら無視
+        saveTasksToFirestore();
+      });
+
+      // =============================
+      // 2) 引き継ぎメモ Firestore 同期
+      // =============================
+      const logEl = document.getElementById('handover-log');
+      const clearBtn = document.getElementById('handover-clear-btn');
+      const chipButtons = document.querySelectorAll('.handover-chip');
+      const handoverColRef = db.collection('handover');
+
+      // Firestore → 引き継ぎリスト表示（新しい順）
+      function renderHandover(snapshot) {
+        if (!logEl) return;
+        logEl.innerHTML = '';
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const li = document.createElement('li');
+          li.className = 'handover-item';
+
+          const textSpan = document.createElement('span');
+          textSpan.className = 'handover-text';
+          textSpan.textContent = data.text || '';
+
+          const timeSpan = document.createElement('span');
+          timeSpan.className = 'handover-time';
+          timeSpan.textContent = data.timeLabel || '';
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'handover-remove';
+          delBtn.textContent = '✕';
+          delBtn.addEventListener('click', () => {
+            doc.ref.delete();
+          });
+
+          li.appendChild(textSpan);
+          li.appendChild(timeSpan);
+          li.appendChild(delBtn);
+          logEl.appendChild(li);
+        });
       }
 
-      // ▼ 営業日が同じなら、Firestoreの checkedIds をそのまま反映
-      const checkedIds = new Set(data.checkedIds || []);
-      applyingRemote = true;
-      checkboxMap.forEach((cb, id) => {
-        cb.checked = checkedIds.has(id);
-      });
-      applyingRemote = false;
-    });
+      handoverColRef.orderBy('createdAt', 'desc').onSnapshot(renderHandover);
 
-    // チェックが変わったら保存
-    document.body.addEventListener('change', (e) => {
-      const target = e.target;
-      if (!target.matches('input[type="checkbox"][data-task-id]')) return;
-      if (applyingRemote) return; // Firestoreからの反映中なら無視
-      saveTasksToFirestore();
-    });
-
-
-
-
-
-    // =============================
-    // 2) お知らせ（経営者ブログ）表示
-    // =============================
-    const infoListEl = document.getElementById('info-list');
-    const ownerNewsColRef = db.collection('ownerNews');
-
-    function renderOwnerNews(snapshot) {
-      if (!infoListEl) return;
-      infoListEl.innerHTML = '';
-
-      if (snapshot.empty) {
-        const li = document.createElement('li');
-        li.textContent = '現在、経営者からのお知らせはありません。';
-        infoListEl.appendChild(li);
-        return;
+      // 定型文メモを追加（chip をタップしたとき）
+      function addHandover(text) {
+        const now = new Date();
+        const timeLabel = now.toLocaleTimeString('ja-JP', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        handoverColRef.add({
+          text,
+          timeLabel,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
       }
 
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        const li = document.createElement('li');
-
-        const title = data.title || '(タイトルなし)';
-        const body = data.body || '';
-        const ts = data.createdAt ? data.createdAt.toDate() : null;
-
-        const dateLabel = ts
-          ? ts.toLocaleString('ja-JP', {
-              month: '2-digit',
-              day: '2-digit',
-              weekday: 'short',
-              hour: '2-digit',
-              minute: '2-digit'
-            })
-          : '';
-
-        li.innerHTML = `
-          <div style="font-weight:bold; font-size:11px;">
-            ${title}
-            <span style="font-weight:normal; color:#777; font-size:10px;">${dateLabel}</span>
-          </div>
-          <div style="font-size:11px; white-space:pre-wrap; margin-top:2px;">
-            ${body}
-          </div>
-        `;
-        infoListEl.appendChild(li);
+      chipButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const text = btn.dataset.text;
+          if (text) addHandover(text);
+        });
       });
-    }
 
-    // 新しい順に 10件まで表示
-    ownerNewsColRef
-      .orderBy('createdAt', 'desc')
-      .limit(10)
-      .onSnapshot(renderOwnerNews);
+      // 全削除ボタン
+      if (clearBtn) {
+        clearBtn.addEventListener('click', async () => {
+          if (!confirm('引き継ぎメモを全部消しますか？')) return;
+          const snap = await handoverColRef.get();
+          const batch = db.batch();
+          snap.forEach((doc) => batch.delete(doc.ref));
+          await batch.commit();
+        });
+      }
 
+      // =============================
+      // 3) 時間表示
+      // =============================
+      const timeDisplay = document.getElementById('time-display');
 
-
-
-
-
-
-
-
-    
-    // =============================
-    // 2) 引き継ぎメモ Firestore 同期
-    // =============================
-    const logEl = document.getElementById('handover-log');
-    const clearBtn = document.getElementById('handover-clear-btn');
-    const chipButtons = document.querySelectorAll('.handover-chip');
-    const handoverColRef = db.collection('handover');
-
-    // Firestore → 引き継ぎリスト表示（新しい順）
-    function renderHandover(snapshot) {
-      if (!logEl) return;
-      logEl.innerHTML = '';
-      snapshot.forEach((doc) => {
-        const data = doc.data();
-        const li = document.createElement('li');
-        li.className = 'handover-item';
-
-        const textSpan = document.createElement('span');
-        textSpan.className = 'handover-text';
-        textSpan.textContent = data.text || '';
-
-        const timeSpan = document.createElement('span');
-        timeSpan.className = 'handover-time';
-        timeSpan.textContent = data.timeLabel || '';
-
-        const delBtn = document.createElement('button');
-        delBtn.className = 'handover-remove';
-        delBtn.textContent = '✕';
-        delBtn.addEventListener('click', () => {
-          doc.ref.delete();
+      function updateTimeDisplay() {
+        const now = new Date();
+        const jp = now.toLocaleString('ja-JP', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          weekday: 'short',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
         });
 
-        li.appendChild(textSpan);
-        li.appendChild(timeSpan);
-        li.appendChild(delBtn);
-        logEl.appendChild(li);
-      });
-    }
+        // 営業日キー
+        const businessKey = getCurrentBusinessKey();
 
-    handoverColRef.orderBy('createdAt', 'desc').onSnapshot(renderHandover);
+        // 次のリセット時刻計算（毎日6:00）
+        let nextReset = new Date();
+        nextReset.setHours(6, 0, 0, 0);
+        if (now >= nextReset) {
+          // 6時を過ぎてたら翌日の6時
+          nextReset.setDate(nextReset.getDate() + 1);
+        }
 
-    // 定型文メモを追加（chip をタップしたとき）
-    function addHandover(text) {
-      const now = new Date();
-      const timeLabel = now.toLocaleTimeString('ja-JP', {
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-      handoverColRef.add({
-        text,
-        timeLabel,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    }
+        const nextResetStr = nextReset.toLocaleString('ja-JP', {
+          month: '2-digit',
+          day: '2-digit',
+          weekday: 'short',
+          hour: '2-digit',
+          minute: '2-digit'
+        });
 
-    chipButtons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const text = btn.dataset.text;
-        if (text) addHandover(text);
-      });
-    });
-
-    // 全削除ボタン
-    if (clearBtn) {
-      clearBtn.addEventListener('click', async () => {
-        if (!confirm('引き継ぎメモを全部消しますか？')) return;
-        const snap = await handoverColRef.get();
-        const batch = db.batch();
-        snap.forEach((doc) => batch.delete(doc.ref));
-        await batch.commit();
-      });
-    }
-
-    // =============================
-    // 3) 時間表示（現在時刻・営業日キー・次のリセット）
-    // =============================
-    const timeDisplay = document.getElementById('time-display');
-
-    function updateTimeDisplay() {
-      const now = new Date();
-
-      // 現在時刻（日本ローカル）
-      const jp = now.toLocaleString('ja-JP', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        weekday: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-
-      // 営業日キー
-      const businessKey = getCurrentBusinessKey();
-
-      // 次のリセット時刻（毎日 6:00）
-      let nextReset = new Date();
-      nextReset.setHours(6, 0, 0, 0);
-      if (now >= nextReset) {
-        // 6時を過ぎていたら翌日の6時
-        nextReset.setDate(nextReset.getDate() + 1);
+        if (timeDisplay) {
+          timeDisplay.innerHTML = `
+            <div><strong>現在時刻：</strong> ${jp}</div>
+            <div><strong>今日の営業日：</strong> ${businessKey}（6:00切替）</div>
+            <div><strong>次のリセット：</strong> ${nextResetStr}</div>
+          `;
+        }
       }
-      const nextResetStr = nextReset.toLocaleString('ja-JP', {
-        month: '2-digit',
-        day: '2-digit',
-        weekday: 'short',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
 
       if (timeDisplay) {
-        timeDisplay.innerHTML = `
-          <div><strong>現在時刻：</strong> ${jp}</div>
-          <div><strong>今日の営業日：</strong> ${businessKey}（6:00切替）</div>
-          <div><strong>次のリセット：</strong> ${nextResetStr}</div>
-        `;
+        updateTimeDisplay();
+        setInterval(updateTimeDisplay, 1000);
       }
-    }
 
-    // 1秒ごとに更新
-    updateTimeDisplay();
-    setInterval(updateTimeDisplay, 1000);
-  });
-</script>
+      // =============================
+      // 4) 経営者お知らせの表示（noticesコレクション）
+      // =============================
+      const noticeList = document.getElementById('notice-list');
+      if (noticeList) {
+        const noticesRef = db.collection('notices');
+        noticesRef
+          .orderBy('createdAt', 'desc')
+          .limit(5)
+          .onSnapshot((snapshot) => {
+            noticeList.innerHTML = '';
+
+            if (snapshot.empty) {
+              const li = document.createElement('li');
+              li.textContent = '現在、経営者からのお知らせはありません。';
+              noticeList.appendChild(li);
+              return;
+            }
+
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              const li = document.createElement('li');
+
+              const title = data.title || '無題';
+              const body = data.body || '';
+              let timeLabel = '';
+
+              if (data.createdAt && data.createdAt.toDate) {
+                const dt = data.createdAt.toDate();
+                timeLabel = dt.toLocaleString('ja-JP', {
+                  month: '2-digit',
+                  day: '2-digit',
+                  weekday: 'short',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                });
+              }
+
+              li.innerHTML =
+                `<strong>${title}</strong>` +
+                (timeLabel
+                  ? `　<span style="font-size:10px;color:#888;">${timeLabel}</span>`
+                  : '') +
+                `<br>${body}`;
+              noticeList.appendChild(li);
+            });
+          });
+      }
+    });
+  </script>
+
 
 
 
