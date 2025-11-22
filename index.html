@@ -1138,13 +1138,14 @@
 const currentBusinessKey = getCurrentBusinessKey();
 
 handoverColRef
-  .where('businessKey', '==', currentBusinessKey) // ★ 当日分だけ
+  .where('businessKey', '==', currentBusinessKey)
+  .where('slotId', '==', slotId)
   .orderBy('createdAt', 'desc')
-  .limit(50) // 念のため上限
+  .limit(50)
   .onSnapshot((snapshot) => {
-    // snapshot 全体から、この slotId のものだけ表示
     renderHandoverForSlot(snapshot, logEl, slotId);
   });
+
 
 
         function addHandoverForSlot(text) {
