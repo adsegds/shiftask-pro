@@ -2,15 +2,30 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>南部町ローソン 業務チェック</title>
+  <title>南部町ローソン 業務チェックリスト</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* ベースフォント（小＝今のサイズ相当） */
+    --font-small: 11px;
+    --font-medium: 13px;
+    --font-large: 15px;
+  }
+
   body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background: #f5f5f5;
     color: #111;
     line-height: 1.6;
+    font-size: var(--font-small);  /* デフォルト：小 */
+  }
+  body.font-medium {
+    font-size: var(--font-medium);
+  }
+  body.font-large {
+    font-size: var(--font-large);
   }
 
   /* 幅広め */
@@ -29,11 +44,11 @@
     padding: 10px 14px;
   }
   header h1 {
-    font-size: 16px;
+    font-size: 1.45em; /* 元16px */
     font-weight: 600;
   }
   header p {
-    font-size: 11px;
+    font-size: 1em; /* 元11px */
     opacity: 0.85;
     margin-top: 2px;
   }
@@ -51,7 +66,7 @@
   .nav a {
     flex: 0 0 auto;
     padding: 4px 8px;
-    font-size: 11px;
+    font-size: 1em; /* 元11px */
     border-radius: 999px;
     border: 1px solid #555;
     color: #eee;
@@ -61,6 +76,32 @@
   .nav a:hover {
     background: #fff;
     color: #111;
+  }
+
+  /* 文字サイズ切り替え */
+  .font-size-selector {
+    display: flex;
+    gap: 6px;
+    padding: 6px 10px 4px;
+    background: #111;
+    border-top: 1px solid #333;
+  }
+  .font-size-selector button {
+    padding: 3px 10px;
+    font-size: 0.95em;
+    background: #222;
+    border: 1px solid #555;
+    border-radius: 999px;
+    color: #eee;
+    cursor: pointer;
+  }
+  .font-size-selector button:hover {
+    background: #444;
+  }
+  .font-size-selector button.active {
+    background: #fff;
+    color: #111;
+    border-color: #fff;
   }
 
   main { padding: 10px 12px 20px; }
@@ -82,11 +123,11 @@
     padding-bottom: 4px;
   }
   .slot-title {
-    font-size: 14px;
+    font-size: 1.27em; /* 元14px */
     font-weight: 600;
   }
   .slot-note {
-    font-size: 10px;
+    font-size: 0.9em; /* 元10px */
     color: #666;
   }
 
@@ -94,14 +135,14 @@
     margin-top: 6px;
   }
   .tasks-group h3 {
-    font-size: 12px;
+    font-size: 1.1em; /* 元12px */
     display: inline-flex;
     align-items: center;
     gap: 4px;
     margin-bottom: 4px;
   }
   .badge {
-    font-size: 10px;
+    font-size: 0.9em; /* 元10px */
     padding: 1px 6px;
     border-radius: 999px;
   }
@@ -129,7 +170,7 @@
     display: flex;
     align-items: flex-start;
     gap: 6px;
-    font-size: 11px;
+    font-size: 1em; /* 元11px */
     padding: 2px 0;
   }
   .task-item input[type="checkbox"] {
@@ -140,7 +181,7 @@
   }
 
   .footer-note {
-    font-size: 10px;
+    font-size: 0.9em; /* 元10px */
     color: #666;
     padding: 6px 4px 20px;
     text-align: center;
@@ -150,7 +191,7 @@
 
   .info-list {
     list-style: none;
-    font-size: 11px;
+    font-size: 1em; /* 元11px */
     padding-left: 4px;
   }
   .info-list li {
@@ -161,12 +202,12 @@
     margin-top: 4px;
   }
   .handover-title {
-    font-size: 13px;
+    font-size: 1.18em; /* 元13px */
     font-weight: 600;
     margin-bottom: 4px;
   }
   .handover-note {
-    font-size: 10px;
+    font-size: 0.9em; /* 元10px */
     color: #666;
     margin-bottom: 4px;
   }
@@ -181,7 +222,7 @@
     border: 1px solid #ccc;
     border-radius: 999px;
     padding: 3px 8px;
-    font-size: 10px;
+    font-size: 0.9em; /* 元10px */
     background: #fafafa;
     cursor: pointer;
   }
@@ -191,7 +232,7 @@
 
   .handover-log {
     list-style: none;
-    font-size: 11px;
+    font-size: 1em; /* 元11px */
     border-top: 1px dashed #ddd;
     padding-top: 4px;
   }
@@ -206,14 +247,14 @@
     margin-right: 6px;
   }
   .handover-time {
-    font-size: 10px;
+    font-size: 0.9em; /* 元10px */
     color: #666;
     margin-right: 4px;
   }
   .handover-remove {
     border: none;
     background: transparent;
-    font-size: 12px;
+    font-size: 1.1em;
     cursor: pointer;
     color: #999;
   }
@@ -230,43 +271,12 @@
     background: #eee;
     border-radius: 999px;
     padding: 2px 8px;
-    font-size: 10px;
+    font-size: 0.9em; /* 元10px */
     cursor: pointer;
   }
-
-  /* ★★ フォントサイズ切り替えボタン */
-  .font-size-selector {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    margin-top: 6px;
-  }
-  .font-size-selector button {
-    border-radius: 999px;
-    border: 1px solid #666;
-    padding: 2px 10px;
-    font-size: 11px;
-    background: #111;
-    color: #eee;
-    cursor: pointer;
-    opacity: 0.7;
-  }
-  .font-size-selector button.active {
-    background: #fff;
-    color: #111;
-    opacity: 1;
-  }
-
-  /* ★★ ベースフォント倍率（body 全体に影響させる） */
-  body.font-small  { font-size: 13px; }
-  body.font-medium { font-size: 15px; }
-  body.font-large  { font-size: 17px; }
-
-  /* 既存の px 指定はそのままでも、行間や余白が少し広くなって見やすくなる想定 */
   </style>
 </head>
-<body class="font-small"><!-- デフォルト＝小 -->
-
+<body>
   <div class="app">
     <header>
       <h1>南部町ローソン 業務チェック</h1>
@@ -282,9 +292,9 @@
         <a href="#t3-5">3〜5時</a>
       </nav>
 
-      <!-- ★★ フォントサイズ切り替え -->
+      <!-- 🔤 文字サイズ切り替え -->
       <div class="font-size-selector">
-        <button data-size="small"  class="active">小</button>
+        <button data-size="small">小</button>
         <button data-size="medium">中</button>
         <button data-size="large">大</button>
       </div>
@@ -292,7 +302,7 @@
 
     <main>
       <!-- 現在時刻表示 -->
-      <div id="time-display" style="padding: 10px; font-size: 14px; color: #333;">
+      <div id="time-display" style="padding: 10px; color: #333;">
         時刻を読み込み中…
       </div>
 
@@ -311,12 +321,483 @@
       </section>
 
       <!-- 6〜8時 -->
-      <!-- （以下、あなたが貼ってくれたタスク部分はそのままなので省略…） -->
-      <!-- ・・・中略・・・ -->
-      <!-- 3〜5時まで全部一緒 -->
+      <section id="t6-8" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">6:00〜8:00</div>
+          <div class="slot-note">朝の立ち上げ</div>
+        </div>
 
-      <!-- ここまでタスク＆引き継ぎセクションは元のままコピペしてください -->
-      <!-- 省略した部分は、あなたのファイルのタスク定義をそのまま入れてね -->
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span> 絶対にやる</h3>
+          <ul class="tasks a">
+            <li>
+              <label class="task-item">
+                <input type="checkbox">
+                <span class="task-text">CDC納品・片づけ（2便）</span>
+              </label>
+            </li>
+            <li>
+              <label class="task-item">
+                <input type="checkbox">
+                <span class="task-text">ベーカリー納品・片づけ（2便）</span>
+              </label>
+            </li>
+            <li>
+              <label class="task-item">
+                <input type="checkbox">
+                <span class="task-text">コーヒーマシン清掃（本体・コンディメント什器・周辺）</span>
+              </label>
+            </li>
+            <li>
+              <label class="task-item">
+                <input type="checkbox">
+                <span class="task-text">トイレ点検</span>
+              </label>
+            </li>
+            <li>
+              <label class="task-item">
+                <input type="checkbox">
+                <span class="task-text">ポットのお湯確認</span>
+              </label>
+            </li>
+            <li>
+              <label class="task-item">
+                <input type="checkbox">
+                <span class="task-text">店内・店頭ゴミ袋の点検・交換</span>
+              </label>
+            </li>
+            <li>
+              <label class="task-item">
+                <input type="checkbox">
+                <span class="task-text">温度チェック</span>
+              </label>
+            </li>
+          </ul>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span> 手が空いたら</h3>
+          <ul class="tasks b">
+            <li>
+              <label class="task-item">
+                <input type="checkbox">
+                <span class="task-text">店内・店頭ゴミ箱の清掃</span>
+              </label>
+            </li>
+            <li>
+              <label class="task-item">
+                <input type="checkbox">
+                <span class="task-text">サービスコーナー（Loppi・ATM・コピー機）・イートイン清掃</span>
+              </label>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ★ 6〜8時のあとに 引き継ぎメモ ★ -->
+      <section class="slot handover-slot" data-slot="t6-8">
+        <div class="slot-header">
+          <div class="slot-title">引き継ぎメモ（全員で共有）</div>
+          <div class="slot-note">時間帯をまたぐ時の共有メモ</div>
+        </div>
+
+        <div class="handover">
+          <p class="handover-note">
+            文章を書くのがだるい人向け。下のボタンをタップするとメモに追加されます。
+          </p>
+          <div class="handover-chips"></div>
+          <ul class="handover-log"></ul>
+          <div class="handover-clear">
+            <button type="button" class="handover-clear-btn">メモを全部消す</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 9〜11時 -->
+      <section id="t9-11" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">9:00〜11:00</div>
+          <div class="slot-note">午前帯</div>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span></h3>
+          <ul class="tasks a">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ点検</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">12時締め発注</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">床清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">プライスカード取り付け</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ポットのお湯確認</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">レジ点検（現金・金券）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">コーヒーマシン清掃（本体・コンディメント・周辺）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店舗周辺の清掃</span></label></li>
+          </ul>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span></h3>
+          <ul class="tasks b">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店内・店頭ゴミ袋の点検・交換</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">消耗品発注（必要あれば）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">FF・厨房原料 使用期限チェック</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">灰皿清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">前陳（ソフトドリンク・冷蔵酒・菓子・即席麺）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">床清掃（2回目）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">品出し（ソフトドリンク・冷蔵酒）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">補充（たばこ）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">FF販売許容確認・廃棄</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ホット/常温FF作成（昼）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">マチカフェ販売準備（アイスカップ補充など）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ清掃（1日1回）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">隙あらば前陳（米飯・オープンケース・デザート・ベーカリー）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">月曜のみ：新商品販促物設置</span></label></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 9〜11時後の引き継ぎメモ -->
+      <section class="slot handover-slot" data-slot="t9-11">
+        <div class="slot-header">
+          <div class="slot-title">引き継ぎメモ（全員で共有）</div>
+          <div class="slot-note">時間帯をまたぐ時の共有メモ</div>
+        </div>
+
+        <div class="handover">
+          <p class="handover-note">
+            文章を書くのがだるい人向け。下のボタンをタップするとメモに追加されます。
+          </p>
+          <div class="handover-chips"></div>
+          <ul class="handover-log"></ul>
+          <div class="handover-clear">
+            <button type="button" class="handover-clear-btn">メモを全部消す</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 12〜14時 -->
+      <section id="t12-14" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">12:00〜14:00</div>
+          <div class="slot-note">昼帯</div>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span></h3>
+          <ul class="tasks a">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">CDC納品・片づけ（3便）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">前陳（ソフトドリンク・冷蔵酒、菓子・即席麺）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ポットのお湯確認</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">14時オープンケース廃棄（米飯・調理パン・ベーカリー）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">廃棄登録</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">コーヒーマシン清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ清掃（1日1回）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">伝票整理</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">送金</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">灰皿清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">補充（ホットドリンク）</span></label></li>
+          </ul>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span></h3>
+          <ul class="tasks b">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">隙あらば前陳（米飯・オープンケース・デザート・ベーカリー）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">品出し（菓子・即席麺・ドリンク剤・アイス・冷凍食品）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店内・店頭ゴミ箱の清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">床清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ダスタークロスがけ</span></label></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 12〜14時後の引き継ぎメモ -->
+      <section class="slot handover-slot" data-slot="t12-14">
+        <div class="slot-header">
+          <div class="slot-title">引き継ぎメモ（全員で共有）</div>
+          <div class="slot-note">時間帯をまたぐ時の共有メモ</div>
+        </div>
+
+        <div class="handover">
+          <p class="handover-note">
+            文章を書くのがだるい人向け。下のボタンをタップするとメモに追加されます。
+          </p>
+          <div class="handover-chips"></div>
+          <ul class="handover-log"></ul>
+          <div class="handover-clear">
+            <button type="button" class="handover-clear-btn">メモを全部消す</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 15〜17時 -->
+      <section id="t15-17" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">15:00〜17:00</div>
+          <div class="slot-note">夕方前</div>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span></h3>
+          <ul class="tasks a">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">隙あらば前陳（米飯・オープンケース・デザート・ベーカリー）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">前陳（アイス・冷凍食品、ソフトドリンク・冷蔵酒、菓子・即席麺）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">補充（たばこ）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">FF販売許容確認・廃棄</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ホット・常温FF作成（夕）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ点検</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店舗周辺の清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">温度チェック</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">たばこ納品・片づけ</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">中華まん作成（昼）</span></label></li>
+          </ul>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span></h3>
+          <ul class="tasks b">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">レジ点検</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ダスタークロスがけ</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">入口ドア拭き上げ</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">月曜のみ：販促物設置</span></label></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 15〜17時後の引き継ぎメモ -->
+      <section class="slot handover-slot" data-slot="t15-17">
+        <div class="slot-header">
+          <div class="slot-title">引き継ぎメモ（全員で共有）</div>
+          <div class="slot-note">時間帯をまたぐ時の共有メモ</div>
+        </div>
+
+        <div class="handover">
+          <p class="handover-note">
+            文章を書くのがだるい人向け。下のボタンをタップするとメモに追加されます。
+          </p>
+          <div class="handover-chips"></div>
+          <ul class="handover-log"></ul>
+          <div class="handover-clear">
+            <button type="button" class="handover-clear-btn">メモを全部消す</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 18〜20時 -->
+      <section id="t18-20" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">18:00〜20:00</div>
+          <div class="slot-note">夕方〜夜</div>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span></h3>
+          <ul class="tasks a">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店内・店頭ゴミ袋の点検・交換</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ清掃（1日1回）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">前陳（菓子・即席麺、ソフトドリンク・冷蔵酒）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ点検</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店舗周辺の清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">コーヒーマシン清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">油の酸価度チェック</span></label></li>
+          </ul>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span></h3>
+          <ul class="tasks b">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">雑誌・書籍メンテ</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">夕刊返品</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ホット・常温FF作成（夜）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">製氷機清掃（水・土）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">棚清掃（日用品1台）（水・土）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">床清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ダスタークロスがけ</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">返本</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店頭（軒下・ガラス面）清掃（水・土）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店内・店頭ゴミ箱清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">20時オープンケース廃棄（長鮮度おにぎり・長鮮手巻）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店外/店内マット清掃（水・土）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">冷凍機器清掃（水）</span></label></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 18〜20時後の引き継ぎメモ -->
+      <section class="slot handover-slot" data-slot="t18-20">
+        <div class="slot-header">
+          <div class="slot-title">引き継ぎメモ（全員で共有）</div>
+          <div class="slot-note">時間帯をまたぐ時の共有メモ</div>
+        </div>
+
+        <div class="handover">
+          <p class="handover-note">
+            文章を書くのがだるい人向け。下のボタンをタップするとメモに追加されます。
+          </p>
+          <div class="handover-chips"></div>
+          <ul class="handover-log"></ul>
+          <div class="handover-clear">
+            <button type="button" class="handover-clear-btn">メモを全部消す</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 21〜23時 -->
+      <section id="t21-23" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">21:00〜23:00</div>
+          <div class="slot-note">夜帯</div>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span></h3>
+          <ul class="tasks a">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">補充（たばこ）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">DDC納品・片づけ（※水・土はDDC無し → 掃除の日）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">22時オープンケース廃棄（米飯・調理パン・チルド弁当・調理麺…）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">マチカフェ販売準備（アイスカップ）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ点検</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">灰皿清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">温度チェック</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ点検（再）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">0時オープンケース廃棄（次時間帯へ）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ホットドリンク販売許容確認・廃棄</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">廃棄登録</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">コーヒーマシン清掃（本体クリーニング）</span></label></li>
+          </ul>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span></h3>
+          <ul class="tasks b">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店内販促物設置（新商品納品日でない日）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ清掃（1日1回）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">平場販売許容確認・廃棄</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">フィルター・吸込口・換気扇清掃（水・土）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">フライヤー清掃・油交換（水・土）</span></label></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 21〜23時後の引き継ぎメモ -->
+      <section class="slot handover-slot" data-slot="t21-23">
+        <div class="slot-header">
+          <div class="slot-title">引き継ぎメモ（全員で共有）</div>
+          <div class="slot-note">時間帯をまたぐ時の共有メモ</div>
+        </div>
+
+        <div class="handover">
+          <p class="handover-note">
+            文章を書くのがだるい人向け。下のボタンをタップするとメモに追加されます。
+          </p>
+          <div class="handover-chips"></div>
+          <ul class="handover-log"></ul>
+          <div class="handover-clear">
+            <button type="button" class="handover-clear-btn">メモを全部消す</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 0〜2時 -->
+      <section id="t0-2" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">0:00〜2:00</div>
+          <div class="slot-note">深夜前半</div>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span></h3>
+          <ul class="tasks a">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">FDC納品・片づけ</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">温度チェック</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">検収印日付変更</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">精算</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">コピー機精算・用紙補充（入金含む）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">雑誌納品・片づけ</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">FF什器清掃（中華まん）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">FF販売許容確認・廃棄</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ホットドリンク販売許容確認・廃棄</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">1時オープンケース廃棄（米飯・調理パン）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">平場販売許容確認・廃棄</span></label></li>
+          </ul>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span></h3>
+          <ul class="tasks b">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">カウンター清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">深夜時間帯の紙幣確認・調整</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">レジ・カウンター周辺清掃</span></label></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 0〜2時後の引き継ぎメモ -->
+      <section class="slot handover-slot" data-slot="t0-2">
+        <div class="slot-header">
+          <div class="slot-title">引き継ぎメモ（全員で共有）</div>
+          <div class="slot-note">時間帯をまたぐ時の共有メモ</div>
+        </div>
+
+        <div class="handover">
+          <p class="handover-note">
+            文章を書くのがだるい人向け。下のボタンをタップするとメモに追加されます。
+          </p>
+          <div class="handover-chips"></div>
+          <ul class="handover-log"></ul>
+          <div class="handover-clear">
+            <button type="button" class="handover-clear-btn">メモを全部消す</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3〜5時 -->
+      <section id="t3-5" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">3:00〜5:00</div>
+          <div class="slot-note">早朝</div>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span></h3>
+          <ul class="tasks a">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">朝刊納品・片づけ</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">品出し（全商品）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">品出し（チルド飲料）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">棚滑り掃除（1台）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ホット・常温FF作成（朝）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">中華まん作成（朝）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">CDC納品・片づけ（2便）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">4時オープンケース廃棄（米飯・長鮮手巻・チルド弁当…）</span></label></li>
+          </ul>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span></h3>
+          <ul class="tasks b">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">余裕があれば：前陳・清掃を追加</span></label></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 3〜5時後の引き継ぎメモ -->
+      <section class="slot handover-slot" data-slot="t3-5">
+        <div class="slot-header">
+          <div class="slot-title">引き継ぎメモ（全員で共有）</div>
+          <div class="slot-note">時間帯をまたぐ時の共有メモ</div>
+        </div>
+
+        <div class="handover">
+          <p class="handover-note">
+            文章を書くのがだるい人向け。下のボタンをタップするとメモに追加されます。
+          </p>
+          <div class="handover-chips"></div>
+          <ul class="handover-log"></ul>
+          <div class="handover-clear">
+            <button type="button" class="handover-clear-btn">メモを全部消す</button>
+          </div>
+        </div>
+      </section>
+
     </main>
 
     <div class="footer-note">
@@ -345,10 +826,6 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // ★★ この端末のラベル（PCごとに変えてOK）
-    //    例）"レジ前PC" / "事務所PC" / "レジ横タブレット"
-    const DEVICE_LABEL = "レジ前PC";
-
     // =============================
     // 営業日キー計算（6:00切り替え）
     // =============================
@@ -369,20 +846,6 @@
       const mm = String(base.getMonth() + 1).padStart(2, '0');
       const dd = String(base.getDate()).padStart(2, '0');
       return `${yy}-${mm}-${dd}`; // 例: "2025-11-22"
-    }
-
-    // ★★ 今がどの時間帯スロットかを返す
-    function getCurrentSlotId() {
-      const h = new Date().getHours();
-      if (h >= 6 && h < 9)   return "t6-8";
-      if (h >= 9 && h < 12)  return "t9-11";
-      if (h >= 12 && h < 15) return "t12-14";
-      if (h >= 15 && h < 18) return "t15-17";
-      if (h >= 18 && h < 21) return "t18-20";
-      if (h >= 21)           return "t21-23";
-      if (h >= 0 && h < 3)   return "t0-2";
-      if (h >= 3 && h < 6)   return "t3-5";
-      return null;
     }
 
     /****************************************************
@@ -413,46 +876,43 @@
     }
 
     function on6amReset() {
+      // businessKey や handover の listener を全部切り替えるには
+      // 再読み込みが一番安全＆シンプル
       location.reload();
-    }
-
-    // ★★ この端末・この営業日・この時間帯スロットで
-    //    まだ attendance が無ければ 1件だけ登録する
-    async function recordAttendanceOncePerSlot() {
-      const businessKey = getCurrentBusinessKey();
-      const slotId = getCurrentSlotId();
-      if (!slotId) return;
-
-      try {
-        const ref = db.collection("attendance");
-
-        const snap = await ref
-          .where("businessKey", "==", businessKey)
-          .where("slotId", "==", slotId)
-          .where("device", "==", DEVICE_LABEL)
-          .limit(1)
-          .get();
-
-        if (snap.empty) {
-          await ref.add({
-            businessKey,
-            slotId,
-            device: DEVICE_LABEL,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-          console.log("出勤ログを追加しました:", businessKey, slotId, DEVICE_LABEL);
-        } else {
-          console.log("すでに出勤ログあり:", businessKey, slotId, DEVICE_LABEL);
-        }
-      } catch (e) {
-        console.error("attendance 登録エラー", e);
-      }
     }
 
     // =============================
     // DOM 準備できたらセットアップ
     // =============================
     document.addEventListener('DOMContentLoaded', () => {
+
+      // 🔤 文字サイズ：ボタンと保存処理
+      const sizeButtons = document.querySelectorAll('.font-size-selector button');
+
+      function applyFontSize(size) {
+        document.body.classList.remove('font-medium', 'font-large');
+        if (size === 'medium') {
+          document.body.classList.add('font-medium');
+        } else if (size === 'large') {
+          document.body.classList.add('font-large');
+        }
+        // ボタンの active 切り替え
+        sizeButtons.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.size === size);
+        });
+        localStorage.setItem('fontSizeSetting', size);
+      }
+
+      sizeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const size = btn.dataset.size || 'small';
+          applyFontSize(size);
+        });
+      });
+
+      // 前回設定を反映（なければ small）
+      const savedSize = localStorage.getItem('fontSizeSetting') || 'small';
+      applyFontSize(savedSize);
 
       // 🔥 朝6:00 自動リセット開始
       setupDailyResetAt6AM();
@@ -502,27 +962,17 @@
       updateTimeDisplay();
       setInterval(updateTimeDisplay, 1000);
 
-      // ★★ フォントサイズ切り替え
-      const sizeButtons = document.querySelectorAll('.font-size-selector button');
-      sizeButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-          const size = btn.dataset.size;
-          document.body.classList.remove('font-small', 'font-medium', 'font-large');
-          document.body.classList.add(`font-${size}`);
-          sizeButtons.forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-        });
-      });
-
       // --------------------------------
       // 1) タスク定義（taskSlots）からチェックリストを生成
       // --------------------------------
       const timeSlotIds = ['t6-8', 't9-11', 't12-14', 't15-17', 't18-20', 't21-23', 't0-2', 't3-5'];
-      const checkboxMap = new Map();
-      let latestCheckedIds = new Set();
+      const checkboxMap = new Map();        // taskId -> checkbox
+      let latestCheckedIds = new Set();     // Firestore から来たチェック済みID
       const taskDocRef = db.collection('tasks').doc('lawson-main');
       let applyingRemote = false;
 
+      // taskId の付け方：
+      //   例）"t6-8-A-0" ＝ 6〜8時の A グループ 0番目
       function buildTasksFromDefinition(slotId, ul, tasks, groupLabel) {
         ul.innerHTML = '';
         tasks.forEach((text, index) => {
@@ -541,6 +991,7 @@
           cb.dataset.taskId = taskId;
           checkboxMap.set(taskId, cb);
 
+          // 既に Firestore から状態が来ていたら反映
           cb.checked = latestCheckedIds.has(taskId);
 
           ul.appendChild(li);
@@ -569,6 +1020,8 @@
                 buildTasksFromDefinition(slotId, ulA, tasksA, 'A');
                 buildTasksFromDefinition(slotId, ulB, tasksB, 'B');
               } else {
+                // Firestore に定義が無いとき：
+                // いま HTML に書かれている li から taskId を振る
                 const setupFromExisting = (ul, groupLabel) => {
                   const lis = ul.querySelectorAll('li');
                   lis.forEach((li, index) => {
@@ -611,6 +1064,7 @@
         const currentKey = getCurrentBusinessKey();
 
         if (storedKey !== currentKey) {
+          // 日付が変わっていたらリセット
           taskDocRef.set(
             { checkedIds: [], businessKey: currentKey },
             { merge: true }
@@ -634,10 +1088,11 @@
         saveTasksToFirestore();
       });
 
+      // 先にタスク定義をロード（チェック状態は onSnapshot で後から追従）
       loadTaskDefinitions();
 
       // --------------------------------
-      // 3) 引き継ぎメモ
+      // 3) 引き継ぎメモ（時間帯ごと）
       // --------------------------------
       const handoverSlots  = document.querySelectorAll('.handover-slot');
       const handoverColRef = db.collection('handover');
@@ -650,7 +1105,7 @@
         if (snapshot.empty) {
           const li = document.createElement('li');
           li.textContent = 'まだ引き継ぎメモはありません。';
-          li.style.fontSize = '10px';
+          li.style.fontSize = '0.9em';
           li.style.color = '#999';
           logEl.appendChild(li);
           return;
@@ -661,6 +1116,7 @@
           docs.push(doc);
         });
 
+        // createdAt で降順ソート（新しい順）
         docs.sort((a, b) => {
           const da = a.data().createdAt ? a.data().createdAt.toMillis() : 0;
           const db = b.data().createdAt ? b.data().createdAt.toMillis() : 0;
@@ -703,6 +1159,7 @@
         const clearBtn = slotEl.querySelector('.handover-clear-btn');
         const chipsArea = slotEl.querySelector('.handover-chips');
 
+        // この時間帯専用の listener（businessKey は作成時点のキー）
         handoverColRef
           .where('businessKey', '==', getCurrentBusinessKey())
           .where('slotId', '==', slotId)
@@ -710,6 +1167,7 @@
             renderHandoverForSlot(snapshot, logEl, slotId);
           });
 
+        // このスロット用にメモを追加する関数
         function addHandoverForSlot(text) {
           const now = new Date();
           const timeLabel = now.toLocaleTimeString('ja-JP', {
@@ -717,7 +1175,7 @@
             minute: '2-digit'
           });
 
-          const businessKey = getCurrentBusinessKey();
+          const businessKey = getCurrentBusinessKey(); // 今日の営業日キー
 
           handoverColRef.add({
             text,
@@ -728,6 +1186,7 @@
           });
         }
 
+        // 🔥 handoverTemplates/global から定型文チップを読み込んで、この時間帯に貼る
         if (chipsArea) {
           db.collection("handoverTemplates")
             .doc("global")
@@ -756,12 +1215,14 @@
             });
         }
 
+        // 「メモを全部消す」ボタン
         if (clearBtn) {
           clearBtn.addEventListener('click', async () => {
             if (!confirm('この時間帯の引き継ぎメモを全部消しますか？')) return;
 
             const businessKey = getCurrentBusinessKey();
 
+            // この時間帯（slotId）＋今日の営業日（businessKey）だけ取得
             const snap = await handoverColRef
               .where('slotId', '==', slotId)
               .where('businessKey', '==', businessKey)
@@ -822,9 +1283,6 @@
             }
           );
       }
-
-      // 🔥 ページを開いた＝出勤ログ（今日＋この時間帯＋この端末）を1回だけ記録
-      recordAttendanceOncePerSlot();
     });
   </script>
 
