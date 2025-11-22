@@ -1135,16 +1135,13 @@
         const chipButtons = slotEl.querySelectorAll('.handover-chip');
 
         // この時間帯専用の listener
-const currentBusinessKey = getCurrentBusinessKey();
-
 handoverColRef
-  .where('businessKey', '==', currentBusinessKey)
+  .where('businessKey', '==', getCurrentBusinessKey())
   .where('slotId', '==', slotId)
-  .orderBy('createdAt', 'desc')
-  .limit(50)
   .onSnapshot((snapshot) => {
     renderHandoverForSlot(snapshot, logEl, slotId);
   });
+
 
 
 
