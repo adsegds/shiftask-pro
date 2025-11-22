@@ -75,8 +75,6 @@
       background: #eee;
       color: #666;
       margin-left: 4px;
-      min-width: 16px;
-      text-align: center;
     }
 
     .sidebar-nav button:hover {
@@ -118,12 +116,8 @@
       color: #666;
     }
 
-    .view-panel {
-      display: none;
-    }
-    .view-panel.active {
-      display: block;
-    }
+    .view-panel { display: none; }
+    .view-panel.active { display: block; }
 
     .card {
       background: #fff;
@@ -150,9 +144,9 @@
     }
 
     input[type="text"],
+    input[type="date"],
     textarea,
-    select,
-    input[type="date"] {
+    select {
       width: 100%;
       font-family: inherit;
       font-size: 13px;
@@ -160,7 +154,6 @@
       border-radius: 8px;
       border: 1px solid #ccc;
       outline: none;
-      background: #fff;
     }
     textarea {
       min-height: 80px;
@@ -168,9 +161,9 @@
       line-height: 1.5;
     }
     input[type="text"]:focus,
+    input[type="date"]:focus,
     textarea:focus,
-    select:focus,
-    input[type="date"]:focus {
+    select:focus {
       border-color: #111;
     }
 
@@ -180,15 +173,13 @@
       background: #fff;
     }
 
-    /* A/Bタスクのtextareaは縦長にする */
+    /* A/Bタスク textareaを縦長に */
     #tasksAInput,
     #tasksBInput {
       min-height: 220px;
     }
 
-    .row {
-      margin-bottom: 10px;
-    }
+    .row { margin-bottom: 10px; }
 
     .hint {
       font-size: 11px;
@@ -230,12 +221,8 @@
       min-height: 18px;
       margin-top: 2px;
     }
-    .status.ok {
-      color: #007700;
-    }
-    .status.err {
-      color: #cc0000;
-    }
+    .status.ok { color: #007700; }
+    .status.err { color: #cc0000; }
 
     hr {
       border: none;
@@ -257,16 +244,9 @@
       display: flex;
       gap: 8px;
     }
-    .news-main {
-      flex: 1;
-    }
-    .news-title {
-      font-weight: 600;
-      margin-bottom: 2px;
-    }
-    .news-body {
-      font-size: 12px;
-    }
+    .news-main { flex: 1; }
+    .news-title { font-weight: 600; margin-bottom: 2px; }
+    .news-body { font-size: 12px; }
     .news-meta {
       font-size: 10px;
       color: #888;
@@ -306,48 +286,41 @@
       white-space: nowrap;
     }
 
-    /* ===== スタッフログ ===== */
+    /* スタッフログ table */
     .log-filters {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      align-items: center;
-      margin-top: 8px;
-      font-size: 12px;
+      align-items: flex-end;
+      margin-bottom: 10px;
     }
-    .log-filters label {
-      font-size: 12px;
-      font-weight: 500;
-      margin-bottom: 0;
-    }
-    .log-filters input[type="date"],
-    .log-filters input[type="text"] {
-      width: auto;
+    .log-filters .field {
+      min-width: 160px;
+      max-width: 220px;
+      flex: 1;
     }
 
-    .log-table-wrapper {
-      margin-top: 10px;
-      max-height: 70vh;
-      overflow: auto;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-    }
-    .log-table {
+    table.log-table {
       width: 100%;
       border-collapse: collapse;
       font-size: 12px;
+      margin-top: 4px;
     }
     .log-table th,
     .log-table td {
-      padding: 6px 8px;
       border-bottom: 1px solid #eee;
+      padding: 4px 6px;
+      text-align: left;
+      vertical-align: top;
     }
     .log-table th {
-      background: #f5f5f5;
-      position: sticky;
-      top: 0;
-      z-index: 1;
+      background: #fafafa;
+      font-weight: 600;
+    }
+    .log-empty {
+      font-size: 12px;
+      color: #777;
+      margin-top: 6px;
     }
 
     @media (max-width: 900px) {
@@ -360,18 +333,14 @@
         align-items: center;
         position: static;
       }
-      .sidebar-header {
-        flex: 1;
-      }
+      .sidebar-header { flex: 1; }
       .sidebar-nav {
         flex-direction: row;
         flex-wrap: wrap;
         gap: 4px;
         justify-content: flex-end;
       }
-      .sidebar-footer {
-        display: none;
-      }
+      .sidebar-footer { display: none; }
     }
   </style>
 </head>
@@ -399,7 +368,7 @@
         </button>
         <button type="button" data-view="logs">
           <span class="label">スタッフログ</span>
-          <span class="badge" id="logBadge">0</span>
+          <span class="badge">checklistLogs</span>
         </button>
       </nav>
 
@@ -492,7 +461,7 @@
           <hr>
 
           <p class="hint">
-            ※保存すると、その時間帯のチェック状態だけリセットされます（他の時間帯はそのまま）。<br>
+            ※保存すると、その時間帯のチェック状態（完了チェック）だけリセットされます（他の時間帯はそのまま）。<br>
             ※チェックリスト本体の HTML（スタッフ用画面）は書き換え不要です。この画面は定義だけをいじる役割。
           </p>
         </section>
@@ -526,13 +495,10 @@
           <hr>
 
           <label>プレビュー</label>
-          <div class="handover-preview" id="handoverPreview">
-            <!-- JSでボタンイメージを表示 -->
-          </div>
+          <div class="handover-preview" id="handoverPreview"></div>
 
           <p class="hint" style="margin-top:6px;">
-            ※スタッフ画面側では <code>handoverTemplates/global</code> の内容を読みにいきます。<br>
-            ※スタッフ画面のHTMLでは、ボタン部分は空の <code>&lt;div class="handover-chips"&gt;&lt;/div&gt;</code> にしておいてください。
+            ※スタッフ画面側では <code>handoverTemplates/global</code> の内容を読みにいきます。
           </p>
         </section>
       </section>
@@ -543,39 +509,40 @@
           <h2>スタッフログ（checklistLogs）</h2>
           <p class="card-sub">
             チェックリスト操作の履歴を確認できます。<br>
-            営業日・端末ラベルで絞り込みできます。
+            営業日と端末ラベルで絞り込みできます。
           </p>
 
           <div class="log-filters">
-            <label>
-              営業日：
-              <input type="date" id="logDateFilter" />
-            </label>
-            <label>
-              端末ラベル：
-              <input type="text" id="logDeviceFilter" placeholder="例：レジ横iPad" />
-            </label>
-            <button type="button" class="btn-secondary" id="logFilterApplyBtn">絞り込み</button>
+            <div class="field">
+              <label for="logDate">営業日</label>
+              <input type="date" id="logDate">
+            </div>
+            <div class="field">
+              <label for="logDevice">端末ラベル（空欄なら全端末）</label>
+              <input type="text" id="logDevice" placeholder="例：レジ横iPad">
+            </div>
+            <div class="field" style="flex:0 0 auto;">
+              <button type="button" class="btn-primary" id="logFilterBtn">絞り込み</button>
+            </div>
           </div>
 
-          <div class="log-table-wrapper">
-            <table class="log-table">
-              <thead>
-                <tr>
-                  <th>時刻</th>
-                  <th>営業日</th>
-                  <th>端末</th>
-                  <th>操作</th>
-                  <th>タスク</th>
-                </tr>
-              </thead>
-              <tbody id="logTableBody">
-                <tr>
-                  <td colspan="5">ログ読み込み中...</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          <table class="log-table">
+            <thead>
+              <tr>
+                <th style="width:90px;">時刻</th>
+                <th style="width:120px;">営業日</th>
+                <th style="width:140px;">端末</th>
+                <th style="width:70px;">操作</th>
+                <th>タスク / メモ</th>
+              </tr>
+            </thead>
+            <tbody id="logTableBody">
+              <tr><td colspan="5">ログを読み込み中...</td></tr>
+            </tbody>
+          </table>
+          <div class="log-empty" id="logEmptyMsg" style="display:none;"></div>
+
+          <div class="status" id="logStatus"></div>
         </section>
       </section>
     </main>
@@ -602,415 +569,340 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // 営業日キー計算（6:00切り替え）
+    // 6:00切り替えの「今日の営業日」
     function getCurrentBusinessKey() {
       const now = new Date();
       const y = now.getFullYear();
       const m = now.getMonth();
       const d = now.getDate();
       const base = new Date(y, m, d);
-
-      // 0:00〜5:59 は前日扱い
       if (now.getHours() < 6) {
         base.setDate(base.getDate() - 1);
       }
-
       const yy = base.getFullYear();
       const mm = String(base.getMonth() + 1).padStart(2, "0");
       const dd = String(base.getDate()).padStart(2, "0");
-      return yy + "-" + mm + "-" + dd;
+      return `${yy}-${mm}-${dd}`;
     }
 
-    // =============================
-    // DOM 準備
-    // =============================
+    // date input の値（YYYY-MM-DD） → businessKey
+    function businessKeyFromDateInput(dateStr) {
+      if (!dateStr) return null;
+      return dateStr; // すでに "YYYY-MM-DD" 形式
+    }
+
     document.addEventListener("DOMContentLoaded", () => {
-      // -------------------------
-      // 共通：ビュー切り替え
-      // -------------------------
-      const sidebarButtons = document.querySelectorAll(".sidebar-nav button");
-      const panels = {
-        news: document.getElementById("view-news"),
-        tasks: document.getElementById("view-tasks"),
-        handover: document.getElementById("view-handover"),
-        logs: document.getElementById("view-logs")
-      };
+      // =============================
+      // 左メニュー切り替え
+      // =============================
+      const navButtons = document.querySelectorAll(".sidebar-nav button");
+      const views = document.querySelectorAll(".view-panel");
 
-      function switchView(viewId) {
-        Object.keys(panels).forEach((key) => {
-          if (panels[key]) {
-            panels[key].classList.toggle("active", key === viewId);
-          }
-        });
-
-        sidebarButtons.forEach((btn) => {
-          const v = btn.getAttribute("data-view");
-          btn.classList.toggle("active", v === viewId);
-        });
-
-        if (viewId === "logs") {
-          startLogsListener();
-        }
+      function activateView(viewId) {
+        views.forEach((v) => v.classList.toggle("active", v.id === "view-" + viewId));
+        navButtons.forEach((btn) =>
+          btn.classList.toggle("active", btn.dataset.view === viewId)
+        );
       }
 
-      sidebarButtons.forEach((btn) => {
+      navButtons.forEach((btn) => {
         btn.addEventListener("click", () => {
-          const viewId = btn.getAttribute("data-view");
-          switchView(viewId);
+          activateView(btn.dataset.view);
         });
       });
 
-      switchView("news"); // 初期表示
+      // デフォルト：お知らせ管理
+      activateView("news");
 
       // =============================
-      // ① お知らせ管理（ownerNews）
+      // 1) ownerNews （お知らせ管理）
       // =============================
-      const newsTitleEl = document.getElementById("newsTitle");
-      const newsBodyEl = document.getElementById("newsBody");
+      const newsTitleInput = document.getElementById("newsTitle");
+      const newsBodyInput = document.getElementById("newsBody");
       const newsAddBtn = document.getElementById("newsAddBtn");
-      const newsClearFormBtn = document.getElementById("newsClearFormBtn");
-      const newsStatusEl = document.getElementById("newsStatus");
-      const newsListEl = document.getElementById("newsList");
+      const newsClearBtn = document.getElementById("newsClearFormBtn");
+      const newsStatus = document.getElementById("newsStatus");
+      const newsList = document.getElementById("newsList");
+      const ownerNewsColRef = db.collection("ownerNews");
 
       function setNewsStatus(msg, ok) {
-        if (!newsStatusEl) return;
-        newsStatusEl.textContent = msg || "";
-        newsStatusEl.className = "status " + (ok ? "ok" : "err");
+        newsStatus.textContent = msg || "";
+        newsStatus.className = "status " + (ok ? "ok" : "err");
       }
 
-      if (newsAddBtn) {
-        newsAddBtn.addEventListener("click", async () => {
-          const title = (newsTitleEl.value || "").trim();
-          const body = (newsBodyEl.value || "").trim();
+      newsAddBtn.addEventListener("click", async () => {
+        const title = newsTitleInput.value.trim();
+        const body = newsBodyInput.value.trim();
+        if (!title && !body) {
+          setNewsStatus("タイトルか本文を入力してください。", false);
+          return;
+        }
+        setNewsStatus("保存中…", true);
+        try {
+          await ownerNewsColRef.add({
+            title,
+            body,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          setNewsStatus("お知らせを追加しました。", true);
+          newsTitleInput.value = "";
+          newsBodyInput.value = "";
+        } catch (e) {
+          console.error(e);
+          setNewsStatus("保存に失敗しました。", false);
+        }
+      });
 
-          if (!title && !body) {
-            setNewsStatus("タイトルか本文のどちらかは入力してください。", false);
+      newsClearBtn.addEventListener("click", () => {
+        newsTitleInput.value = "";
+        newsBodyInput.value = "";
+        setNewsStatus("", true);
+      });
+
+      ownerNewsColRef.orderBy("createdAt", "desc").limit(20).onSnapshot(
+        (snapshot) => {
+          newsList.innerHTML = "";
+          if (snapshot.empty) {
+            const li = document.createElement("li");
+            li.textContent = "現在、お知らせはありません。";
+            newsList.appendChild(li);
             return;
           }
-          setNewsStatus("保存中...", true);
+          snapshot.forEach((doc) => {
+            const data = doc.data();
+            const li = document.createElement("li");
+            li.className = "news-item";
 
-          try {
-            await db.collection("ownerNews").add({
-              title,
-              body,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            const main = document.createElement("div");
+            main.className = "news-main";
+
+            const titleEl = document.createElement("div");
+            titleEl.className = "news-title";
+            titleEl.textContent = data.title || "(タイトルなし)";
+
+            const bodyEl = document.createElement("div");
+            bodyEl.className = "news-body";
+            bodyEl.textContent = data.body || "";
+
+            const metaEl = document.createElement("div");
+            metaEl.className = "news-meta";
+            const createdAt = data.createdAt ? data.createdAt.toDate() : null;
+            metaEl.textContent =
+              createdAt ?
+                createdAt.toLocaleString("ja-JP") :
+                "日時情報なし";
+
+            main.appendChild(titleEl);
+            main.appendChild(bodyEl);
+            main.appendChild(metaEl);
+
+            const actions = document.createElement("div");
+            actions.className = "news-actions";
+            const delBtn = document.createElement("button");
+            delBtn.className = "btn-danger";
+            delBtn.textContent = "削除";
+            delBtn.addEventListener("click", async () => {
+              if (!confirm("このお知らせを削除しますか？")) return;
+              await doc.ref.delete();
             });
-            setNewsStatus("お知らせを追加しました。", true);
-            newsTitleEl.value = "";
-            newsBodyEl.value = "";
-          } catch (e) {
-            console.error(e);
-            setNewsStatus("保存に失敗しました。", false);
-          }
-        });
-      }
+            actions.appendChild(delBtn);
 
-      if (newsClearFormBtn) {
-        newsClearFormBtn.addEventListener("click", () => {
-          newsTitleEl.value = "";
-          newsBodyEl.value = "";
-          setNewsStatus("", true);
-        });
-      }
+            li.appendChild(main);
+            li.appendChild(actions);
 
-      if (newsListEl) {
-        db.collection("ownerNews")
-          .orderBy("createdAt", "desc")
-          .limit(20)
-          .onSnapshot(
-            (snapshot) => {
-              newsListEl.innerHTML = "";
-              if (snapshot.empty) {
-                const li = document.createElement("li");
-                li.textContent = "登録されているお知らせはありません。";
-                li.style.fontSize = "12px";
-                li.style.color = "#777";
-                newsListEl.appendChild(li);
-                return;
-              }
-
-              snapshot.forEach((doc) => {
-                const data = doc.data();
-                const li = document.createElement("li");
-                li.className = "news-item";
-
-                const main = document.createElement("div");
-                main.className = "news-main";
-
-                const titleDiv = document.createElement("div");
-                titleDiv.className = "news-title";
-                titleDiv.textContent = data.title || "(タイトルなし)";
-
-                const bodyDiv = document.createElement("div");
-                bodyDiv.className = "news-body";
-                bodyDiv.textContent = data.body || "";
-
-                const metaDiv = document.createElement("div");
-                metaDiv.className = "news-meta";
-                let dateStr = "";
-                if (data.createdAt && data.createdAt.toDate) {
-                  const dt = data.createdAt.toDate();
-                  dateStr = dt.toLocaleString("ja-JP", {
-                    month: "2-digit",
-                    day: "2-digit",
-                    hour: "2-digit",
-                    minute: "2-digit"
-                  });
-                }
-                metaDiv.textContent = dateStr ? "登録日時: " + dateStr : "";
-
-                main.appendChild(titleDiv);
-                main.appendChild(bodyDiv);
-                main.appendChild(metaDiv);
-
-                const actions = document.createElement("div");
-                actions.className = "news-actions";
-
-                const delBtn = document.createElement("button");
-                delBtn.type = "button";
-                delBtn.className = "btn-danger";
-                delBtn.textContent = "削除";
-                delBtn.style.fontSize = "11px";
-                delBtn.style.padding = "4px 10px";
-
-                delBtn.addEventListener("click", async () => {
-                  if (!confirm("このお知らせを削除しますか？")) return;
-                  try {
-                    await doc.ref.delete();
-                  } catch (e) {
-                    console.error(e);
-                    alert("削除に失敗しました。");
-                  }
-                });
-
-                actions.appendChild(delBtn);
-
-                li.appendChild(main);
-                li.appendChild(actions);
-
-                newsListEl.appendChild(li);
-              });
-            },
-            (error) => {
-              console.error("ownerNews 読み込みエラー", error);
-              newsListEl.innerHTML = "";
-              const li = document.createElement("li");
-              li.textContent = "お知らせ一覧の読み込みに失敗しました。";
-              newsListEl.appendChild(li);
-            }
-          );
-      }
+            newsList.appendChild(li);
+          });
+        },
+        (error) => {
+          console.error("ownerNews 読み込みエラー", error);
+          newsList.innerHTML = "";
+          const li = document.createElement("li");
+          li.textContent = "お知らせの読み込みに失敗しました。";
+          newsList.appendChild(li);
+        }
+      );
 
       // =============================
-      // ② taskSlots 編集
+      // 2) taskSlots（時間帯ごとのタスク定義）
       // =============================
-      const slotSelectEl = document.getElementById("slotSelect");
-      const tasksAInputEl = document.getElementById("tasksAInput");
-      const tasksBInputEl = document.getElementById("tasksBInput");
+      const slotSelect = document.getElementById("slotSelect");
+      const tasksAInput = document.getElementById("tasksAInput");
+      const tasksBInput = document.getElementById("tasksBInput");
       const reloadSlotBtn = document.getElementById("reloadSlotBtn");
       const saveSlotBtn = document.getElementById("saveSlotBtn");
-      const taskStatusEl = document.getElementById("taskStatus");
-      const taskSlotsColRef = db.collection("taskSlots");
-      const tasksDocRef = db.collection("tasks").doc("lawson-main");
+      const taskStatus = document.getElementById("taskStatus");
+      const taskSlotsRef = db.collection("taskSlots");
+      const tasksDocRef = db.collection("tasks").doc("lawson-main"); // チェック状態リセット用
 
       function setTaskStatus(msg, ok) {
-        if (!taskStatusEl) return;
-        taskStatusEl.textContent = msg || "";
-        taskStatusEl.className = "status " + (ok ? "ok" : "err");
+        taskStatus.textContent = msg || "";
+        taskStatus.className = "status " + (ok ? "ok" : "err");
       }
 
       async function loadSlotDefinition(slotId) {
-        setTaskStatus("読み込み中...", true);
+        setTaskStatus("読み込み中…", true);
+        tasksAInput.value = "";
+        tasksBInput.value = "";
         try {
-          const snap = await taskSlotsColRef.doc(slotId).get();
-          if (snap.exists) {
-            const data = snap.data() || {};
-            const tasksA = Array.isArray(data.tasksA) ? data.tasksA : [];
-            const tasksB = Array.isArray(data.tasksB) ? data.tasksB : [];
-            tasksAInputEl.value = tasksA.join("\n");
-            tasksBInputEl.value = tasksB.join("\n");
-          } else {
-            // 定義なしなら空
-            tasksAInputEl.value = "";
-            tasksBInputEl.value = "";
+          const snap = await taskSlotsRef.doc(slotId).get();
+          if (!snap.exists) {
+            setTaskStatus("まだ定義されていません。HTML側の初期値が使われます。", true);
+            return;
           }
-          setTaskStatus("読み込み完了", true);
+          const data = snap.data() || {};
+          (data.tasksA || []).forEach((t, i) => {
+            tasksAInput.value += (i ? "\n" : "") + t;
+          });
+          (data.tasksB || []).forEach((t, i) => {
+            tasksBInput.value += (i ? "\n" : "") + t;
+          });
+          setTaskStatus("読み込み完了。", true);
         } catch (e) {
-          console.error("taskSlots load error:", e);
+          console.error(e);
           setTaskStatus("読み込みに失敗しました。", false);
         }
       }
 
-      if (slotSelectEl) {
-        loadSlotDefinition(slotSelectEl.value);
-        slotSelectEl.addEventListener("change", () => {
-          loadSlotDefinition(slotSelectEl.value);
-        });
-      }
+      reloadSlotBtn.addEventListener("click", () => {
+        loadSlotDefinition(slotSelect.value);
+      });
+      slotSelect.addEventListener("change", () => {
+        loadSlotDefinition(slotSelect.value);
+      });
 
-      if (reloadSlotBtn) {
-        reloadSlotBtn.addEventListener("click", () => {
-          if (slotSelectEl) {
-            loadSlotDefinition(slotSelectEl.value);
-          }
-        });
-      }
+      saveSlotBtn.addEventListener("click", async () => {
+        const slotId = slotSelect.value;
+        const tasksA = tasksAInput.value
+          .split("\n")
+          .map((t) => t.trim())
+          .filter((t) => t);
+        const tasksB = tasksBInput.value
+          .split("\n")
+          .map((t) => t.trim())
+          .filter((t) => t);
 
-      if (saveSlotBtn) {
-        saveSlotBtn.addEventListener("click", async () => {
-          const slotId = slotSelectEl.value;
-          const linesA = tasksAInputEl.value.split("\n")
-            .map((v) => v.trim())
-            .filter((v) => v !== "");
-          const linesB = tasksBInputEl.value.split("\n")
-            .map((v) => v.trim())
-            .filter((v) => v !== "");
+        setTaskStatus("保存中…", true);
+        try {
+          await taskSlotsRef.doc(slotId).set({ tasksA, tasksB }, { merge: true });
+          // この時間帯のチェック状態だけリセット
+          const docSnap = await tasksDocRef.get();
+          const data = docSnap.exists ? docSnap.data() : {};
+          const checkedIds = (data.checkedIds || []).filter((id) => !id.startsWith(slotId + "-"));
+          await tasksDocRef.set(
+            { checkedIds, businessKey: getCurrentBusinessKey() },
+            { merge: true }
+          );
+          setTaskStatus("保存しました（この時間帯のチェック状態をリセットしました）。", true);
+        } catch (e) {
+          console.error(e);
+          setTaskStatus("保存に失敗しました。", false);
+        }
+      });
 
-          setTaskStatus("保存中...", true);
-
-          try {
-            // taskSlots を更新
-            await taskSlotsColRef.doc(slotId).set(
-              {
-                tasksA: linesA,
-                tasksB: linesB
-              },
-              { merge: true }
-            );
-
-            // その時間帯のチェック状態だけリセット
-            const tasksSnap = await tasksDocRef.get();
-            if (tasksSnap.exists) {
-              const data = tasksSnap.data() || {};
-              const oldIds = Array.isArray(data.checkedIds) ? data.checkedIds : [];
-              const newIds = oldIds.filter((id) => !String(id).startsWith(slotId + "-"));
-              await tasksDocRef.set(
-                { checkedIds: newIds },
-                { merge: true }
-              );
-            }
-
-            setTaskStatus("保存しました。（この時間帯のチェックはリセット）", true);
-          } catch (e) {
-            console.error("taskSlots save error:", e);
-            setTaskStatus("保存に失敗しました。", false);
-          }
-        });
-      }
+      // 初回ロード
+      loadSlotDefinition(slotSelect.value);
 
       // =============================
-      // ③ handoverTemplates/global 編集
+      // 3) handoverTemplates（引き継ぎメモ用ボタン）
       // =============================
-      const handoverChipsInputEl = document.getElementById("handoverChipsInput");
+      const handoverChipsInput = document.getElementById("handoverChipsInput");
       const handoverReloadBtn = document.getElementById("handoverReloadBtn");
       const handoverSaveBtn = document.getElementById("handoverSaveBtn");
-      const handoverStatusEl = document.getElementById("handoverStatus");
-      const handoverPreviewEl = document.getElementById("handoverPreview");
+      const handoverStatus = document.getElementById("handoverStatus");
+      const handoverPreview = document.getElementById("handoverPreview");
       const handoverTplRef = db.collection("handoverTemplates").doc("global");
 
       function setHandoverStatus(msg, ok) {
-        if (!handoverStatusEl) return;
-        handoverStatusEl.textContent = msg || "";
-        handoverStatusEl.className = "status " + (ok ? "ok" : "err");
+        handoverStatus.textContent = msg || "";
+        handoverStatus.className = "status " + (ok ? "ok" : "err");
       }
 
-      function renderHandoverPreview(chips) {
-        if (!handoverPreviewEl) return;
-        handoverPreviewEl.innerHTML = "";
-        if (!chips || !chips.length) {
+      function updateHandoverPreview(chips) {
+        handoverPreview.innerHTML = "";
+        if (!chips || chips.length === 0) {
           const span = document.createElement("span");
-          span.textContent = "プレビューなし（ボタン未設定）";
-          span.style.fontSize = "11px";
-          span.style.color = "#999";
-          handoverPreviewEl.appendChild(span);
+          span.className = "handover-preview-chip";
+          span.textContent = "（ボタンなし）";
+          handoverPreview.appendChild(span);
           return;
         }
         chips.forEach((text) => {
           const chip = document.createElement("span");
           chip.className = "handover-preview-chip";
           chip.textContent = text;
-          handoverPreviewEl.appendChild(chip);
+          handoverPreview.appendChild(chip);
         });
       }
 
       async function loadHandoverTemplate() {
-        setHandoverStatus("読み込み中...", true);
+        setHandoverStatus("読み込み中…", true);
         try {
           const snap = await handoverTplRef.get();
-          if (snap.exists) {
-            const data = snap.data() || {};
-            const chips = Array.isArray(data.chips) ? data.chips : [];
-            handoverChipsInputEl.value = chips.join("\n");
-            renderHandoverPreview(chips);
-          } else {
-            handoverChipsInputEl.value = "";
-            renderHandoverPreview([]);
-          }
-          setHandoverStatus("読み込み完了", true);
+          const chips = snap.exists && Array.isArray(snap.data().chips)
+            ? snap.data().chips
+            : [];
+          handoverChipsInput.value = chips.join("\n");
+          updateHandoverPreview(chips);
+          setHandoverStatus("読み込み完了。", true);
         } catch (e) {
-          console.error("handoverTemplates load error:", e);
+          console.error(e);
           setHandoverStatus("読み込みに失敗しました。", false);
         }
       }
 
-      if (handoverReloadBtn) {
-        handoverReloadBtn.addEventListener("click", () => {
-          loadHandoverTemplate();
-        });
-      }
+      handoverReloadBtn.addEventListener("click", loadHandoverTemplate);
 
-      if (handoverSaveBtn) {
-        handoverSaveBtn.addEventListener("click", async () => {
-          const chips = handoverChipsInputEl.value.split("\n")
-            .map((v) => v.trim())
-            .filter((v) => v !== "");
+      handoverSaveBtn.addEventListener("click", async () => {
+        const chips = handoverChipsInput.value
+          .split("\n")
+          .map((t) => t.trim())
+          .filter((t) => t);
+        setHandoverStatus("保存中…", true);
+        try {
+          await handoverTplRef.set({ chips }, { merge: true });
+          updateHandoverPreview(chips);
+          setHandoverStatus("保存しました。", true);
+        } catch (e) {
+          console.error(e);
+          setHandoverStatus("保存に失敗しました。", false);
+        }
+      });
 
-          setHandoverStatus("保存中...", true);
-          try {
-            await handoverTplRef.set(
-              { chips },
-              { merge: true }
-            );
-            renderHandoverPreview(chips);
-            setHandoverStatus("保存しました。", true);
-          } catch (e) {
-            console.error("handoverTemplates save error:", e);
-            setHandoverStatus("保存に失敗しました。", false);
-          }
-        });
-      }
-
-      // 初期読み込み（handover）
       loadHandoverTemplate();
 
       // =============================
-      // ④ スタッフログ（checklistLogs）
+      // 4) checklistLogs（スタッフログ）
       // =============================
+      const logDateInput = document.getElementById("logDate");
+      const logDeviceInput = document.getElementById("logDevice");
+      const logFilterBtn = document.getElementById("logFilterBtn");
       const logTableBody = document.getElementById("logTableBody");
-      const logBadgeEl = document.getElementById("logBadge");
-      const logDateFilterEl = document.getElementById("logDateFilter");
-      const logDeviceFilterEl = document.getElementById("logDeviceFilter");
-      const logFilterApplyBtn = document.getElementById("logFilterApplyBtn");
-
+      const logEmptyMsg = document.getElementById("logEmptyMsg");
+      const logStatus = document.getElementById("logStatus");
+      const logsColRef = db.collection("checklistLogs");
       let logsUnsub = null;
-      let latestLogDocs = [];
 
-      function toBusinessKeyFromDateInput(value) {
-        if (!value) return null;
-        return value; // そのまま YYYY-MM-DD 形式
+      function setLogStatus(msg, ok) {
+        logStatus.textContent = msg || "";
+        logStatus.className = "status " + (ok ? "ok" : "err");
       }
 
-      function renderLogs(docs) {
-        if (!logTableBody) return;
+      function renderLogs(docs, businessKey, deviceFilter) {
         logTableBody.innerHTML = "";
+        logEmptyMsg.style.display = "none";
 
-        if (!docs.length) {
+        if (docs.length === 0) {
           const tr = document.createElement("tr");
           const td = document.createElement("td");
           td.colSpan = 5;
-          td.textContent = "ログがありません。";
+          td.textContent = "該当するログはありませんでした。";
           tr.appendChild(td);
           logTableBody.appendChild(tr);
+
+          logEmptyMsg.textContent =
+            "営業日: " + (businessKey || "指定なし") +
+            (deviceFilter ? " / 端末: " + deviceFilter : "");
+          logEmptyMsg.style.display = "block";
           return;
         }
 
@@ -1018,102 +910,114 @@
           const data = doc.data();
           const tr = document.createElement("tr");
 
-          // 時刻
-          let timeStr = "-";
-          if (data.createdAt && data.createdAt.toDate) {
-            const dt = data.createdAt.toDate();
-            timeStr = dt.toLocaleTimeString("ja-JP", {
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit"
-            });
-          } else if (data.clientTimeISO) {
-            const dt = new Date(data.clientTimeISO);
-            timeStr = dt.toLocaleTimeString("ja-JP", {
-              hour: "2-digit",
-              minute: "2-digit",
-              second: "2-digit"
-            });
+          const createdAt =
+            data.createdAt ? data.createdAt.toDate() :
+            (data.clientTimeISO ? new Date(data.clientTimeISO) : null);
+
+          const timeTd = document.createElement("td");
+          timeTd.textContent = createdAt
+            ? createdAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+            : "";
+
+          const bkTd = document.createElement("td");
+          bkTd.textContent = data.businessKey || "";
+
+          const devTd = document.createElement("td");
+          devTd.textContent = data.deviceLabel || "未設定";
+
+          const actionTd = document.createElement("td");
+          actionTd.textContent = data.action || "";
+
+          const taskTd = document.createElement("td");
+          if (data.taskLabel) {
+            taskTd.textContent = data.taskLabel;
+          } else if (data.extra && data.extra.noteText) {
+            taskTd.textContent = data.extra.noteText;
+          } else {
+            taskTd.textContent = "";
           }
 
-          const tdTime = document.createElement("td");
-          tdTime.textContent = timeStr;
+          tr.appendChild(timeTd);
+          tr.appendChild(bkTd);
+          tr.appendChild(devTd);
+          tr.appendChild(actionTd);
+          tr.appendChild(taskTd);
 
-          const tdBiz = document.createElement("td");
-          tdBiz.textContent = data.businessKey || "";
-
-          const tdDevice = document.createElement("td");
-          tdDevice.textContent = data.deviceLabel || "未設定";
-
-          const tdAction = document.createElement("td");
-          let actionLabel = data.action || "";
-          if (data.action === "check") actionLabel = "✅ チェック";
-          if (data.action === "uncheck") actionLabel = "⬜ チェック解除";
-          tdAction.textContent = actionLabel;
-
-          const tdTask = document.createElement("td");
-          tdTask.textContent = data.taskLabel || data.taskId || "";
-
-          tr.appendChild(tdTime);
-          tr.appendChild(tdBiz);
-          tr.appendChild(tdDevice);
-          tr.appendChild(tdAction);
-          tr.appendChild(tdTask);
           logTableBody.appendChild(tr);
         });
       }
 
-      function applyLogFilters() {
-        const bizFilter = toBusinessKeyFromDateInput(logDateFilterEl.value);
-        const deviceFilter = (logDeviceFilterEl.value || "").trim();
-
-        const filtered = latestLogDocs.filter((doc) => {
-          const data = doc.data();
-          if (bizFilter && data.businessKey !== bizFilter) return false;
-          if (deviceFilter && !String(data.deviceLabel || "").includes(deviceFilter)) return false;
-          return true;
-        });
-
-        renderLogs(filtered);
-      }
-
-      if (logFilterApplyBtn) {
-        logFilterApplyBtn.addEventListener("click", () => {
-          applyLogFilters();
-        });
-      }
-
-      // 初回は本日営業日をデフォルトフィルターに
-      if (logDateFilterEl) {
-        logDateFilterEl.value = getCurrentBusinessKey();
-      }
-
       function startLogsListener() {
-        if (logsUnsub) return; // すでに開始済み
+        const dateStr = logDateInput.value;
+        const businessKey = businessKeyFromDateInput(dateStr);
+        const deviceFilter = logDeviceInput.value.trim();
 
-        logsUnsub = db.collection("checklistLogs")
-          .orderBy("createdAt", "desc")
-          .limit(200)
+        if (!businessKey) {
+          // 営業日未指定なら当日扱い
+          const todayKey = getCurrentBusinessKey();
+          logDateInput.value = todayKey;
+          return startLogsListener();
+        }
+
+        if (logsUnsub) {
+          logsUnsub();
+          logsUnsub = null;
+        }
+
+        setLogStatus("読み込み中…", true);
+        logTableBody.innerHTML =
+          "<tr><td colspan='5'>ログを読み込み中...</td></tr>";
+        logEmptyMsg.style.display = "none";
+
+        // 複合インデックスを避けるため businessKey だけで where → JS側で端末フィルタ＋ソート
+        logsUnsub = logsColRef
+          .where("businessKey", "==", businessKey)
           .onSnapshot(
             (snapshot) => {
-              latestLogDocs = [];
-              snapshot.forEach((doc) => latestLogDocs.push(doc));
+              const docs = [];
+              snapshot.forEach((doc) => docs.push(doc));
 
-              if (logBadgeEl) {
-                logBadgeEl.textContent = String(snapshot.size || 0);
-              }
+              // JS側で createdAt 降順ソート
+              docs.sort((a, b) => {
+                const da = a.data().createdAt
+                  ? a.data().createdAt.toMillis()
+                  : 0;
+                const db = b.data().createdAt
+                  ? b.data().createdAt.toMillis()
+                  : 0;
+                return db - da;
+              });
 
-              applyLogFilters();
+              const filtered = deviceFilter
+                ? docs.filter(
+                    (doc) =>
+                      (doc.data().deviceLabel || "") === deviceFilter
+                  )
+                : docs;
+
+              renderLogs(filtered, businessKey, deviceFilter);
+              setLogStatus(
+                `読み込み完了（${filtered.length}件 / 元データ${docs.length}件）`,
+                true
+              );
             },
             (error) => {
-              console.error("スタッフログ読み込みエラー", error);
-              if (logTableBody) {
-                logTableBody.innerHTML =
-                  '<tr><td colspan="5">ログの読み込みに失敗しました。</td></tr>';
-              }
+              console.error("checklistLogs 読み込みエラー", error);
+              setLogStatus("ログの読み込みに失敗しました。", false);
+              logTableBody.innerHTML =
+                "<tr><td colspan='5'>ログの読み込みに失敗しました。</td></tr>";
             }
           );
       }
+
+      // フィルタボタン
+      logFilterBtn.addEventListener("click", () => {
+        startLogsListener();
+      });
+
+      // 初期値：今日の営業日
+      logDateInput.value = getCurrentBusinessKey();
+      startLogsListener();
     });
   </script>
 </body>
