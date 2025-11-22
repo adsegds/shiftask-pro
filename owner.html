@@ -75,6 +75,8 @@
       background: #eee;
       color: #666;
       margin-left: 4px;
+      min-width: 16px;
+      text-align: center;
     }
 
     .sidebar-nav button:hover {
@@ -149,7 +151,8 @@
 
     input[type="text"],
     textarea,
-    select {
+    select,
+    input[type="date"] {
       width: 100%;
       font-family: inherit;
       font-size: 13px;
@@ -157,6 +160,7 @@
       border-radius: 8px;
       border: 1px solid #ccc;
       outline: none;
+      background: #fff;
     }
     textarea {
       min-height: 80px;
@@ -165,7 +169,8 @@
     }
     input[type="text"]:focus,
     textarea:focus,
-    select:focus {
+    select:focus,
+    input[type="date"]:focus {
       border-color: #111;
     }
 
@@ -178,7 +183,7 @@
     /* A/Bタスクのtextareaは縦長にする */
     #tasksAInput,
     #tasksBInput {
-      min-height: 220px; /* ←ここで縦を長くした */
+      min-height: 220px;
     }
 
     .row {
@@ -301,6 +306,50 @@
       white-space: nowrap;
     }
 
+    /* ===== スタッフログ ===== */
+    .log-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+      font-size: 12px;
+    }
+    .log-filters label {
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 0;
+    }
+    .log-filters input[type="date"],
+    .log-filters input[type="text"] {
+      width: auto;
+    }
+
+    .log-table-wrapper {
+      margin-top: 10px;
+      max-height: 70vh;
+      overflow: auto;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+    .log-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .log-table th,
+    .log-table td {
+      padding: 6px 8px;
+      border-bottom: 1px solid #eee;
+    }
+    .log-table th {
+      background: #f5f5f5;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
     @media (max-width: 900px) {
       .layout {
         flex-direction: column;
@@ -347,6 +396,10 @@
         <button type="button" data-view="handover">
           <span class="label">引き継ぎメモ（ボタン編集）</span>
           <span class="badge">handoverTemplates</span>
+        </button>
+        <button type="button" data-view="logs">
+          <span class="label">スタッフログ</span>
+          <span class="badge" id="logBadge">0</span>
         </button>
       </nav>
 
@@ -439,7 +492,7 @@
           <hr>
 
           <p class="hint">
-            ※保存すると、その時間帯のチェック状態（完了チェック）だけリセットされます（他の時間帯はそのまま）。<br>
+            ※保存すると、その時間帯のチェック状態だけリセットされます（他の時間帯はそのまま）。<br>
             ※チェックリスト本体の HTML（スタッフ用画面）は書き換え不要です。この画面は定義だけをいじる役割。
           </p>
         </section>
@@ -483,6 +536,48 @@
           </p>
         </section>
       </section>
+
+      <!-- ④ スタッフログ -->
+      <section id="view-logs" class="view-panel">
+        <section class="card" id="logs-card">
+          <h2>スタッフログ（checklistLogs）</h2>
+          <p class="card-sub">
+            チェックリスト操作の履歴を確認できます。<br>
+            営業日・端末ラベルで絞り込みできます。
+          </p>
+
+          <div class="log-filters">
+            <label>
+              営業日：
+              <input type="date" id="logDateFilter" />
+            </label>
+            <label>
+              端末ラベル：
+              <input type="text" id="logDeviceFilter" placeholder="例：レジ横iPad" />
+            </label>
+            <button type="button" class="btn-secondary" id="logFilterApplyBtn">絞り込み</button>
+          </div>
+
+          <div class="log-table-wrapper">
+            <table class="log-table">
+              <thead>
+                <tr>
+                  <th>時刻</th>
+                  <th>営業日</th>
+                  <th>端末</th>
+                  <th>操作</th>
+                  <th>タスク</th>
+                </tr>
+              </thead>
+              <tbody id="logTableBody">
+                <tr>
+                  <td colspan="5">ログ読み込み中...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </section>
     </main>
   </div>
 
@@ -491,464 +586,535 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
   <script>
-  // =============================
-  // Firebase 設定
-  // =============================
-  const firebaseConfig = {
-    apiKey: "AIzaSyAPBMvTpzKCcPxLETncBqVR8fzf0cqKirc",
-    authDomain: "lawson-workflow.firebaseapp.com",
-    projectId: "lawson-workflow",
-    storageBucket: "lawson-workflow.firebasestorage.app",
-    messagingSenderId: "335371795694",
-    appId: "1:335371795694:web:3b0950a616d368b284c7ff",
-    measurementId: "G-BGENZNZMRC"
-  };
+    // =============================
+    // Firebase 設定
+    // =============================
+    const firebaseConfig = {
+      apiKey: "AIzaSyAPBMvTpzKCcPxLETncBqVR8fzf0cqKirc",
+      authDomain: "lawson-workflow.firebaseapp.com",
+      projectId: "lawson-workflow",
+      storageBucket: "lawson-workflow.firebasestorage.app",
+      messagingSenderId: "335371795694",
+      appId: "1:335371795694:web:3b0950a616d368b284c7ff",
+      measurementId: "G-BGENZNZMRC"
+    };
 
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.firestore();
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-  // =============================
-  // 営業日キー計算（6:00切り替え）
-  // =============================
-  function getCurrentBusinessKey() {
-    const now = new Date(); // 店のPCが日本時間ならそのままJST
-    const y = now.getFullYear();
-    const m = now.getMonth();
-    const d = now.getDate();
-
-    const base = new Date(y, m, d);
-
-    // 0:00〜5:59 は「前日扱い」
-    if (now.getHours() < 6) {
-      base.setDate(base.getDate() - 1);
-    }
-
-    const yy = base.getFullYear();
-    const mm = String(base.getMonth() + 1).padStart(2, '0');
-    const dd = String(base.getDate()).padStart(2, '0');
-    return `${yy}-${mm}-${dd}`; // 例: "2025-11-22"
-  }
-
-  /****************************************************
-   * 🔥 6:00 自動切り替え（超シンプル版：ページ再読み込み）
-   ****************************************************/
-  function setupDailyResetAt6AM() {
-    function scheduleNextReset() {
+    // 営業日キー計算（6:00切り替え）
+    function getCurrentBusinessKey() {
       const now = new Date();
-      const next = new Date();
+      const y = now.getFullYear();
+      const m = now.getMonth();
+      const d = now.getDate();
+      const base = new Date(y, m, d);
 
-      // 次の 6:00 を計算
-      next.setHours(6, 0, 0, 0);
-      if (now >= next) {
-        next.setDate(next.getDate() + 1); // 今日の6時を過ぎてたら翌日
+      // 0:00〜5:59 は前日扱い
+      if (now.getHours() < 6) {
+        base.setDate(base.getDate() - 1);
       }
 
-      const ms = next - now;
-      console.log('次の 6:00 リセットまで:', ms / 1000 / 60, '分');
-
-      setTimeout(() => {
-        console.log('🔥 6:00到達 → 営業日切替のためページを再読み込み');
-        on6amReset();
-        scheduleNextReset(); // 次の日の 6:00 もセット
-      }, ms);
+      const yy = base.getFullYear();
+      const mm = String(base.getMonth() + 1).padStart(2, "0");
+      const dd = String(base.getDate()).padStart(2, "0");
+      return yy + "-" + mm + "-" + dd;
     }
-
-    scheduleNextReset();
-  }
-
-  function on6amReset() {
-    location.reload();
-  }
-
-  // =============================
-  // DOM 準備できたらセットアップ
-  // =============================
-  document.addEventListener('DOMContentLoaded', () => {
-
-    // 🔥 朝6:00 自動リセット開始
-    setupDailyResetAt6AM();
 
     // =============================
-    // 現在時刻・営業日・次リセット表示
+    // DOM 準備
     // =============================
-    const timeDisplay = document.getElementById('time-display');
+    document.addEventListener("DOMContentLoaded", () => {
+      // -------------------------
+      // 共通：ビュー切り替え
+      // -------------------------
+      const sidebarButtons = document.querySelectorAll(".sidebar-nav button");
+      const panels = {
+        news: document.getElementById("view-news"),
+        tasks: document.getElementById("view-tasks"),
+        handover: document.getElementById("view-handover"),
+        logs: document.getElementById("view-logs")
+      };
 
-    function updateTimeDisplay() {
-      if (!timeDisplay) return;
-
-      const now = new Date();
-      const jp = now.toLocaleString('ja-JP', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        weekday: 'short',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      });
-
-      const businessKey = getCurrentBusinessKey();
-
-      // 次の 6:00 を計算
-      let nextReset = new Date();
-      nextReset.setHours(6, 0, 0, 0);
-      if (now >= nextReset) {
-        nextReset.setDate(nextReset.getDate() + 1);
-      }
-      const nextResetStr = nextReset.toLocaleString('ja-JP', {
-        month: '2-digit',
-        day: '2-digit',
-        weekday: 'short',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
-
-      timeDisplay.innerHTML = `
-        <div><strong>現在時刻：</strong> ${jp}</div>
-        <div><strong>今日の営業日：</strong> ${businessKey}（6:00切替）</div>
-        <div><strong>次のリセット：</strong> ${nextResetStr}</div>
-      `;
-    }
-
-    updateTimeDisplay();
-    setInterval(updateTimeDisplay, 1000);
-
-    // --------------------------------
-    // 1) タスク定義（taskSlots）からチェックリストを生成
-    // --------------------------------
-    const timeSlotIds = ['t6-8', 't9-11', 't12-14', 't15-17', 't18-20', 't21-23', 't0-2', 't3-5'];
-    const checkboxMap = new Map();        // taskId -> checkbox
-    let latestCheckedIds = new Set();     // Firestore から来たチェック済みID
-    const taskDocRef = db.collection('tasks').doc('lawson-main');
-    let applyingRemote = false;
-
-    // taskId の付け方：
-    //   例）"t6-8-A-0" ＝ 6〜8時の A グループ 0番目
-    function buildTasksFromDefinition(slotId, ul, tasks, groupLabel) {
-      ul.innerHTML = '';
-      tasks.forEach((text, index) => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-          <label class="task-item">
-            <input type="checkbox">
-            <span class="task-text"></span>
-          </label>
-        `;
-        const cb   = li.querySelector('input[type="checkbox"]');
-        const span = li.querySelector('.task-text');
-        span.textContent = text;
-
-        const taskId = `${slotId}-${groupLabel}-${index}`;
-        cb.dataset.taskId = taskId;
-        checkboxMap.set(taskId, cb);
-
-        // 既に Firestore から状態が来ていたら反映
-        cb.checked = latestCheckedIds.has(taskId);
-
-        ul.appendChild(li);
-      });
-    }
-
-    async function loadTaskDefinitions() {
-      const taskSlotsRef = db.collection('taskSlots');
-
-      await Promise.all(
-        timeSlotIds.map(async (slotId) => {
-          const section = document.getElementById(slotId);
-          if (!section) return;
-
-          const ulA = section.querySelector('ul.tasks.a');
-          const ulB = section.querySelector('ul.tasks.b');
-          if (!ulA || !ulB) return;
-
-          try {
-            const snap = await taskSlotsRef.doc(slotId).get();
-            if (snap.exists) {
-              const data = snap.data() || {};
-              const tasksA = data.tasksA || [];
-              const tasksB = data.tasksB || [];
-
-              buildTasksFromDefinition(slotId, ulA, tasksA, 'A');
-              buildTasksFromDefinition(slotId, ulB, tasksB, 'B');
-            } else {
-              // Firestore に定義が無いとき：
-              // いま HTML に書かれている li から taskId を振る
-              const setupFromExisting = (ul, groupLabel) => {
-                const lis = ul.querySelectorAll('li');
-                lis.forEach((li, index) => {
-                  const cb = li.querySelector('input[type="checkbox"]');
-                  if (!cb) return;
-                  const taskId = `${slotId}-${groupLabel}-${index}`;
-                  cb.dataset.taskId = taskId;
-                  checkboxMap.set(taskId, cb);
-                  cb.checked = latestCheckedIds.has(taskId);
-                });
-              };
-              setupFromExisting(ulA, 'A');
-              setupFromExisting(ulB, 'B');
-            }
-          } catch (e) {
-            console.error('タスク定義読み込みエラー:', slotId, e);
+      function switchView(viewId) {
+        Object.keys(panels).forEach((key) => {
+          if (panels[key]) {
+            panels[key].classList.toggle("active", key === viewId);
           }
-        })
-      );
-    }
+        });
 
-    // --------------------------------
-    // 2) チェック状態 ↔ Firestore 同期
-    // --------------------------------
-    function saveTasksToFirestore() {
-      const checkedIds = [];
-      checkboxMap.forEach((cb, id) => {
-        if (cb.checked) checkedIds.push(id);
-      });
-      const businessKey = getCurrentBusinessKey();
-      taskDocRef.set(
-        { checkedIds, businessKey },
-        { merge: true }
-      );
-    }
+        sidebarButtons.forEach((btn) => {
+          const v = btn.getAttribute("data-view");
+          btn.classList.toggle("active", v === viewId);
+        });
 
-    taskDocRef.onSnapshot((doc) => {
-      const data = doc.exists ? doc.data() : {};
-      const storedKey  = data.businessKey;
-      const currentKey = getCurrentBusinessKey();
-
-      if (storedKey !== currentKey) {
-        // 日付が変わっていたらリセット
-        taskDocRef.set(
-          { checkedIds: [], businessKey: currentKey },
-          { merge: true }
-        );
-        latestCheckedIds = new Set();
-      } else {
-        latestCheckedIds = new Set(data.checkedIds || []);
+        if (viewId === "logs") {
+          startLogsListener();
+        }
       }
 
-      applyingRemote = true;
-      checkboxMap.forEach((cb, id) => {
-        cb.checked = latestCheckedIds.has(id);
-      });
-      applyingRemote = false;
-    });
-
-    document.body.addEventListener('change', (e) => {
-      const target = e.target;
-      if (!target.matches('input[type="checkbox"][data-task-id]')) return;
-      if (applyingRemote) return;
-      saveTasksToFirestore();
-    });
-
-    // 先にタスク定義をロード（チェック状態は onSnapshot で後から追従）
-    loadTaskDefinitions();
-
-    // --------------------------------
-    // 3) 引き継ぎメモ（時間帯ごと＋ボタンテンプレ）
-    // --------------------------------
-    const handoverSlots  = document.querySelectorAll('.handover-slot');
-    const handoverColRef = db.collection('handover');
-    const handoverTplRef = db.collection('handoverTemplates').doc('global');
-
-    // slotId → その時間帯の「メモ追加関数」を覚えておく
-    const handoverAdders = new Map();
-
-    // メモ一覧の描画
-    function renderHandoverList(snapshot, logEl) {
-      if (!logEl) return;
-
-      logEl.innerHTML = '';
-
-      if (snapshot.empty) {
-        const li = document.createElement('li');
-        li.textContent = 'まだ引き継ぎメモはありません。';
-        li.style.fontSize = '10px';
-        li.style.color = '#999';
-        logEl.appendChild(li);
-        return;
-      }
-
-      const docs = [];
-      snapshot.forEach((doc) => docs.push(doc));
-
-      // createdAt 降順（新しい順）
-      docs.sort((a, b) => {
-        const da = a.data().createdAt ? a.data().createdAt.toMillis() : 0;
-        const db = b.data().createdAt ? b.data().createdAt.toMillis() : 0;
-        return db - da;
+      sidebarButtons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const viewId = btn.getAttribute("data-view");
+          switchView(viewId);
+        });
       });
 
-      docs.forEach((doc) => {
-        const data = doc.data();
-        const li = document.createElement('li');
-        li.className = 'handover-item';
+      switchView("news"); // 初期表示
 
-        const textSpan = document.createElement('span');
-        textSpan.className = 'handover-text';
-        textSpan.textContent = data.text || '';
+      // =============================
+      // ① お知らせ管理（ownerNews）
+      // =============================
+      const newsTitleEl = document.getElementById("newsTitle");
+      const newsBodyEl = document.getElementById("newsBody");
+      const newsAddBtn = document.getElementById("newsAddBtn");
+      const newsClearFormBtn = document.getElementById("newsClearFormBtn");
+      const newsStatusEl = document.getElementById("newsStatus");
+      const newsListEl = document.getElementById("newsList");
 
-        const timeSpan = document.createElement('span');
-        timeSpan.className = 'handover-time';
-        timeSpan.textContent = data.timeLabel || '';
-
-        const delBtn = document.createElement('button');
-        delBtn.className = 'handover-remove';
-        delBtn.textContent = '✕';
-        delBtn.addEventListener('click', () => {
-          doc.ref.delete();
-        });
-
-        li.appendChild(textSpan);
-        li.appendChild(timeSpan);
-        li.appendChild(delBtn);
-
-        logEl.appendChild(li);
-      });
-    }
-
-    // 各時間帯スロットごとの設定
-    handoverSlots.forEach((slotEl) => {
-      const slotId   = slotEl.dataset.slot || 'global';
-      const logEl    = slotEl.querySelector('.handover-log');
-      const clearBtn = slotEl.querySelector('.handover-clear-btn');
-
-      // この時間帯専用の listener（今日の営業日＋slotId で絞る）
-      handoverColRef
-        .where('businessKey', '==', getCurrentBusinessKey())
-        .where('slotId', '==', slotId)
-        .onSnapshot((snapshot) => {
-          renderHandoverList(snapshot, logEl);
-        });
-
-      // この時間帯にメモを追加する関数（ボタンから呼ぶ）
-      function addHandoverForSlot(text) {
-        const now = new Date();
-        const timeLabel = now.toLocaleTimeString('ja-JP', {
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-        const businessKey = getCurrentBusinessKey();
-
-        handoverColRef.add({
-          text,
-          slotId,
-          businessKey,
-          timeLabel,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        });
+      function setNewsStatus(msg, ok) {
+        if (!newsStatusEl) return;
+        newsStatusEl.textContent = msg || "";
+        newsStatusEl.className = "status " + (ok ? "ok" : "err");
       }
 
-      handoverAdders.set(slotId, addHandoverForSlot);
+      if (newsAddBtn) {
+        newsAddBtn.addEventListener("click", async () => {
+          const title = (newsTitleEl.value || "").trim();
+          const body = (newsBodyEl.value || "").trim();
 
-      // 「メモを全部消す」ボタン
-      if (clearBtn) {
-        clearBtn.addEventListener('click', async () => {
-          if (!confirm('この時間帯の引き継ぎメモを全部消しますか？')) return;
-
-          const businessKey = getCurrentBusinessKey();
-          const snap = await handoverColRef
-            .where('slotId', '==', slotId)
-            .where('businessKey', '==', businessKey)
-            .get();
-
-          if (snap.empty) return;
-          const batch = db.batch();
-          snap.forEach((doc) => batch.delete(doc.ref));
-          await batch.commit();
-        });
-      }
-    });
-
-    // ▼ 引き継ぎメモ用ボタンテンプレ（global）を読み込んで、
-    //   各時間帯の .handover-chips にボタンを自動生成する
-    handoverTplRef.onSnapshot(
-      (doc) => {
-        const data  = doc.exists ? doc.data() : {};
-        const chips = Array.isArray(data.chips) ? data.chips : [];
-
-        handoverSlots.forEach((slotEl) => {
-          const slotId  = slotEl.dataset.slot || 'global';
-          const chipsEl = slotEl.querySelector('.handover-chips');
-          const addFn   = handoverAdders.get(slotId);
-
-          if (!chipsEl || !addFn) return;
-
-          chipsEl.innerHTML = '';
-
-          if (chips.length === 0) {
-            const span = document.createElement('span');
-            span.style.fontSize = '10px';
-            span.style.color = '#999';
-            span.textContent = 'ボタン未設定';
-            chipsEl.appendChild(span);
+          if (!title && !body) {
+            setNewsStatus("タイトルか本文のどちらかは入力してください。", false);
             return;
           }
+          setNewsStatus("保存中...", true);
 
-          chips.forEach((text) => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'handover-chip';
-            btn.dataset.text = text;
-            btn.textContent = text;
-            btn.addEventListener('click', () => {
-              addFn(text);
+          try {
+            await db.collection("ownerNews").add({
+              title,
+              body,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
-            chipsEl.appendChild(btn);
-          });
+            setNewsStatus("お知らせを追加しました。", true);
+            newsTitleEl.value = "";
+            newsBodyEl.value = "";
+          } catch (e) {
+            console.error(e);
+            setNewsStatus("保存に失敗しました。", false);
+          }
         });
-      },
-      (error) => {
-        console.error('handoverTemplates 読み込みエラー', error);
       }
-    );
 
-    // --------------------------------
-    // 4) 経営者お知らせ（ownerNews）読み込み
-    // --------------------------------
-    const infoListEl = document.querySelector('.info-list');
-    if (infoListEl) {
-      const ownerNewsColRef = db.collection('ownerNews');
+      if (newsClearFormBtn) {
+        newsClearFormBtn.addEventListener("click", () => {
+          newsTitleEl.value = "";
+          newsBodyEl.value = "";
+          setNewsStatus("", true);
+        });
+      }
 
-      ownerNewsColRef
-        .orderBy('createdAt', 'desc')
-        .limit(5)
-        .onSnapshot(
-          (snapshot) => {
-            infoListEl.innerHTML = '';
+      if (newsListEl) {
+        db.collection("ownerNews")
+          .orderBy("createdAt", "desc")
+          .limit(20)
+          .onSnapshot(
+            (snapshot) => {
+              newsListEl.innerHTML = "";
+              if (snapshot.empty) {
+                const li = document.createElement("li");
+                li.textContent = "登録されているお知らせはありません。";
+                li.style.fontSize = "12px";
+                li.style.color = "#777";
+                newsListEl.appendChild(li);
+                return;
+              }
 
-            if (snapshot.empty) {
-              const li = document.createElement('li');
-              li.textContent = '現在、お知らせはありません。';
-              infoListEl.appendChild(li);
-              return;
+              snapshot.forEach((doc) => {
+                const data = doc.data();
+                const li = document.createElement("li");
+                li.className = "news-item";
+
+                const main = document.createElement("div");
+                main.className = "news-main";
+
+                const titleDiv = document.createElement("div");
+                titleDiv.className = "news-title";
+                titleDiv.textContent = data.title || "(タイトルなし)";
+
+                const bodyDiv = document.createElement("div");
+                bodyDiv.className = "news-body";
+                bodyDiv.textContent = data.body || "";
+
+                const metaDiv = document.createElement("div");
+                metaDiv.className = "news-meta";
+                let dateStr = "";
+                if (data.createdAt && data.createdAt.toDate) {
+                  const dt = data.createdAt.toDate();
+                  dateStr = dt.toLocaleString("ja-JP", {
+                    month: "2-digit",
+                    day: "2-digit",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                  });
+                }
+                metaDiv.textContent = dateStr ? "登録日時: " + dateStr : "";
+
+                main.appendChild(titleDiv);
+                main.appendChild(bodyDiv);
+                main.appendChild(metaDiv);
+
+                const actions = document.createElement("div");
+                actions.className = "news-actions";
+
+                const delBtn = document.createElement("button");
+                delBtn.type = "button";
+                delBtn.className = "btn-danger";
+                delBtn.textContent = "削除";
+                delBtn.style.fontSize = "11px";
+                delBtn.style.padding = "4px 10px";
+
+                delBtn.addEventListener("click", async () => {
+                  if (!confirm("このお知らせを削除しますか？")) return;
+                  try {
+                    await doc.ref.delete();
+                  } catch (e) {
+                    console.error(e);
+                    alert("削除に失敗しました。");
+                  }
+                });
+
+                actions.appendChild(delBtn);
+
+                li.appendChild(main);
+                li.appendChild(actions);
+
+                newsListEl.appendChild(li);
+              });
+            },
+            (error) => {
+              console.error("ownerNews 読み込みエラー", error);
+              newsListEl.innerHTML = "";
+              const li = document.createElement("li");
+              li.textContent = "お知らせ一覧の読み込みに失敗しました。";
+              newsListEl.appendChild(li);
+            }
+          );
+      }
+
+      // =============================
+      // ② taskSlots 編集
+      // =============================
+      const slotSelectEl = document.getElementById("slotSelect");
+      const tasksAInputEl = document.getElementById("tasksAInput");
+      const tasksBInputEl = document.getElementById("tasksBInput");
+      const reloadSlotBtn = document.getElementById("reloadSlotBtn");
+      const saveSlotBtn = document.getElementById("saveSlotBtn");
+      const taskStatusEl = document.getElementById("taskStatus");
+      const taskSlotsColRef = db.collection("taskSlots");
+      const tasksDocRef = db.collection("tasks").doc("lawson-main");
+
+      function setTaskStatus(msg, ok) {
+        if (!taskStatusEl) return;
+        taskStatusEl.textContent = msg || "";
+        taskStatusEl.className = "status " + (ok ? "ok" : "err");
+      }
+
+      async function loadSlotDefinition(slotId) {
+        setTaskStatus("読み込み中...", true);
+        try {
+          const snap = await taskSlotsColRef.doc(slotId).get();
+          if (snap.exists) {
+            const data = snap.data() || {};
+            const tasksA = Array.isArray(data.tasksA) ? data.tasksA : [];
+            const tasksB = Array.isArray(data.tasksB) ? data.tasksB : [];
+            tasksAInputEl.value = tasksA.join("\n");
+            tasksBInputEl.value = tasksB.join("\n");
+          } else {
+            // 定義なしなら空
+            tasksAInputEl.value = "";
+            tasksBInputEl.value = "";
+          }
+          setTaskStatus("読み込み完了", true);
+        } catch (e) {
+          console.error("taskSlots load error:", e);
+          setTaskStatus("読み込みに失敗しました。", false);
+        }
+      }
+
+      if (slotSelectEl) {
+        loadSlotDefinition(slotSelectEl.value);
+        slotSelectEl.addEventListener("change", () => {
+          loadSlotDefinition(slotSelectEl.value);
+        });
+      }
+
+      if (reloadSlotBtn) {
+        reloadSlotBtn.addEventListener("click", () => {
+          if (slotSelectEl) {
+            loadSlotDefinition(slotSelectEl.value);
+          }
+        });
+      }
+
+      if (saveSlotBtn) {
+        saveSlotBtn.addEventListener("click", async () => {
+          const slotId = slotSelectEl.value;
+          const linesA = tasksAInputEl.value.split("\n")
+            .map((v) => v.trim())
+            .filter((v) => v !== "");
+          const linesB = tasksBInputEl.value.split("\n")
+            .map((v) => v.trim())
+            .filter((v) => v !== "");
+
+          setTaskStatus("保存中...", true);
+
+          try {
+            // taskSlots を更新
+            await taskSlotsColRef.doc(slotId).set(
+              {
+                tasksA: linesA,
+                tasksB: linesB
+              },
+              { merge: true }
+            );
+
+            // その時間帯のチェック状態だけリセット
+            const tasksSnap = await tasksDocRef.get();
+            if (tasksSnap.exists) {
+              const data = tasksSnap.data() || {};
+              const oldIds = Array.isArray(data.checkedIds) ? data.checkedIds : [];
+              const newIds = oldIds.filter((id) => !String(id).startsWith(slotId + "-"));
+              await tasksDocRef.set(
+                { checkedIds: newIds },
+                { merge: true }
+              );
             }
 
-            snapshot.forEach((doc) => {
-              const data = doc.data();
-              const title = data.title || '';
-              const body  = data.body  || '';
-
-              const li = document.createElement('li');
-              if (title && body) {
-                li.textContent = `【${title}】 ${body}`;
-              } else if (title) {
-                li.textContent = `【${title}】`;
-              } else {
-                li.textContent = body || '';
-              }
-              infoListEl.appendChild(li);
-            });
-          },
-          (error) => {
-            console.error('ownerNews 読み込みエラー', error);
-            infoListEl.innerHTML = '';
-            const li = document.createElement('li');
-            li.textContent = 'お知らせの読み込みに失敗しました。';
-            infoListEl.appendChild(li);
+            setTaskStatus("保存しました。（この時間帯のチェックはリセット）", true);
+          } catch (e) {
+            console.error("taskSlots save error:", e);
+            setTaskStatus("保存に失敗しました。", false);
           }
-        );
-    }
-  });
-</script>
+        });
+      }
 
+      // =============================
+      // ③ handoverTemplates/global 編集
+      // =============================
+      const handoverChipsInputEl = document.getElementById("handoverChipsInput");
+      const handoverReloadBtn = document.getElementById("handoverReloadBtn");
+      const handoverSaveBtn = document.getElementById("handoverSaveBtn");
+      const handoverStatusEl = document.getElementById("handoverStatus");
+      const handoverPreviewEl = document.getElementById("handoverPreview");
+      const handoverTplRef = db.collection("handoverTemplates").doc("global");
+
+      function setHandoverStatus(msg, ok) {
+        if (!handoverStatusEl) return;
+        handoverStatusEl.textContent = msg || "";
+        handoverStatusEl.className = "status " + (ok ? "ok" : "err");
+      }
+
+      function renderHandoverPreview(chips) {
+        if (!handoverPreviewEl) return;
+        handoverPreviewEl.innerHTML = "";
+        if (!chips || !chips.length) {
+          const span = document.createElement("span");
+          span.textContent = "プレビューなし（ボタン未設定）";
+          span.style.fontSize = "11px";
+          span.style.color = "#999";
+          handoverPreviewEl.appendChild(span);
+          return;
+        }
+        chips.forEach((text) => {
+          const chip = document.createElement("span");
+          chip.className = "handover-preview-chip";
+          chip.textContent = text;
+          handoverPreviewEl.appendChild(chip);
+        });
+      }
+
+      async function loadHandoverTemplate() {
+        setHandoverStatus("読み込み中...", true);
+        try {
+          const snap = await handoverTplRef.get();
+          if (snap.exists) {
+            const data = snap.data() || {};
+            const chips = Array.isArray(data.chips) ? data.chips : [];
+            handoverChipsInputEl.value = chips.join("\n");
+            renderHandoverPreview(chips);
+          } else {
+            handoverChipsInputEl.value = "";
+            renderHandoverPreview([]);
+          }
+          setHandoverStatus("読み込み完了", true);
+        } catch (e) {
+          console.error("handoverTemplates load error:", e);
+          setHandoverStatus("読み込みに失敗しました。", false);
+        }
+      }
+
+      if (handoverReloadBtn) {
+        handoverReloadBtn.addEventListener("click", () => {
+          loadHandoverTemplate();
+        });
+      }
+
+      if (handoverSaveBtn) {
+        handoverSaveBtn.addEventListener("click", async () => {
+          const chips = handoverChipsInputEl.value.split("\n")
+            .map((v) => v.trim())
+            .filter((v) => v !== "");
+
+          setHandoverStatus("保存中...", true);
+          try {
+            await handoverTplRef.set(
+              { chips },
+              { merge: true }
+            );
+            renderHandoverPreview(chips);
+            setHandoverStatus("保存しました。", true);
+          } catch (e) {
+            console.error("handoverTemplates save error:", e);
+            setHandoverStatus("保存に失敗しました。", false);
+          }
+        });
+      }
+
+      // 初期読み込み（handover）
+      loadHandoverTemplate();
+
+      // =============================
+      // ④ スタッフログ（checklistLogs）
+      // =============================
+      const logTableBody = document.getElementById("logTableBody");
+      const logBadgeEl = document.getElementById("logBadge");
+      const logDateFilterEl = document.getElementById("logDateFilter");
+      const logDeviceFilterEl = document.getElementById("logDeviceFilter");
+      const logFilterApplyBtn = document.getElementById("logFilterApplyBtn");
+
+      let logsUnsub = null;
+      let latestLogDocs = [];
+
+      function toBusinessKeyFromDateInput(value) {
+        if (!value) return null;
+        return value; // そのまま YYYY-MM-DD 形式
+      }
+
+      function renderLogs(docs) {
+        if (!logTableBody) return;
+        logTableBody.innerHTML = "";
+
+        if (!docs.length) {
+          const tr = document.createElement("tr");
+          const td = document.createElement("td");
+          td.colSpan = 5;
+          td.textContent = "ログがありません。";
+          tr.appendChild(td);
+          logTableBody.appendChild(tr);
+          return;
+        }
+
+        docs.forEach((doc) => {
+          const data = doc.data();
+          const tr = document.createElement("tr");
+
+          // 時刻
+          let timeStr = "-";
+          if (data.createdAt && data.createdAt.toDate) {
+            const dt = data.createdAt.toDate();
+            timeStr = dt.toLocaleTimeString("ja-JP", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit"
+            });
+          } else if (data.clientTimeISO) {
+            const dt = new Date(data.clientTimeISO);
+            timeStr = dt.toLocaleTimeString("ja-JP", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit"
+            });
+          }
+
+          const tdTime = document.createElement("td");
+          tdTime.textContent = timeStr;
+
+          const tdBiz = document.createElement("td");
+          tdBiz.textContent = data.businessKey || "";
+
+          const tdDevice = document.createElement("td");
+          tdDevice.textContent = data.deviceLabel || "未設定";
+
+          const tdAction = document.createElement("td");
+          let actionLabel = data.action || "";
+          if (data.action === "check") actionLabel = "✅ チェック";
+          if (data.action === "uncheck") actionLabel = "⬜ チェック解除";
+          tdAction.textContent = actionLabel;
+
+          const tdTask = document.createElement("td");
+          tdTask.textContent = data.taskLabel || data.taskId || "";
+
+          tr.appendChild(tdTime);
+          tr.appendChild(tdBiz);
+          tr.appendChild(tdDevice);
+          tr.appendChild(tdAction);
+          tr.appendChild(tdTask);
+          logTableBody.appendChild(tr);
+        });
+      }
+
+      function applyLogFilters() {
+        const bizFilter = toBusinessKeyFromDateInput(logDateFilterEl.value);
+        const deviceFilter = (logDeviceFilterEl.value || "").trim();
+
+        const filtered = latestLogDocs.filter((doc) => {
+          const data = doc.data();
+          if (bizFilter && data.businessKey !== bizFilter) return false;
+          if (deviceFilter && !String(data.deviceLabel || "").includes(deviceFilter)) return false;
+          return true;
+        });
+
+        renderLogs(filtered);
+      }
+
+      if (logFilterApplyBtn) {
+        logFilterApplyBtn.addEventListener("click", () => {
+          applyLogFilters();
+        });
+      }
+
+      // 初回は本日営業日をデフォルトフィルターに
+      if (logDateFilterEl) {
+        logDateFilterEl.value = getCurrentBusinessKey();
+      }
+
+      function startLogsListener() {
+        if (logsUnsub) return; // すでに開始済み
+
+        logsUnsub = db.collection("checklistLogs")
+          .orderBy("createdAt", "desc")
+          .limit(200)
+          .onSnapshot(
+            (snapshot) => {
+              latestLogDocs = [];
+              snapshot.forEach((doc) => latestLogDocs.push(doc));
+
+              if (logBadgeEl) {
+                logBadgeEl.textContent = String(snapshot.size || 0);
+              }
+
+              applyLogFilters();
+            },
+            (error) => {
+              console.error("スタッフログ読み込みエラー", error);
+              if (logTableBody) {
+                logTableBody.innerHTML =
+                  '<tr><td colspan="5">ログの読み込みに失敗しました。</td></tr>';
+              }
+            }
+          );
+      }
+    });
+  </script>
 </body>
 </html>
