@@ -475,6 +475,87 @@
 
 
 
+
+
+
+
+
+
+
+
+
+/* 親コンテナ：チップ＋もっと表示ボタンを横並びに */
+.handover-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+/* 2段目のチップは折り返しで下に出したいので幅100%に */
+.handover-chips-extra {
+  width: 100%;
+  margin-top: 4px;
+}
+.handover-chips-extra.is-hidden {
+  display: none;
+}
+
+/* もっと表示ボタンを右端に寄せて、少し目立たせる */
+.handover-chips-toggle {
+  margin-left: auto;             /* ★ 右に寄せるポイント */
+  margin-top: 0;
+  padding: 6px 14px;
+  font-size: 12px;
+  color: #a05a00;
+  background: #fff7e5;
+  border: 1px solid #ffc27a;
+  border-radius: 20px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+  transition: all 0.2s ease;
+}
+
+.handover-chips-toggle:hover {
+  background: #ffe9c6;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+}
+
+/* 開いたときの色はそのまま流用でもOK */
+.handover-chips-toggle.open {
+  background: #ffe0b2;
+  border-color: #ffb74d;
+  color: #8d4b00;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
     
 
 
