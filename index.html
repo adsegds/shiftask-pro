@@ -1148,18 +1148,23 @@ handoverColRef
 
 
         function addHandoverForSlot(text) {
-          const now = new Date();
-          const timeLabel = now.toLocaleTimeString('ja-JP', {
-            hour: '2-digit',
-            minute: '2-digit'
-          });
-          handoverColRef.add({
-            text,
-            slotId,
-            timeLabel,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-          });
-        }
+  const now = new Date();
+  const timeLabel = now.toLocaleTimeString('ja-JP', {
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  const businessKey = getCurrentBusinessKey(); // ★ 今日の営業日キー
+
+  handoverColRef.add({
+    text,
+    slotId,
+    businessKey, // ★ ここで一緒に保存
+    timeLabel,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
 
         chipButtons.forEach((btn) => {
           btn.addEventListener('click', () => {
