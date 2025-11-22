@@ -634,156 +634,158 @@
 
 
 
-<script>
-  // ==========================
-  // 1. チェックリストのローカル保存
-  // ==========================
-  document.addEventListener('DOMContentLoaded', function () {
-    const TASK_KEY = 'lw_tasks_v1';
+  <!-- ↓↓↓ ここから下で、今ある <script> を全部入れ替えてね ↓↓↓ -->
 
-    // 既に保存されているチェック済みIDの配列を取得
-    let stored = [];
-    try {
-      const raw = localStorage.getItem(TASK_KEY);
-      if (raw) stored = JSON.parse(raw);
-    } catch (e) {
-      stored = [];
-    }
-    let checkedSet = new Set(stored);
+  <!-- Firebase SDK（CDN版）-->
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
-    // 全ての li を「チェック付き行」に変換
-    const slots = Array.from(document.querySelectorAll('section.slot'));
-    slots.forEach((slotEl, slotIndex) => {
-      const taskLis = slotEl.querySelectorAll('ul.tasks li');
-      taskLis.forEach((li, taskIndex) => {
-        const text = li.textContent.trim();
-        const id = `task-${slotIndex}-${taskIndex}`;
-        li.textContent = '';
+  <script>
+    // ★ Firebase コンソールに出ていた設定をここに貼る
+    // 　（apiKey とか authDomain とかのやつ）
+    const firebaseConfig = {
+      // ここを差し替え：
+      // apiKey: "xxxxxxxxxxxxxxxxxxxxxxx",
+      // authDomain: "xxxxxxxxxxxx.firebaseapp.com",
+      // projectId: "xxxxxxxxxxxx",
+      // storageBucket: "xxxxxxxxxxxx.appspot.com",
+      // messagingSenderId: "xxxxxxxxxxxx",
+      // appId: "1:xxxxxxxxxxxx:web:xxxxxxxxxxxxxx"
+    };
 
-        const label = document.createElement('label');
-        label.className = 'task-label';
+    // Firebase 初期化
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
 
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.id = id;
-        checkbox.dataset.taskId = id;
+    document.addEventListener('DOMContentLoaded', () => {
+      // =============================
+      // 1) チェックリスト Firestore 同期
+      // =============================
+      const checkboxMap = new Map();
 
-        if (checkedSet.has(id)) {
-          checkbox.checked = true;
-        }
-
-        const span = document.createElement('span');
-        span.className = 'task-text';
-        span.textContent = text;
-
-        label.appendChild(checkbox);
-        label.appendChild(span);
-        li.appendChild(label);
-      });
-    });
-
-    // チェック状態が変わったら保存
-    document.body.addEventListener('change', (e) => {
-      const target = e.target;
-      if (target.matches('input[type="checkbox"][data-task-id]')) {
-        const id = target.dataset.taskId;
-        if (target.checked) {
-          checkedSet.add(id);
-        } else {
-          checkedSet.delete(id);
-        }
-        localStorage.setItem(TASK_KEY, JSON.stringify(Array.from(checkedSet)));
-      }
-    });
-
-    // ==========================
-    // 2. 引き継ぎメモのローカル保存
-    // ==========================
-    const HANDOVER_KEY = 'lw_handover_v1';
-    const logEl = document.getElementById('handover-log');
-    const clearBtn = document.getElementById('handover-clear-btn');
-    const chipButtons = document.querySelectorAll('.handover-chip');
-
-    let handoverItems = [];
-
-    function loadHandover() {
-      try {
-        const raw = localStorage.getItem(HANDOVER_KEY);
-        if (raw) handoverItems = JSON.parse(raw);
-      } catch (e) {
-        handoverItems = [];
-      }
-    }
-
-    function saveHandover() {
-      localStorage.setItem(HANDOVER_KEY, JSON.stringify(handoverItems));
-    }
-
-    function renderHandover() {
-      if (!logEl) return;
-      logEl.innerHTML = '';
-      handoverItems.forEach((item, index) => {
-        const li = document.createElement('li');
-        li.className = 'handover-item';
-
-        const textSpan = document.createElement('span');
-        textSpan.className = 'handover-text';
-        textSpan.textContent = item.text;
-
-        const timeSpan = document.createElement('span');
-        timeSpan.className = 'handover-time';
-        timeSpan.textContent = item.time;
-
-        const btn = document.createElement('button');
-        btn.className = 'handover-remove';
-        btn.textContent = '✕';
-        btn.addEventListener('click', () => {
-          handoverItems.splice(index, 1);
-          saveHandover();
-          renderHandover();
+      // 各タスクに固定IDをふる（画面の順番で task-0-0 みたいなIDがつく）
+      const taskSections = Array.from(document.querySelectorAll('section.slot'));
+      taskSections.forEach((slotEl, slotIndex) => {
+        const taskLis = slotEl.querySelectorAll('ul.tasks li');
+        taskLis.forEach((li, taskIndex) => {
+          const checkbox = li.querySelector('input[type="checkbox"]');
+          if (!checkbox) return;
+          const id = `task-${slotIndex}-${taskIndex}`;
+          checkbox.dataset.taskId = id;
+          checkboxMap.set(id, checkbox);
         });
-
-        li.appendChild(textSpan);
-        li.appendChild(timeSpan);
-        li.appendChild(btn);
-        logEl.appendChild(li);
       });
-    }
 
-    function addHandover(text) {
-      const now = new Date();
-      const timeLabel = now.toLocaleTimeString('ja-JP', {
-        hour: '2-digit',
-        minute: '2-digit'
+      // 1店舗分の状態を保存するドキュメント
+      const taskDocRef = db.collection('tasks').doc('lawson-main');
+      let applyingRemote = false; // Firestoreからの反映中フラグ
+
+      // Firestore → 画面への反映（リアルタイム）
+      taskDocRef.onSnapshot((doc) => {
+        const data = doc.exists ? doc.data() : {};
+        const checkedIds = new Set(data.checkedIds || []);
+
+        applyingRemote = true;
+        checkboxMap.forEach((cb, id) => {
+          cb.checked = checkedIds.has(id);
+        });
+        applyingRemote = false;
       });
-      handoverItems.push({ text, time: timeLabel });
-      saveHandover();
-      renderHandover();
-    }
 
-    if (logEl) {
-      loadHandover();
-      renderHandover();
-    }
+      // 画面 → Firestore へ保存
+      function saveTasksToFirestore() {
+        const checkedIds = [];
+        checkboxMap.forEach((cb, id) => {
+          if (cb.checked) checkedIds.push(id);
+        });
+        taskDocRef.set({ checkedIds }, { merge: true });
+      }
 
-    chipButtons.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const text = btn.dataset.text;
-        if (text) addHandover(text);
+      // チェックが変わったら保存
+      document.body.addEventListener('change', (e) => {
+        const target = e.target;
+        if (!target.matches('input[type="checkbox"][data-task-id]')) return;
+        if (applyingRemote) return; // Firestoreからの反映中なら無視
+        saveTasksToFirestore();
       });
+
+      // =============================
+      // 2) 引き継ぎメモ Firestore 同期
+      // =============================
+      const logEl = document.getElementById('handover-log');
+      const clearBtn = document.getElementById('handover-clear-btn');
+      const chipButtons = document.querySelectorAll('.handover-chip');
+      const handoverColRef = db.collection('handover');
+
+      // Firestore → 引き継ぎリスト表示（新しい順）
+      function renderHandover(snapshot) {
+        if (!logEl) return;
+        logEl.innerHTML = '';
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const li = document.createElement('li');
+          li.className = 'handover-item';
+
+          const textSpan = document.createElement('span');
+          textSpan.className = 'handover-text';
+          textSpan.textContent = data.text || '';
+
+          const timeSpan = document.createElement('span');
+          timeSpan.className = 'handover-time';
+          timeSpan.textContent = data.timeLabel || '';
+
+          const delBtn = document.createElement('button');
+          delBtn.className = 'handover-remove';
+          delBtn.textContent = '✕';
+          delBtn.addEventListener('click', () => {
+            doc.ref.delete();
+          });
+
+          li.appendChild(textSpan);
+          li.appendChild(timeSpan);
+          li.appendChild(delBtn);
+          logEl.appendChild(li);
+        });
+      }
+
+      handoverColRef.orderBy('createdAt', 'desc').onSnapshot(renderHandover);
+
+      // 定型文メモを追加（chip をタップしたとき）
+      function addHandover(text) {
+        const now = new Date();
+        const timeLabel = now.toLocaleTimeString('ja-JP', {
+          hour: '2-digit',
+          minute: '2-digit'
+        });
+        handoverColRef.add({
+          text,
+          timeLabel,
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+      }
+
+      chipButtons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const text = btn.dataset.text;
+          if (text) addHandover(text);
+        });
+      });
+
+      // 全削除ボタン
+      if (clearBtn) {
+        clearBtn.addEventListener('click', async () => {
+          if (!confirm('引き継ぎメモを全部消しますか？')) return;
+          const snap = await handoverColRef.get();
+          const batch = db.batch();
+          snap.forEach((doc) => batch.delete(doc.ref));
+          await batch.commit();
+        });
+      }
     });
+  </script>
 
-    if (clearBtn) {
-      clearBtn.addEventListener('click', () => {
-        if (confirm('引き継ぎメモを全部消しますか？')) {
-          handoverItems = [];
-          saveHandover();
-          renderHandover();
-        }
-      });
-    }
-  });
-</script>
+  <!-- ↑↑↑ ここまでが差し替え部分。すぐ上に </body></html> が来る形でOK ↑↑↑ -->
+
 
 
 
