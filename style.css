@@ -1,1 +1,442 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>南部町ローソン 業務チェックリスト</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f5f5f5;
+      color: #111;
+      line-height: 1.6;
+    }
+    .app {
+      max-width: 520px;
+      margin: 0 auto;
+      padding-bottom: 80px;
+    }
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: #111;
+      color: #fff;
+      padding: 10px 14px;
+    }
+    header h1 {
+      font-size: 16px;
+      font-weight: 600;
+    }
+    header p {
+      font-size: 11px;
+      opacity: 0.85;
+      margin-top: 2px;
+    }
+
+    /* ナビ（時間帯ジャンプ） */
+    .nav {
+      display: flex;
+      overflow-x: auto;
+      gap: 6px;
+      padding: 8px 10px 4px;
+      background: #222;
+      scrollbar-width: none;
+    }
+    .nav::-webkit-scrollbar { display: none; }
+    .nav a {
+      flex: 0 0 auto;
+      padding: 4px 8px;
+      font-size: 11px;
+      border-radius: 999px;
+      border: 1px solid #555;
+      color: #eee;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .nav a:hover {
+      background: #fff;
+      color: #111;
+    }
+
+    main { padding: 10px 12px 20px; }
+
+    .slot {
+      margin-bottom: 12px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px 10px 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+    }
+
+    .slot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 4px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 4px;
+    }
+    .slot-title {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .slot-note {
+      font-size: 10px;
+      color: #666;
+    }
+
+    .tasks-group {
+      margin-top: 6px;
+    }
+    .tasks-group h3 {
+      font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+    .badge {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 999px;
+    }
+    .badge-a {
+      background: #111;
+      color: #fff;
+    }
+    .badge-b {
+      background: #e0e0e0;
+      color: #333;
+    }
+
+    ul.tasks {
+      list-style: none;
+      padding-left: 10px;
+      border-left: 2px solid #111;
+      margin-bottom: 4px;
+    }
+    ul.tasks.b {
+      border-left-color: #bbb;
+    }
+    ul.tasks li {
+      font-size: 11px;
+      padding: 2px 0;
+    }
+
+    .footer-note {
+      font-size: 10px;
+      color: #666;
+      padding: 6px 4px 20px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>南部町ローソン 業務チェック</h1>
+      <p>時間帯ごとの A＝必須 / B＝余裕あれば。迷ったらAから。</p>
+      <nav class="nav">
+        <a href="#t6-8">6〜8時</a>
+        <a href="#t9-11">9〜11時</a>
+        <a href="#t12-14">12〜14時</a>
+        <a href="#t15-17">15〜17時</a>
+        <a href="#t18-20">18〜20時</a>
+        <a href="#t21-23">21〜23時</a>
+        <a href="#t0-2">0〜2時</a>
+        <a href="#t3-5">3〜5時</a>
+      </nav>
+    </header>
+
+    <main>
+      <!-- 6〜8時 -->
+      <section id="t6-8" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">6:00〜8:00</div>
+          <div class="slot-note">朝の立ち上げ</div>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span> 絶対にやる</h3>
+          <ul class="tasks a">
+            <li>CDC納品・片づけ（2便）</li>
+            <li>ベーカリー納品・片づけ（2便）</li>
+            <li>コーヒーマシン清掃（本体・コンディメント什器・周辺）</li>
+            <li>トイレ点検</li>
+            <li>ポットのお湯確認</li>
+            <li>店内・店頭ゴミ袋の点検・交換</li>
+            <li>温度チェック</li>
+          </ul>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span> 手が空いたら</h3>
+          <ul class="tasks b">
+            <li>店内・店頭ゴミ箱の清掃</li>
+            <li>サービスコーナー（Loppi・ATM・コピー機）・イートイン清掃</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 9〜11時 -->
+      <section id="t9-11" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">9:00〜11:00</div>
+          <div class="slot-note">午前帯</div>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span></h3>
+          <ul class="tasks a">
+            <li>トイレ点検</li>
+            <li>12時締め発注</li>
+            <li>床清掃</li>
+            <li>プライスカード取り付け</li>
+            <li>ポットのお湯確認</li>
+            <li>レジ点検（現金・金券）</li>
+            <li>コーヒーマシン清掃（本体・コンディメント・周辺）</li>
+            <li>店舗周辺の清掃</li>
+          </ul>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span></h3>
+          <ul class="tasks b">
+            <li>店内・店頭ゴミ袋の点検・交換</li>
+            <li>消耗品発注（必要あれば）</li>
+            <li>FF・厨房原料 使用期限チェック</li>
+            <li>灰皿清掃</li>
+            <li>前陳（ソフトドリンク・冷蔵酒・菓子・即席麺）</li>
+            <li>床清掃（2回目）</li>
+            <li>品出し（ソフトドリンク・冷蔵酒）</li>
+            <li>補充（たばこ）</li>
+            <li>FF販売許容確認・廃棄</li>
+            <li>ホット/常温FF作成（昼）</li>
+            <li>マチカフェ販売準備（アイスカップ補充など）</li>
+            <li>トイレ清掃（1日1回）</li>
+            <li>隙あらば前陳（米飯・オープンケース・デザート・ベーカリー）</li>
+            <li>月曜のみ：新商品販促物設置</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 12〜14時 -->
+      <section id="t12-14" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">12:00〜14:00</div>
+          <div class="slot-note">昼帯</div>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span></h3>
+          <ul class="tasks a">
+            <li>CDC納品・片づけ（3便）</li>
+            <li>前陳（ソフトドリンク・冷蔵酒、菓子・即席麺）</li>
+            <li>ポットのお湯確認</li>
+            <li>14時オープンケース廃棄（米飯・調理パン・ベーカリー）</li>
+            <li>廃棄登録</li>
+            <li>コーヒーマシン清掃</li>
+            <li>トイレ清掃（1日1回）</li>
+            <li>伝票整理</li>
+            <li>送金</li>
+            <li>灰皿清掃</li>
+            <li>補充（ホットドリンク）</li>
+          </ul>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span></h3>
+          <ul class="tasks b">
+            <li>隙あらば前陳（米飯・オープンケース・デザート・ベーカリー）</li>
+            <li>品出し（菓子・即席麺・ドリンク剤・アイス・冷凍食品）</li>
+            <li>店内・店頭ゴミ箱の清掃</li>
+            <li>床清掃</li>
+            <li>ダスタークロスがけ</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 15〜17時 -->
+      <section id="t15-17" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">15:00〜17:00</div>
+          <div class="slot-note">夕方前</div>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span></h3>
+          <ul class="tasks a">
+            <li>隙あらば前陳（米飯・オープンケース・デザート・ベーカリー）</li>
+            <li>前陳（アイス・冷凍食品、ソフトドリンク・冷蔵酒、菓子・即席麺）</li>
+            <li>補充（たばこ）</li>
+            <li>FF販売許容確認・廃棄</li>
+            <li>ホット・常温FF作成（夕）</li>
+            <li>トイレ点検</li>
+            <li>店舗周辺の清掃</li>
+            <li>温度チェック</li>
+            <li>たばこ納品・片づけ</li>
+            <li>中華まん作成（昼）</li>
+          </ul>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span></h3>
+          <ul class="tasks b">
+            <li>レジ点検</li>
+            <li>ダスタークロスがけ</li>
+            <li>入口ドア拭き上げ</li>
+            <li>月曜のみ：販促物設置</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 18〜20時 -->
+      <section id="t18-20" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">18:00〜20:00</div>
+          <div class="slot-note">夕方〜夜</div>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span></h3>
+          <ul class="tasks a">
+            <li>店内・店頭ゴミ袋の点検・交換</li>
+            <li>トイレ清掃（1日1回）</li>
+            <li>前陳（菓子・即席麺、ソフトドリンク・冷蔵酒）</li>
+            <li>トイレ点検</li>
+            <li>店舗周辺の清掃</li>
+            <li>コーヒーマシン清掃</li>
+            <li>油の酸価度チェック</li>
+          </ul>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span></h3>
+          <ul class="tasks b">
+            <li>雑誌・書籍メンテ</li>
+            <li>夕刊返品</li>
+            <li>ホット・常温FF作成（夜）</li>
+            <li>製氷機清掃（水・土）</li>
+            <li>棚清掃（日用品1台）（水・土）</li>
+            <li>床清掃</li>
+            <li>ダスタークロスがけ</li>
+            <li>返本</li>
+            <li>店頭（軒下・ガラス面）清掃（水・土）</li>
+            <li>店内・店頭ゴミ箱清掃</li>
+            <li>20時オープンケース廃棄（長鮮度おにぎり・長鮮手巻）</li>
+            <li>店外/店内マット清掃（水・土）</li>
+            <li>冷凍機器清掃（水）</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 21〜23時 -->
+      <section id="t21-23" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">21:00〜23:00</div>
+          <div class="slot-note">夜帯</div>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span></h3>
+          <ul class="tasks a">
+            <li>補充（たばこ）</li>
+            <li>DDC納品・片づけ（※水・土はDDC無し → 掃除の日）</li>
+            <li>22時オープンケース廃棄（米飯・調理パン・チルド弁当・調理麺…）</li>
+            <li>マチカフェ販売準備（アイスカップ）</li>
+            <li>トイレ点検</li>
+            <li>灰皿清掃</li>
+            <li>温度チェック</li>
+            <li>トイレ点検（再）</li>
+            <li>0時オープンケース廃棄（次時間帯へ）</li>
+            <li>ホットドリンク販売許容確認・廃棄</li>
+            <li>廃棄登録</li>
+            <li>コーヒーマシン清掃（本体クリーニング）</li>
+          </ul>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span></h3>
+          <ul class="tasks b">
+            <li>店内販促物設置（新商品納品日でない日）</li>
+            <li>トイレ清掃（1日1回）</li>
+            <li>平場販売許容確認・廃棄</li>
+            <li>フィルター・吸込口・換気扇清掃（水・土）</li>
+            <li>フライヤー清掃・油交換（水・土）</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 0〜2時 -->
+      <section id="t0-2" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">0:00〜2:00</div>
+          <div class="slot-note">深夜前半</div>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span></h3>
+          <ul class="tasks a">
+            <li>FDC納品・片づけ</li>
+            <li>温度チェック</li>
+            <li>検収印日付変更</li>
+            <li>精算</li>
+            <li>コピー機精算・用紙補充（入金含む）</li>
+            <li>雑誌納品・片づけ</li>
+            <li>FF什器清掃（中華まん）</li>
+            <li>FF販売許容確認・廃棄</li>
+            <li>ホットドリンク販売許容確認・廃棄</li>
+            <li>1時オープンケース廃棄（米飯・調理パン）</li>
+            <li>平場販売許容確認・廃棄</li>
+          </ul>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span></h3>
+          <ul class="tasks b">
+            <li>カウンター清掃</li>
+            <li>深夜時間帯の紙幣確認・調整</li>
+            <li>レジ・カウンター周辺清掃</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 3〜5時 -->
+      <section id="t3-5" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">3:00〜5:00</div>
+          <div class="slot-note">早朝</div>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span></h3>
+          <ul class="tasks a">
+            <li>朝刊納品・片づけ</li>
+            <li>品出し（全商品）</li>
+            <li>品出し（チルド飲料）</li>
+            <li>棚滑り掃除（1台）</li>
+            <li>ホット・常温FF作成（朝）</li>
+            <li>中華まん作成（朝）</li>
+            <li>CDC納品・片づけ（2便）</li>
+            <li>4時オープンケース廃棄（米飯・長鮮手巻・チルド弁当…）</li>
+          </ul>
+        </div>
+
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span></h3>
+          <ul class="tasks b">
+            <li>余裕があれば：前陳・清掃を追加</li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <div class="footer-note">
+      迷ったら：Aタスク → 前陳 → 清掃 の順で動けばOK。
+    </div>
+  </div>
+</body>
+</html>
 
