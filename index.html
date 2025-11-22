@@ -641,16 +641,27 @@
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
   <script>
-    // ★ Firebase コンソールに出ていた設定をここに貼る
-    // 　（apiKey とか authDomain とかのやつ）
-    const firebaseConfig = {
-      // ここを差し替え：
-      // apiKey: "xxxxxxxxxxxxxxxxxxxxxxx",
-      // authDomain: "xxxxxxxxxxxx.firebaseapp.com",
-      // projectId: "xxxxxxxxxxxx",
-      // storageBucket: "xxxxxxxxxxxx.appspot.com",
-      // messagingSenderId: "xxxxxxxxxxxx",
-      // appId: "1:xxxxxxxxxxxx:web:xxxxxxxxxxxxxx"
+    // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAPBMvTpzKCcPxLETncBqVR8fzf0cqKirc",
+  authDomain: "lawson-workflow.firebaseapp.com",
+  projectId: "lawson-workflow",
+  storageBucket: "lawson-workflow.firebasestorage.app",
+  messagingSenderId: "335371795694",
+  appId: "1:335371795694:web:3b0950a616d368b284c7ff",
+  measurementId: "G-BGENZNZMRC"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
     };
 
     // Firebase 初期化
