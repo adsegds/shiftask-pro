@@ -980,7 +980,7 @@
     const headerHeight = header ? header.offsetHeight : 80; // なければだいたい80px
 
     const rect = el.getBoundingClientRect();
-    const targetY = rect.top + window.scrollY - headerHeight - 8; // ちょい余裕を引く
+    const targetY = rect.top + window.scrollY - headerHeight - 10; // ちょい余裕を引く
 
     window.scrollTo({
       top: targetY,
