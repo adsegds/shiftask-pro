@@ -655,6 +655,56 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+
+
+
+
+
+
+
+
+      const logTodayBtn = document.getElementById("logTodayBtn");
+      const logYesterdayBtn = document.getElementById("logYesterdayBtn");
+      const logLast3Btn = document.getElementById("logLast3Btn"); // まだ使わない
+
+      function setDateInputToToday() {
+        logDateInput.value = getCurrentBusinessKey();
+      }
+
+      function setDateInputToYesterday() {
+        const today = getCurrentBusinessKey(); // YYYY-MM-DD
+        const [y, m, d] = today.split("-").map(Number);
+        const dt = new Date(y, m - 1, d);
+        dt.setDate(dt.getDate() - 1);
+        const yy = dt.getFullYear();
+        const mm = String(dt.getMonth() + 1).padStart(2, "0");
+        const dd = String(dt.getDate()).padStart(2, "0");
+        logDateInput.value = `${yy}-${mm}-${dd}`;
+      }
+
+      logTodayBtn?.addEventListener("click", () => {
+        setDateInputToToday();
+        startLogsListener();
+      });
+
+      logYesterdayBtn?.addEventListener("click", () => {
+        setDateInputToYesterday();
+        startLogsListener();
+      });
+
+      // 直近3日は後で本格実装
+      logLast3Btn?.addEventListener("click", () => {
+        alert("直近3日の集計はあとで実装しよう💡（今日は日付1日ずつ見てね）");
+      });
+
+
+
+
+
+
+
+
+      
       // =============================
       // 左メニュー切り替え
       // =============================
