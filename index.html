@@ -1674,28 +1674,11 @@ if (jumpBtn) {
       const extraContainer = document.createElement("div");
       extraContainer.className = "handover-chips-extra is-hidden";
 
-      chipsArea.appendChild(primaryContainer);
-      chipsArea.appendChild(extraContainer);
+     // まず「よく使う」チップ（primary）を配置
+chipsArea.appendChild(primaryContainer);
 
-      chips.forEach((text, index) => {
-        const btn = document.createElement("button");
-        btn.className = "handover-chip";
-        btn.textContent = text;
-        btn.dataset.text = text;
-
-        btn.addEventListener("click", () => {
-          addHandoverForSlot(text);
-        });
-
-        if (index < PRIMARY_COUNT) {
-          primaryContainer.appendChild(btn); // よく使う（常時表示ゾーン）
-        } else {
-          extraContainer.appendChild(btn);   // 「もっと表示」ゾーン
-        }
-      });
-
-      // 余りがある場合だけ「もっと表示」トグルを出す
-      if (chips.length > PRIMARY_COUNT) {
+// 次に「もっと表示」ボタン
+if (chips.length > PRIMARY_COUNT) {
   const toggleBtn = document.createElement("button");
   toggleBtn.className = "handover-chips-toggle";
 
@@ -1716,8 +1699,29 @@ if (jumpBtn) {
     }
   });
 
-  chipsArea.appendChild(toggleBtn);
+  chipsArea.appendChild(toggleBtn); // ★ primary の横（右側）にくっつく
 }
+
+// 最後に「その他のチップ（extra）」を下に配置
+chipsArea.appendChild(extraContainer);
+
+// チップ生成（中身はそのまま）
+chips.forEach((text, index) => {
+  const btn = document.createElement("button");
+  btn.className = "handover-chip";
+  btn.textContent = text;
+  btn.dataset.text = text;
+
+  btn.addEventListener("click", () => {
+    addHandoverForSlot(text);
+  });
+
+  if (index < PRIMARY_COUNT) {
+    primaryContainer.appendChild(btn);
+  } else {
+    extraContainer.appendChild(btn);
+  }
+});
 
 
 
