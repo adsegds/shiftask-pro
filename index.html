@@ -1081,52 +1081,63 @@
       const handoverSlots  = document.querySelectorAll('.handover-slot');
       const handoverColRef = db.collection('handover');
 
-      function renderHandoverForSlot(snapshot, logEl, slotId) {
-        if (!logEl) return;
+     function renderHandoverForSlot(snapshot, logEl, slotId) {
+  if (!logEl) return;
 
-        // いったんクリア
-        logEl.innerHTML = '';
+  logEl.innerHTML = '';
 
-        if (snapshot.empty) {
-          const li = document.createElement('li');
-          li.textContent = 'まだ引き継ぎメモはありません。';
-          li.style.fontSize = '10px';
-          li.style.color = '#999';
-          logEl.appendChild(li);
-          return;
-        }
+  if (snapshot.empty) {
+    const li = document.createElement('li');
+    li.textContent = 'まだ引き継ぎメモはありません。';
+    li.style.fontSize = '10px';
+    li.style.color = '#999';
+    logEl.appendChild(li);
+    return;
+  }
 
-        snapshot.forEach((doc) => {
-          const data = doc.data();
+  const docs = [];
+  snapshot.forEach((doc) => {
+    docs.push(doc);
+  });
 
-          // 念のため slotId チェック（万が一、他の時間帯のデータが来た場合）
-          if (data.slotId !== slotId) return;
+  // createdAt で降順ソート（新しい順）
+  docs.sort((a, b) => {
+    const da = a.data().createdAt ? a.data().createdAt.toMillis() : 0;
+    const db = b.data().createdAt ? b.data().createdAt.toMillis() : 0;
+    return db - da;
+  });
 
-          const li = document.createElement('li');
-          li.className = 'handover-item';
+  docs.forEach((doc) => {
+    const data = doc.data();
 
-          const textSpan = document.createElement('span');
-          textSpan.className = 'handover-text';
-          textSpan.textContent = data.text || '';
+    if (data.slotId !== slotId) return;
 
-          const timeSpan = document.createElement('span');
-          timeSpan.className = 'handover-time';
-          timeSpan.textContent = data.timeLabel || '';
+    const li = document.createElement('li');
+    li.className = 'handover-item';
 
-          const delBtn = document.createElement('button');
-          delBtn.className = 'handover-remove';
-          delBtn.textContent = '✕';
-          delBtn.addEventListener('click', () => {
-            doc.ref.delete();
-          });
+    const textSpan = document.createElement('span');
+    textSpan.className = 'handover-text';
+    textSpan.textContent = data.text || '';
 
-          li.appendChild(textSpan);
-          li.appendChild(timeSpan);
-          li.appendChild(delBtn);
+    const timeSpan = document.createElement('span');
+    timeSpan.className = 'handover-time';
+    timeSpan.textContent = data.timeLabel || '';
 
-          logEl.appendChild(li);
-        });
-      }
+    const delBtn = document.createElement('button');
+    delBtn.className = 'handover-remove';
+    delBtn.textContent = '✕';
+    delBtn.addEventListener('click', () => {
+      doc.ref.delete();
+    });
+
+    li.appendChild(textSpan);
+    li.appendChild(timeSpan);
+    li.appendChild(delBtn);
+
+    logEl.appendChild(li);
+  });
+}
+
 
       handoverSlots.forEach((slotEl) => {
         const slotId = slotEl.dataset.slot || 'global';
