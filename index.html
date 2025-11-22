@@ -639,6 +639,7 @@
   <!-- ↓↓↓ ここから下で、今ある <script> を全部入れ替えてね ↓↓↓ -->
 
     <!-- Firebase SDK（CDN版）-->
+   <!-- Firebase SDK（CDN版）-->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
@@ -657,6 +658,27 @@
     // Firebase 初期化（compat 版）
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+
+    // ▼ 営業日キー（6:00 切り替え）の計算
+    function getCurrentBusinessKey() {
+      const now = new Date(); // 端末のローカル時間（日本なら日本時間）
+      const y = now.getFullYear();
+      const m = now.getMonth(); // 0始まり
+      const d = now.getDate();
+
+      // 今日の日付（0:00）を基準に作る
+      const base = new Date(y, m, d);
+
+      // 0:00〜5:59 の間は「前日扱い」にする
+      if (now.getHours() < 6) {
+        base.setDate(base.getDate() - 1);
+      }
+
+      const yy = base.getFullYear();
+      const mm = String(base.getMonth() + 1).padStart(2, '0');
+      const dd = String(base.getDate()).padStart(2, '0');
+      return `${yy}-${mm}-${dd}`; // 例: "2025-11-22"
+    }
 
     document.addEventListener('DOMContentLoaded', () => {
       // =============================
@@ -681,26 +703,51 @@
       const taskDocRef = db.collection('tasks').doc('lawson-main');
       let applyingRemote = false; // Firestoreからの反映中フラグ
 
-      // Firestore → 画面への反映（リアルタイム）
-      taskDocRef.onSnapshot((doc) => {
-        const data = doc.exists ? doc.data() : {};
-        const checkedIds = new Set(data.checkedIds || []);
-
-        applyingRemote = true;
-        checkboxMap.forEach((cb, id) => {
-          cb.checked = checkedIds.has(id);
-        });
-        applyingRemote = false;
-      });
-
       // 画面 → Firestore へ保存
       function saveTasksToFirestore() {
         const checkedIds = [];
         checkboxMap.forEach((cb, id) => {
           if (cb.checked) checkedIds.push(id);
         });
-        taskDocRef.set({ checkedIds }, { merge: true });
+        const businessKey = getCurrentBusinessKey();
+        taskDocRef.set(
+          { checkedIds, businessKey },
+          { merge: true }
+        );
       }
+
+      // Firestore → 画面への反映（リアルタイム）
+      taskDocRef.onSnapshot((doc) => {
+        const data = doc.exists ? doc.data() : {};
+        const storedKey = data.businessKey;
+        const currentKey = getCurrentBusinessKey();
+
+        // ▼ 営業日が変わっていたら 6:00 以降のタイミングで全リセット
+        if (storedKey !== currentKey) {
+          // Firestore側も空で上書き
+          taskDocRef.set(
+            { checkedIds: [], businessKey: currentKey },
+            { merge: true }
+          );
+
+          // 画面上のチェックも全部外す
+          applyingRemote = true;
+          checkboxMap.forEach((cb) => {
+            cb.checked = false;
+          });
+          applyingRemote = false;
+
+          return; // ここで一旦終了（次の snapshot で新しい状態が来る）
+        }
+
+        // ▼ 営業日が同じなら、Firestoreの checkedIds をそのまま反映
+        const checkedIds = new Set(data.checkedIds || []);
+        applyingRemote = true;
+        checkboxMap.forEach((cb, id) => {
+          cb.checked = checkedIds.has(id);
+        });
+        applyingRemote = false;
+      });
 
       // チェックが変わったら保存
       document.body.addEventListener('change', (e) => {
@@ -784,6 +831,7 @@
       }
     });
   </script>
+
 
   <!-- ↑↑↑ ここまでが差し替え部分。すぐ上に </body></html> が来る形でOK ↑↑↑ -->
 
