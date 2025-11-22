@@ -6,11 +6,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* ベースフォント（小＝今のサイズ相当） */
+    --font-small: 11px;
+    --font-medium: 13px;
+    --font-large: 15px;
+  }
+
   body {
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     background: #f5f5f5;
     color: #111;
     line-height: 1.6;
+    font-size: var(--font-small);  /* デフォルト：小 */
+  }
+  body.font-medium {
+    font-size: var(--font-medium);
+  }
+  body.font-large {
+    font-size: var(--font-large);
   }
 
   /* 幅広め */
@@ -29,11 +44,11 @@
     padding: 10px 14px;
   }
   header h1 {
-    font-size: 16px;
+    font-size: 1.45em; /* 元16px */
     font-weight: 600;
   }
   header p {
-    font-size: 11px;
+    font-size: 1em; /* 元11px */
     opacity: 0.85;
     margin-top: 2px;
   }
@@ -51,7 +66,7 @@
   .nav a {
     flex: 0 0 auto;
     padding: 4px 8px;
-    font-size: 11px;
+    font-size: 1em; /* 元11px */
     border-radius: 999px;
     border: 1px solid #555;
     color: #eee;
@@ -61,6 +76,32 @@
   .nav a:hover {
     background: #fff;
     color: #111;
+  }
+
+  /* 文字サイズ切り替え */
+  .font-size-selector {
+    display: flex;
+    gap: 6px;
+    padding: 6px 10px 4px;
+    background: #111;
+    border-top: 1px solid #333;
+  }
+  .font-size-selector button {
+    padding: 3px 10px;
+    font-size: 0.95em;
+    background: #222;
+    border: 1px solid #555;
+    border-radius: 999px;
+    color: #eee;
+    cursor: pointer;
+  }
+  .font-size-selector button:hover {
+    background: #444;
+  }
+  .font-size-selector button.active {
+    background: #fff;
+    color: #111;
+    border-color: #fff;
   }
 
   main { padding: 10px 12px 20px; }
@@ -82,11 +123,11 @@
     padding-bottom: 4px;
   }
   .slot-title {
-    font-size: 14px;
+    font-size: 1.27em; /* 元14px */
     font-weight: 600;
   }
   .slot-note {
-    font-size: 10px;
+    font-size: 0.9em; /* 元10px */
     color: #666;
   }
 
@@ -94,14 +135,14 @@
     margin-top: 6px;
   }
   .tasks-group h3 {
-    font-size: 12px;
+    font-size: 1.1em; /* 元12px */
     display: inline-flex;
     align-items: center;
     gap: 4px;
     margin-bottom: 4px;
   }
   .badge {
-    font-size: 10px;
+    font-size: 0.9em; /* 元10px */
     padding: 1px 6px;
     border-radius: 999px;
   }
@@ -129,7 +170,7 @@
     display: flex;
     align-items: flex-start;
     gap: 6px;
-    font-size: 11px;
+    font-size: 1em; /* 元11px */
     padding: 2px 0;
   }
   .task-item input[type="checkbox"] {
@@ -140,7 +181,7 @@
   }
 
   .footer-note {
-    font-size: 10px;
+    font-size: 0.9em; /* 元10px */
     color: #666;
     padding: 6px 4px 20px;
     text-align: center;
@@ -150,7 +191,7 @@
 
   .info-list {
     list-style: none;
-    font-size: 11px;
+    font-size: 1em; /* 元11px */
     padding-left: 4px;
   }
   .info-list li {
@@ -161,12 +202,12 @@
     margin-top: 4px;
   }
   .handover-title {
-    font-size: 13px;
+    font-size: 1.18em; /* 元13px */
     font-weight: 600;
     margin-bottom: 4px;
   }
   .handover-note {
-    font-size: 10px;
+    font-size: 0.9em; /* 元10px */
     color: #666;
     margin-bottom: 4px;
   }
@@ -181,7 +222,7 @@
     border: 1px solid #ccc;
     border-radius: 999px;
     padding: 3px 8px;
-    font-size: 10px;
+    font-size: 0.9em; /* 元10px */
     background: #fafafa;
     cursor: pointer;
   }
@@ -191,7 +232,7 @@
 
   .handover-log {
     list-style: none;
-    font-size: 11px;
+    font-size: 1em; /* 元11px */
     border-top: 1px dashed #ddd;
     padding-top: 4px;
   }
@@ -206,14 +247,14 @@
     margin-right: 6px;
   }
   .handover-time {
-    font-size: 10px;
+    font-size: 0.9em; /* 元10px */
     color: #666;
     margin-right: 4px;
   }
   .handover-remove {
     border: none;
     background: transparent;
-    font-size: 12px;
+    font-size: 1.1em;
     cursor: pointer;
     color: #999;
   }
@@ -230,7 +271,7 @@
     background: #eee;
     border-radius: 999px;
     padding: 2px 8px;
-    font-size: 10px;
+    font-size: 0.9em; /* 元10px */
     cursor: pointer;
   }
   </style>
@@ -251,22 +292,17 @@
         <a href="#t3-5">3〜5時</a>
       </nav>
 
-
-
-<div class="font-size-selector">
-  <button data-size="small">小</button>
-  <button data-size="medium">中</button>
-  <button data-size="large">大</button>
-</div>
-
-      
-
-      
+      <!-- 🔤 文字サイズ切り替え -->
+      <div class="font-size-selector">
+        <button data-size="small">小</button>
+        <button data-size="medium">中</button>
+        <button data-size="large">大</button>
+      </div>
     </header>
 
     <main>
       <!-- 現在時刻表示 -->
-      <div id="time-display" style="padding: 10px; font-size: 14px; color: #333;">
+      <div id="time-display" style="padding: 10px; color: #333;">
         時刻を読み込み中…
       </div>
 
@@ -850,6 +886,34 @@
     // =============================
     document.addEventListener('DOMContentLoaded', () => {
 
+      // 🔤 文字サイズ：ボタンと保存処理
+      const sizeButtons = document.querySelectorAll('.font-size-selector button');
+
+      function applyFontSize(size) {
+        document.body.classList.remove('font-medium', 'font-large');
+        if (size === 'medium') {
+          document.body.classList.add('font-medium');
+        } else if (size === 'large') {
+          document.body.classList.add('font-large');
+        }
+        // ボタンの active 切り替え
+        sizeButtons.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.size === size);
+        });
+        localStorage.setItem('fontSizeSetting', size);
+      }
+
+      sizeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          const size = btn.dataset.size || 'small';
+          applyFontSize(size);
+        });
+      });
+
+      // 前回設定を反映（なければ small）
+      const savedSize = localStorage.getItem('fontSizeSetting') || 'small';
+      applyFontSize(savedSize);
+
       // 🔥 朝6:00 自動リセット開始
       setupDailyResetAt6AM();
 
@@ -1041,7 +1105,7 @@
         if (snapshot.empty) {
           const li = document.createElement('li');
           li.textContent = 'まだ引き継ぎメモはありません。';
-          li.style.fontSize = '10px';
+          li.style.fontSize = '0.9em';
           li.style.color = '#999';
           logEl.appendChild(li);
           return;
