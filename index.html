@@ -1074,88 +1074,111 @@
       // 先にタスク定義をロード（チェック状態は onSnapshot で後から追従）
       loadTaskDefinitions();
 
-                // --------------------------------
-      // 3) 引き継ぎメモ（全員で共有）
-      //    → 画面上にある handover-slot 全部を同じ内容で表示
+                     // --------------------------------
+      // 3) 引き継ぎメモ（時間帯ごとに別表示）
+      //    handover-slot の data-slot ごとにFirestoreを絞る
       // --------------------------------
-      const logEls     = document.querySelectorAll('.handover-log');
-      const clearBtns  = document.querySelectorAll('.handover-clear-btn');
-      const chipButtons = document.querySelectorAll('.handover-chip');
+      const handoverSlots  = document.querySelectorAll('.handover-slot');
       const handoverColRef = db.collection('handover');
 
-     function renderHandover(snapshot) {
-  // ログが1つも無い（HTMLに無い）なら何もしない
-  if (!logEls.length) return;
+      function renderHandoverForSlot(snapshot, logEl, slotId) {
+        if (!logEl) return;
 
-  // いったん全部クリア
-  logEls.forEach((logEl) => {
-    logEl.innerHTML = '';
-  });
+        // いったんクリア
+        logEl.innerHTML = '';
 
-  snapshot.forEach((doc) => {
-    const data = doc.data();
+        if (snapshot.empty) {
+          const li = document.createElement('li');
+          li.textContent = 'まだ引き継ぎメモはありません。';
+          li.style.fontSize = '10px';
+          li.style.color = '#999';
+          logEl.appendChild(li);
+          return;
+        }
 
-    // すべての handover-log に同じ内容を追加
-    logEls.forEach((logEl) => {
-      const li = document.createElement('li');
-      li.className = 'handover-item';
+        snapshot.forEach((doc) => {
+          const data = doc.data();
 
-      const textSpan = document.createElement('span');
-      textSpan.className = 'handover-text';
-      textSpan.textContent = data.text || '';
+          // 念のため slotId チェック（万が一、他の時間帯のデータが来た場合）
+          if (data.slotId !== slotId) return;
 
-      const timeSpan = document.createElement('span');
-      timeSpan.className = 'handover-time';
-      timeSpan.textContent = data.timeLabel || '';
+          const li = document.createElement('li');
+          li.className = 'handover-item';
 
-      const delBtn = document.createElement('button');
-      delBtn.className = 'handover-remove';
-      delBtn.textContent = '✕';
-      delBtn.addEventListener('click', () => {
-        doc.ref.delete();
-      });
+          const textSpan = document.createElement('span');
+          textSpan.className = 'handover-text';
+          textSpan.textContent = data.text || '';
 
-      li.appendChild(textSpan);
-      li.appendChild(timeSpan);
-      li.appendChild(delBtn);
+          const timeSpan = document.createElement('span');
+          timeSpan.className = 'handover-time';
+          timeSpan.textContent = data.timeLabel || '';
 
-      logEl.appendChild(li);
-    });
-  });
-}
+          const delBtn = document.createElement('button');
+          delBtn.className = 'handover-remove';
+          delBtn.textContent = '✕';
+          delBtn.addEventListener('click', () => {
+            doc.ref.delete();
+          });
 
+          li.appendChild(textSpan);
+          li.appendChild(timeSpan);
+          li.appendChild(delBtn);
 
-      handoverColRef.orderBy('createdAt', 'desc').onSnapshot(renderHandover);
-
-      function addHandover(text) {
-        const now = new Date();
-        const timeLabel = now.toLocaleTimeString('ja-JP', {
-          hour: '2-digit',
-          minute: '2-digit'
-        });
-        handoverColRef.add({
-          text,
-          timeLabel,
-          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          logEl.appendChild(li);
         });
       }
 
-      chipButtons.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          const text = btn.dataset.text;
-          if (text) addHandover(text);
+      handoverSlots.forEach((slotEl) => {
+        const slotId = slotEl.dataset.slot || 'global';
+        const logEl = slotEl.querySelector('.handover-log');
+        const clearBtn = slotEl.querySelector('.handover-clear-btn');
+        const chipButtons = slotEl.querySelectorAll('.handover-chip');
+
+        // この時間帯専用の listener
+        handoverColRef
+          .orderBy('createdAt', 'desc')
+          .limit(50) // 念のため上限
+          .onSnapshot((snapshot) => {
+            // snapshot 全体から、この slotId のものだけ表示
+            renderHandoverForSlot(snapshot, logEl, slotId);
+          });
+
+        function addHandoverForSlot(text) {
+          const now = new Date();
+          const timeLabel = now.toLocaleTimeString('ja-JP', {
+            hour: '2-digit',
+            minute: '2-digit'
+          });
+          handoverColRef.add({
+            text,
+            slotId,
+            timeLabel,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        }
+
+        chipButtons.forEach((btn) => {
+          btn.addEventListener('click', () => {
+            const text = btn.dataset.text;
+            if (text) addHandoverForSlot(text);
+          });
         });
+
+        if (clearBtn) {
+          clearBtn.addEventListener('click', async () => {
+            if (!confirm('この時間帯の引き継ぎメモを全部消しますか？')) return;
+
+            const snap = await handoverColRef
+              .where('slotId', '==', slotId)
+              .get();
+
+            const batch = db.batch();
+            snap.forEach((doc) => batch.delete(doc.ref));
+            await batch.commit();
+          });
+        }
       });
 
-      clearBtns.forEach((clearBtn) => {
-        clearBtn.addEventListener('click', async () => {
-          if (!confirm('引き継ぎメモを全部消しますか？')) return;
-          const snap = await handoverColRef.get();
-          const batch = db.batch();
-          snap.forEach((doc) => batch.delete(doc.ref));
-          await batch.commit();
-        });
-      });
 
 
 
