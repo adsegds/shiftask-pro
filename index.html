@@ -1010,6 +1010,19 @@
     document.addEventListener('DOMContentLoaded', () => {
 
 
+
+const jumpBtn = document.getElementById('jumpCurrentSlotBtn');
+if (jumpBtn) {
+  jumpBtn.addEventListener('click', () => {
+    // 必ず「お知らせ→引き継ぎメモ」を見たあとで押してね、と口頭＆張り紙で伝える
+    scrollToCurrentTimeSlot();
+  });
+}
+
+
+      
+
+
       // =============================
       // 現在時刻の時間帯セクションに自動スクロール
       // =============================
@@ -1048,7 +1061,8 @@
 
 
       // 画面表示時に「今の時間帯」まで自動スクロール
-      scrollToCurrentTimeSlot();
+  
+// scrollToCurrentTimeSlot();  // ← 一旦止める
 
 
       
