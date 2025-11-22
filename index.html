@@ -952,6 +952,41 @@
     // =============================
     document.addEventListener('DOMContentLoaded', () => {
 
+
+      // =============================
+      // 現在時刻の時間帯セクションに自動スクロール
+      // =============================
+      function getCurrentSlotIdByHour(hour) {
+        if (hour >= 6 && hour < 9)  return 't6-8';
+        if (hour >= 9 && hour < 12) return 't9-11';
+        if (hour >= 12 && hour < 15) return 't12-14';
+        if (hour >= 15 && hour < 18) return 't15-17';
+        if (hour >= 18 && hour < 21) return 't18-20';
+        if (hour >= 21 && hour < 24) return 't21-23';
+        if (hour >= 0 && hour < 2)   return 't0-2';
+        return 't3-5'; // 2〜3, 3〜5 はここ
+      }
+
+      function scrollToCurrentTimeSlot() {
+        const now = new Date();
+        const h = now.getHours();
+        const slotId = getCurrentSlotIdByHour(h);
+        const el = document.getElementById(slotId);
+        if (!el) return;
+
+        // レイアウトが落ち着いてからスクロールしたいので少し待つ
+        setTimeout(() => {
+          el.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+          });
+        }, 400);
+      }
+
+
+
+      
+
       // =============================
       // 端末ラベル管理（localStorage）
       // =============================
