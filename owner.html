@@ -1087,6 +1087,110 @@
 
       loadHandoverTemplate();
 
+
+
+
+
+
+
+
+
+      // =============================
+      // 5) shiftSheet（シフト表設定）
+      // =============================
+      const shiftImageUrlInput   = document.getElementById("shiftImageUrlInput");
+      const shiftImageUrlSaveBtn = document.getElementById("shiftImageUrlSaveBtn");
+      const shiftImagePreview    = document.getElementById("shiftImagePreview");
+      const shiftStatus          = document.getElementById("shiftStatus");
+      const shiftDocRef          = db.collection("settings").doc("shiftSheet");
+
+      function setShiftStatus(msg, ok) {
+        if (!shiftStatus) return;
+        shiftStatus.textContent = msg || "";
+        shiftStatus.className = "status " + (ok ? "ok" : "err");
+      }
+
+      // Firestore から現在のURLを読み込む
+      async function loadShiftImageSetting() {
+        if (!shiftImageUrlInput || !shiftImagePreview) return;
+        setShiftStatus("読み込み中…", true);
+
+        try {
+          const snap = await shiftDocRef.get();
+          if (!snap.exists) {
+            shiftImageUrlInput.value = "";
+            shiftImagePreview.style.display = "none";
+            setShiftStatus("まだシフト表は設定されていません。", true);
+            return;
+          }
+
+          const data = snap.data() || {};
+          const url  = data.imageUrl || "";
+
+          shiftImageUrlInput.value = url;
+          if (url) {
+            shiftImagePreview.src = url;
+            shiftImagePreview.style.display = "block";
+            setShiftStatus("読み込み完了。", true);
+          } else {
+            shiftImagePreview.style.display = "none";
+            setShiftStatus("URLが設定されていません。", true);
+          }
+        } catch (e) {
+          console.error("shiftSheet 読み込みエラー", e);
+          setShiftStatus("読み込みに失敗しました。", false);
+        }
+      }
+
+      // 保存ボタン
+      shiftImageUrlSaveBtn?.addEventListener("click", async () => {
+        if (!shiftImageUrlInput) return;
+        const url = shiftImageUrlInput.value.trim();
+
+        setShiftStatus("保存中…", true);
+        try {
+          await shiftDocRef.set({ imageUrl: url || null }, { merge: true });
+
+          if (url) {
+            shiftImagePreview.src = url;
+            shiftImagePreview.style.display = "block";
+          } else if (shiftImagePreview) {
+            shiftImagePreview.style.display = "none";
+          }
+
+          setShiftStatus("シフト表URLを保存しました。", true);
+        } catch (e) {
+          console.error("shiftSheet 保存エラー", e);
+          setShiftStatus("保存に失敗しました。", false);
+        }
+      });
+
+      // （おまけ）オーナー画面を開いた直後にも一回だけ読み込んでおく
+      //   → 別タブで開いてすぐ確認したいとき用
+      loadShiftImageSetting();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
             // =============================
       // 4) checklistLogs（スタッフログ）
       // =============================
