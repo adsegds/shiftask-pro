@@ -614,6 +614,61 @@
 
 
 
+/* === フルスクリーン化 === */
+.app-menu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: none;
+  justify-content: flex-end; /* 下から出す */
+  z-index: 2000;
+}
+
+.app-menu-overlay.open {
+  display: flex;
+}
+
+.app-menu-sheet {
+  width: 100%;
+  height: 100vh;               /* ← フルスクリーンにする */
+  background: #fff;
+  border-top-left-radius: 14px;
+  border-top-right-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.25s ease-out;
+}
+
+/* 中身はスクロール可能にする */
+.app-menu-body {
+  flex: 1;
+  overflow-y: auto;
+  padding-bottom: 40px;
+}
+
+/* スライドアニメーション */
+@keyframes slideUp {
+  from { transform: translateY(20%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+
 
 
 
