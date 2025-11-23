@@ -534,6 +534,57 @@
         </section>
       </section>
 
+
+
+
+
+
+
+
+      <!-- ★ シフト表設定 -->
+      <section id="view-shift" class="view-panel">
+        <section class="card" id="shift-card">
+          <h2>シフト表設定</h2>
+          <p class="card-sub">
+            スタッフ画面からワンタップで開ける「シフト表画像」のURLを設定します。<br>
+            画像は Googleドライブ / Gyazo / 自分のサーバーなどにアップして、公開URLを貼ればOKです。
+          </p>
+
+          <div class="row">
+            <label for="shiftImageUrlInput">シフト表画像のURL</label>
+            <input
+              type="text"
+              id="shiftImageUrlInput"
+              placeholder="https://...（シフト表画像のURL）"
+            />
+            <p class="hint">
+              画像を差し替えるときは、ここを書き換えて「この内容で保存」を押すだけでOKです。
+            </p>
+          </div>
+
+          <div class="btn-row">
+            <button type="button" class="btn-primary" id="shiftImageUrlSaveBtn">
+              この内容で保存
+            </button>
+          </div>
+          <div class="status" id="shiftStatus"></div>
+
+          <hr>
+
+          <label>プレビュー</label>
+          <img id="shiftImagePreview" src="" alt="シフト表プレビュー">
+        </section>
+      </section>
+
+
+
+
+
+
+
+
+      
+
       <!-- ③ 引き継ぎメモ用ボタン編集 -->
       <section id="view-handover" class="view-panel">
         <section class="card" id="handover-card">
