@@ -743,6 +743,30 @@
 
 
 
+
+      function activateView(viewId) {
+        views.forEach((v) => v.classList.toggle("active", v.id === "view-" + viewId));
+        navButtons.forEach((btn) =>
+          btn.classList.toggle("active", btn.dataset.view === viewId)
+        );
+
+        // ★ シフト表タブが開かれたら、現在の設定を読み込む
+        if (viewId === "shift") {
+          loadShiftImageSetting();
+        }
+      }
+
+
+
+
+
+
+
+      
+
+
+
+
       const logTodayBtn = document.getElementById("logTodayBtn");
       const logYesterdayBtn = document.getElementById("logYesterdayBtn");
       const logLast3Btn = document.getElementById("logLast3Btn"); // まだ使わない
