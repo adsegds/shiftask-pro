@@ -1267,6 +1267,69 @@
         </div>
       </section>
 
+
+
+
+
+
+
+
+
+<!-- ================== グローバル設定メニュー ================== -->
+<div class="app-menu-overlay" id="appMenuOverlay">
+  <div class="app-menu-sheet">
+    <div class="app-menu-header">
+      <div class="app-menu-title">表示・シフト設定</div>
+      <button type="button" class="app-menu-close" id="appMenuClose">✕</button>
+    </div>
+
+    <!-- ★ここに「シフト」「横スクロール時間」「文字サイズ」を入れる -->
+    <div class="app-menu-section">
+      <h3>シフト表</h3>
+      <!-- いま画面のどこかにある「シフト表を見る」ボタンをここに移動してくればOK -->
+      <button type="button" id="openShiftFromMenu" class="btn-secondary">
+        シフト表を開く
+      </button>
+    </div>
+
+    <div class="app-menu-section">
+      <h3>横スクロールの時間</h3>
+      <!-- 既存の「スクロール速度」のセレクトやスライダーを、この中に移動するイメージ -->
+      <select id="scrollSpeedSelect">
+        <option value="slow">ゆっくり</option>
+        <option value="normal" selected>ふつう</option>
+        <option value="fast">はやい</option>
+      </select>
+    </div>
+
+    <div class="app-menu-section">
+      <h3>文字の大きさ</h3>
+      <!-- 既存のフォントサイズ切り替えボタンをここに入れる -->
+      <div class="btn-row">
+        <button type="button" data-font="small" class="btn-secondary">小</button>
+        <button type="button" data-font="medium" class="btn-secondary">中</button>
+        <button type="button" data-font="large" class="btn-secondary">大</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
     </main>
 
     <div class="footer-note">
