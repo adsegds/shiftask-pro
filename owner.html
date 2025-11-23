@@ -691,7 +691,7 @@
     </main>
   </div>
 
-  <!-- Firebase SDK -->
+   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
 
@@ -735,17 +735,16 @@
     }
 
     document.addEventListener("DOMContentLoaded", () => {
-
-
-
-
-
-
-
-
+      // =============================
+      // 左メニュー切り替え
+      // =============================
+      const navButtons = document.querySelectorAll(".sidebar-nav button");
+      const views = document.querySelectorAll(".view-panel");
 
       function activateView(viewId) {
-        views.forEach((v) => v.classList.toggle("active", v.id === "view-" + viewId));
+        views.forEach((v) =>
+          v.classList.toggle("active", v.id === "view-" + viewId)
+        );
         navButtons.forEach((btn) =>
           btn.classList.toggle("active", btn.dataset.view === viewId)
         );
@@ -754,72 +753,6 @@
         if (viewId === "shift") {
           loadShiftImageSetting();
         }
-      }
-
-
-
-
-
-
-
-      
-
-
-
-
-      const logTodayBtn = document.getElementById("logTodayBtn");
-      const logYesterdayBtn = document.getElementById("logYesterdayBtn");
-      const logLast3Btn = document.getElementById("logLast3Btn"); // まだ使わない
-
-      function setDateInputToToday() {
-        logDateInput.value = getCurrentBusinessKey();
-      }
-
-      function setDateInputToYesterday() {
-        const today = getCurrentBusinessKey(); // YYYY-MM-DD
-        const [y, m, d] = today.split("-").map(Number);
-        const dt = new Date(y, m - 1, d);
-        dt.setDate(dt.getDate() - 1);
-        const yy = dt.getFullYear();
-        const mm = String(dt.getMonth() + 1).padStart(2, "0");
-        const dd = String(dt.getDate()).padStart(2, "0");
-        logDateInput.value = `${yy}-${mm}-${dd}`;
-      }
-
-      logTodayBtn?.addEventListener("click", () => {
-        setDateInputToToday();
-        startLogsListener();
-      });
-
-      logYesterdayBtn?.addEventListener("click", () => {
-        setDateInputToYesterday();
-        startLogsListener();
-      });
-
-      // 直近3日は後で本格実装
-      logLast3Btn?.addEventListener("click", () => {
-        alert("直近3日の集計はあとで実装しよう💡（今日は日付1日ずつ見てね）");
-      });
-
-
-
-
-
-
-
-
-      
-      // =============================
-      // 左メニュー切り替え
-      // =============================
-      const navButtons = document.querySelectorAll(".sidebar-nav button");
-      const views = document.querySelectorAll(".view-panel");
-
-      function activateView(viewId) {
-        views.forEach((v) => v.classList.toggle("active", v.id === "view-" + viewId));
-        navButtons.forEach((btn) =>
-          btn.classList.toggle("active", btn.dataset.view === viewId)
-        );
       }
 
       navButtons.forEach((btn) => {
@@ -876,68 +809,70 @@
         setNewsStatus("", true);
       });
 
-      ownerNewsColRef.orderBy("createdAt", "desc").limit(20).onSnapshot(
-        (snapshot) => {
-          newsList.innerHTML = "";
-          if (snapshot.empty) {
-            const li = document.createElement("li");
-            li.textContent = "現在、お知らせはありません。";
-            newsList.appendChild(li);
-            return;
-          }
-          snapshot.forEach((doc) => {
-            const data = doc.data();
-            const li = document.createElement("li");
-            li.className = "news-item";
+      ownerNewsColRef
+        .orderBy("createdAt", "desc")
+        .limit(20)
+        .onSnapshot(
+          (snapshot) => {
+            newsList.innerHTML = "";
+            if (snapshot.empty) {
+              const li = document.createElement("li");
+              li.textContent = "現在、お知らせはありません。";
+              newsList.appendChild(li);
+              return;
+            }
+            snapshot.forEach((doc) => {
+              const data = doc.data();
+              const li = document.createElement("li");
+              li.className = "news-item";
 
-            const main = document.createElement("div");
-            main.className = "news-main";
+              const main = document.createElement("div");
+              main.className = "news-main";
 
-            const titleEl = document.createElement("div");
-            titleEl.className = "news-title";
-            titleEl.textContent = data.title || "(タイトルなし)";
+              const titleEl = document.createElement("div");
+              titleEl.className = "news-title";
+              titleEl.textContent = data.title || "(タイトルなし)";
 
-            const bodyEl = document.createElement("div");
-            bodyEl.className = "news-body";
-            bodyEl.textContent = data.body || "";
+              const bodyEl = document.createElement("div");
+              bodyEl.className = "news-body";
+              bodyEl.textContent = data.body || "";
 
-            const metaEl = document.createElement("div");
-            metaEl.className = "news-meta";
-            const createdAt = data.createdAt ? data.createdAt.toDate() : null;
-            metaEl.textContent =
-              createdAt ?
-                createdAt.toLocaleString("ja-JP") :
-                "日時情報なし";
+              const metaEl = document.createElement("div");
+              metaEl.className = "news-meta";
+              const createdAt = data.createdAt ? data.createdAt.toDate() : null;
+              metaEl.textContent = createdAt
+                ? createdAt.toLocaleString("ja-JP")
+                : "日時情報なし";
 
-            main.appendChild(titleEl);
-            main.appendChild(bodyEl);
-            main.appendChild(metaEl);
+              main.appendChild(titleEl);
+              main.appendChild(bodyEl);
+              main.appendChild(metaEl);
 
-            const actions = document.createElement("div");
-            actions.className = "news-actions";
-            const delBtn = document.createElement("button");
-            delBtn.className = "btn-danger";
-            delBtn.textContent = "削除";
-            delBtn.addEventListener("click", async () => {
-              if (!confirm("このお知らせを削除しますか？")) return;
-              await doc.ref.delete();
+              const actions = document.createElement("div");
+              actions.className = "news-actions";
+              const delBtn = document.createElement("button");
+              delBtn.className = "btn-danger";
+              delBtn.textContent = "削除";
+              delBtn.addEventListener("click", async () => {
+                if (!confirm("このお知らせを削除しますか？")) return;
+                await doc.ref.delete();
+              });
+              actions.appendChild(delBtn);
+
+              li.appendChild(main);
+              li.appendChild(actions);
+
+              newsList.appendChild(li);
             });
-            actions.appendChild(delBtn);
-
-            li.appendChild(main);
-            li.appendChild(actions);
-
+          },
+          (error) => {
+            console.error("ownerNews 読み込みエラー", error);
+            newsList.innerHTML = "";
+            const li = document.createElement("li");
+            li.textContent = "お知らせの読み込みに失敗しました。";
             newsList.appendChild(li);
-          });
-        },
-        (error) => {
-          console.error("ownerNews 読み込みエラー", error);
-          newsList.innerHTML = "";
-          const li = document.createElement("li");
-          li.textContent = "お知らせの読み込みに失敗しました。";
-          newsList.appendChild(li);
-        }
-      );
+          }
+        );
 
       // =============================
       // 2) taskSlots（時間帯ごとのタスク定義）
@@ -963,7 +898,10 @@
         try {
           const snap = await taskSlotsRef.doc(slotId).get();
           if (!snap.exists) {
-            setTaskStatus("まだ定義されていません。HTML側の初期値が使われます。", true);
+            setTaskStatus(
+              "まだ定義されていません。HTML側の初期値が使われます。",
+              true
+            );
             return;
           }
           const data = snap.data() || {};
@@ -1001,15 +939,22 @@
         setTaskStatus("保存中…", true);
         try {
           await taskSlotsRef.doc(slotId).set({ tasksA, tasksB }, { merge: true });
+
           // この時間帯のチェック状態だけリセット
           const docSnap = await tasksDocRef.get();
           const data = docSnap.exists ? docSnap.data() : {};
-          const checkedIds = (data.checkedIds || []).filter((id) => !id.startsWith(slotId + "-"));
+          const checkedIds = (data.checkedIds || []).filter(
+            (id) => !id.startsWith(slotId + "-")
+          );
           await tasksDocRef.set(
             { checkedIds, businessKey: getCurrentBusinessKey() },
             { merge: true }
           );
-          setTaskStatus("保存しました（この時間帯のチェック状態をリセットしました）。", true);
+
+          setTaskStatus(
+            "保存しました（この時間帯のチェック状態をリセットしました）。",
+            true
+          );
         } catch (e) {
           console.error(e);
           setTaskStatus("保存に失敗しました。", false);
@@ -1055,9 +1000,10 @@
         setHandoverStatus("読み込み中…", true);
         try {
           const snap = await handoverTplRef.get();
-          const chips = snap.exists && Array.isArray(snap.data().chips)
-            ? snap.data().chips
-            : [];
+          const chips =
+            snap.exists && Array.isArray(snap.data().chips)
+              ? snap.data().chips
+              : [];
           handoverChipsInput.value = chips.join("\n");
           updateHandoverPreview(chips);
           setHandoverStatus("読み込み完了。", true);
@@ -1087,22 +1033,16 @@
 
       loadHandoverTemplate();
 
-
-
-
-
-
-
-
-
       // =============================
       // 5) shiftSheet（シフト表設定）
       // =============================
-      const shiftImageUrlInput   = document.getElementById("shiftImageUrlInput");
-      const shiftImageUrlSaveBtn = document.getElementById("shiftImageUrlSaveBtn");
-      const shiftImagePreview    = document.getElementById("shiftImagePreview");
-      const shiftStatus          = document.getElementById("shiftStatus");
-      const shiftDocRef          = db.collection("settings").doc("shiftSheet");
+      const shiftImageUrlInput = document.getElementById("shiftImageUrlInput");
+      const shiftImageUrlSaveBtn = document.getElementById(
+        "shiftImageUrlSaveBtn"
+      );
+      const shiftImagePreview = document.getElementById("shiftImagePreview");
+      const shiftStatus = document.getElementById("shiftStatus");
+      const shiftDocRef = db.collection("settings").doc("shiftSheet");
 
       function setShiftStatus(msg, ok) {
         if (!shiftStatus) return;
@@ -1125,7 +1065,7 @@
           }
 
           const data = snap.data() || {};
-          const url  = data.imageUrl || "";
+          const url = data.imageUrl || "";
 
           shiftImageUrlInput.value = url;
           if (url) {
@@ -1166,32 +1106,9 @@
       });
 
       // （おまけ）オーナー画面を開いた直後にも一回だけ読み込んでおく
-      //   → 別タブで開いてすぐ確認したいとき用
       loadShiftImageSetting();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-      
-
-            // =============================
+      // =============================
       // 4) checklistLogs（スタッフログ）
       // =============================
       const logDateInput = document.getElementById("logDate");
@@ -1221,7 +1138,8 @@
           logTableBody.appendChild(tr);
 
           logEmptyMsg.textContent =
-            "営業日: " + (businessKey || "指定なし") +
+            "営業日: " +
+            (businessKey || "指定なし") +
             (deviceFilter ? " / 端末: " + deviceFilter : "");
           logEmptyMsg.style.display = "block";
           return;
@@ -1231,13 +1149,19 @@
           const data = doc.data();
           const tr = document.createElement("tr");
 
-          const createdAt =
-            data.createdAt ? data.createdAt.toDate() :
-            (data.clientTimeISO ? new Date(data.clientTimeISO) : null);
+          const createdAt = data.createdAt
+            ? data.createdAt.toDate()
+            : data.clientTimeISO
+            ? new Date(data.clientTimeISO)
+            : null;
 
           const timeTd = document.createElement("td");
           timeTd.textContent = createdAt
-            ? createdAt.toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
+            ? createdAt.toLocaleTimeString("ja-JP", {
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+              })
             : "";
 
           const bkTd = document.createElement("td");
@@ -1274,7 +1198,6 @@
         const deviceFilter = logDeviceInput.value.trim();
 
         if (!businessKey) {
-          // 営業日未指定なら当日扱い
           const todayKey = getCurrentBusinessKey();
           logDateInput.value = todayKey;
           return startLogsListener();
@@ -1297,7 +1220,7 @@
               const docs = [];
               snapshot.forEach((doc) => docs.push(doc));
 
-              // JS側で createdAt 降順ソート
+              // createdAt 降順ソート
               docs.sort((a, b) => {
                 const da = a.data().createdAt
                   ? a.data().createdAt.toMillis()
@@ -1316,10 +1239,7 @@
                 : docs;
 
               renderLogs(filtered, businessKey, deviceFilter);
-              setLogStatus(
-                `読み込み完了（${filtered.length}件）`,
-                true
-              );
+              setLogStatus(`読み込み完了（${filtered.length}件）`, true);
             },
             (error) => {
               console.error("checklistLogs 読み込みエラー", error);
@@ -1330,6 +1250,40 @@
           );
       }
 
+      // 日付ショートカットボタン
+      const logTodayBtn = document.getElementById("logTodayBtn");
+      const logYesterdayBtn = document.getElementById("logYesterdayBtn");
+      const logLast3Btn = document.getElementById("logLast3Btn"); // まだ未実装
+
+      function setDateInputToToday() {
+        logDateInput.value = getCurrentBusinessKey();
+      }
+
+      function setDateInputToYesterday() {
+        const today = getCurrentBusinessKey(); // YYYY-MM-DD
+        const [y, m, d] = today.split("-").map(Number);
+        const dt = new Date(y, m - 1, d);
+        dt.setDate(dt.getDate() - 1);
+        const yy = dt.getFullYear();
+        const mm = String(dt.getMonth() + 1).padStart(2, "0");
+        const dd = String(dt.getDate()).padStart(2, "0");
+        logDateInput.value = `${yy}-${mm}-${dd}`;
+      }
+
+      logTodayBtn?.addEventListener("click", () => {
+        setDateInputToToday();
+        startLogsListener();
+      });
+
+      logYesterdayBtn?.addEventListener("click", () => {
+        setDateInputToYesterday();
+        startLogsListener();
+      });
+
+      logLast3Btn?.addEventListener("click", () => {
+        alert("直近3日の集計はあとで実装しよう💡（今日は日付1日ずつ見てね）");
+      });
+
       // フィルタボタン
       logFilterBtn.addEventListener("click", () => {
         startLogsListener();
@@ -1338,8 +1292,8 @@
       // 初期値：今日の営業日
       logDateInput.value = getCurrentBusinessKey();
       startLogsListener();
-
     });
   </script>
+
 </body>
 </html>
