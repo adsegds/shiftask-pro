@@ -1290,6 +1290,80 @@
     document.addEventListener('DOMContentLoaded', () => {
 
 
+      // =============================
+      // シフト表URL読み込み ＆ ワンタップボタン
+      // =============================
+      const openShiftBtn = document.getElementById('openShiftBtn');
+      let shiftImageUrl = null;
+
+      function loadShiftImageUrl() {
+        if (!openShiftBtn) return;
+
+        db.collection('settings').doc('shiftSheet').get()
+          .then((snap) => {
+            if (!snap.exists) {
+              openShiftBtn.textContent = 'シフト表（未設定）';
+              openShiftBtn.disabled = true;
+              return;
+            }
+
+            const data = snap.data() || {};
+            shiftImageUrl = data.imageUrl || null;
+
+            if (!shiftImageUrl) {
+              openShiftBtn.textContent = 'シフト表（未設定）';
+              openShiftBtn.disabled = true;
+            }
+          })
+          .catch((err) => {
+            console.error('shiftSheet 読み込みエラー', err);
+            openShiftBtn.textContent = 'シフト表読み込み失敗';
+            openShiftBtn.disabled = true;
+          });
+      }
+
+      if (openShiftBtn) {
+        openShiftBtn.addEventListener('click', () => {
+          if (shiftImageUrl) {
+            // シフト表画像を別タブで開く
+            window.open(shiftImageUrl, '_blank');
+          } else {
+            alert('まだシフト表が設定されていません。\nオーナー画面からURLを設定してください。');
+          }
+        });
+
+        // ページ表示時にURLを一度だけ読み込み
+        loadShiftImageUrl();
+      }
+
+      // （ここから先は元々あったコード）
+      const jumpBtn = document.getElementById('jumpNowSlotBtn');
+      if (jumpBtn) {
+        jumpBtn.addEventListener('click', () => {
+          scrollToCurrentTimeSlot();
+        });
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
 
 const jumpBtn = document.getElementById('jumpNowSlotBtn');
 if (jumpBtn) {
