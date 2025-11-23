@@ -2115,6 +2115,37 @@ chips.forEach((text, index) => {
           );
       }
     });
+
+
+
+// ===== DMM風 9ドットメニューの開閉 =====
+const appMenuBtn = document.getElementById("appMenuBtn");
+const appMenuOverlay = document.getElementById("appMenuOverlay");
+const appMenuClose = document.getElementById("appMenuClose");
+
+function openAppMenu() {
+  appMenuOverlay.style.display = "flex";
+}
+
+function closeAppMenu() {
+  appMenuOverlay.style.display = "none";
+}
+
+appMenuBtn?.addEventListener("click", openAppMenu);
+appMenuClose?.addEventListener("click", closeAppMenu);
+
+// オーバーレイの暗い部分タップでも閉じる
+appMenuOverlay?.addEventListener("click", (e) => {
+  if (e.target === appMenuOverlay) {
+    closeAppMenu();
+  }
+});
+
+
+
+
+
+    
   </script>
 
 
