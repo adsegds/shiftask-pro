@@ -1263,7 +1263,7 @@ body.font-large .app-menu-sheet {
     const db = firebase.firestore();
 
     // =============================
-    // 営業日キー計算（6:00切り替え）
+    // 営業日キー計算（7:00切り替え）
     // =============================
     function getCurrentBusinessKey() {
       const now = new Date();
@@ -1272,7 +1272,7 @@ body.font-large .app-menu-sheet {
       const d = now.getDate();
       const base = new Date(y, m, d);
 
-      if (now.getHours() < 6) {
+      if (now.getHours() < 7) {
         base.setDate(base.getDate() - 1);
       }
 
@@ -1283,13 +1283,13 @@ body.font-large .app-menu-sheet {
     }
 
     // =============================
-    // 6:00 自動リセット（ページ再読み込み）
+    // 7:00 自動リセット（ページ再読み込み）
     // =============================
     function setupDailyResetAt6AM() {
       function scheduleNextReset() {
         const now = new Date();
         const next = new Date();
-        next.setHours(6, 0, 0, 0);
+        next.setHours(7, 0, 0, 0);
         if (now >= next) {
           next.setDate(next.getDate() + 1);
         }
