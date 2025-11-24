@@ -1454,20 +1454,18 @@
       const taskDocRef = db.collection("tasks").doc("lawson-main");
       let applyingRemote = false;
 
-      // ② 各時間帯の最後の tasks-group の下に完了率バーを差し込む
+      // ② 各時間帯のヘッダー直下に完了率バーを差し込む
       function initializeProgressBars() {
         timeSlotIds.forEach((slotId) => {
           const section = document.getElementById(slotId);
           if (!section) return;
 
-          // その時間帯の .tasks-group を全部取得
-          const groups = section.querySelectorAll(".tasks-group");
+          // ヘッダー（.slot-header）の直後に入れたい
+          const header = section.querySelector(".slot-header");
+          if (!header) return;
 
-          // なければセクション自体をターゲットに
-          const target = groups.length > 0 ? groups[groups.length - 1] : section;
-
-          // 二重生成防止
-          if (target.querySelector(".slot-progress")) return;
+          // セクション内にすでに .slot-progress があったら二重生成しない
+          if (section.querySelector(".slot-progress")) return;
 
           const wrap = document.createElement("div");
           wrap.className = "slot-progress";
@@ -1479,7 +1477,9 @@
               <div class="slot-progress-bar-inner" data-slot-progress-bar="${slotId}"></div>
             </div>
           `;
-          target.appendChild(wrap);
+
+          // ヘッダーのすぐ下に差し込む
+          header.insertAdjacentElement("afterend", wrap);
         });
       }
 
