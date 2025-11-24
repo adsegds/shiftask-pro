@@ -1363,6 +1363,14 @@
         startLogsListener();
       });
 
+      // 端末ラベル・キーワード入力で Enter 押したら検索
+logDeviceInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") startLogsListener();
+});
+logKeywordInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") startLogsListener();
+});
+
       // 初期値：今日の営業日
       logDateInput.value = getCurrentBusinessKey();
       startLogsListener();
