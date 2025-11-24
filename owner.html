@@ -1223,63 +1223,106 @@
         });
       }
 
-      function startLogsListener() {
-        const dateStr = logDateInput.value;
-        const businessKey = businessKeyFromDateInput(dateStr);
-        const deviceFilter = logDeviceInput.value.trim();
+     function startLogsListener() {
+  const dateStr = logDateInput.value;
+  const businessKey = businessKeyFromDateInput(dateStr);
+  const deviceFilter = logDeviceInput.value.trim();
+  const keywordRaw = logKeywordInput ? logKeywordInput.value.trim() : "";
+  const keyword = keywordRaw.toLowerCase();
 
-        if (!businessKey) {
-          const todayKey = getCurrentBusinessKey();
-          logDateInput.value = todayKey;
-          return startLogsListener();
-        }
+  if (!businessKey) {
+    const todayKey = getCurrentBusinessKey();
+    logDateInput.value = todayKey;
+    return startLogsListener();
+  }
 
-        if (logsUnsub) {
-          logsUnsub();
-          logsUnsub = null;
-        }
+  if (logsUnsub) {
+    logsUnsub();
+    logsUnsub = null;
+  }
 
-        setLogStatus("読み込み中…", true);
-        logTableBody.innerHTML =
-          "<tr><td colspan='5'>ログを読み込み中...</td></tr>";
-        logEmptyMsg.style.display = "none";
+  setLogStatus("読み込み中…", true);
+  logTableBody.innerHTML =
+    "<tr><td colspan='5'>ログを読み込み中...</td></tr>";
+  logEmptyMsg.style.display = "none";
 
-        logsUnsub = logsColRef
-          .where("businessKey", "==", businessKey)
-          .onSnapshot(
-            (snapshot) => {
-              const docs = [];
-              snapshot.forEach((doc) => docs.push(doc));
+  logsUnsub = logsColRef
+    .where("businessKey", "==", businessKey)
+    .onSnapshot(
+      (snapshot) => {
+        let docs = [];
+        snapshot.forEach((doc) => docs.push(doc));
 
-              // createdAt 降順ソート
-              docs.sort((a, b) => {
-                const da = a.data().createdAt
-                  ? a.data().createdAt.toMillis()
-                  : 0;
-                const db = b.data().createdAt
-                  ? b.data().createdAt.toMillis()
-                  : 0;
-                return db - da;
-              });
+        // createdAt 降順ソート
+        docs.sort((a, b) => {
+          const da = a.data().createdAt
+            ? a.data().createdAt.toMillis()
+            : 0;
+          const db = b.data().createdAt
+            ? b.data().createdAt.toMillis()
+            : 0;
+          return db - da;
+        });
 
-              const filtered = deviceFilter
-                ? docs.filter(
-                    (doc) =>
-                      (doc.data().deviceLabel || "") === deviceFilter
-                  )
-                : docs;
-
-              renderLogs(filtered, businessKey, deviceFilter);
-              setLogStatus(`読み込み完了（${filtered.length}件）`, true);
-            },
-            (error) => {
-              console.error("checklistLogs 読み込みエラー", error);
-              setLogStatus("ログの読み込みに失敗しました。", false);
-              logTableBody.innerHTML =
-                "<tr><td colspan='5'>ログの読み込みに失敗しました。</td></tr>";
-            }
+        // ① 端末ラベルでフィルタ
+        if (deviceFilter) {
+          docs = docs.filter(
+            (doc) => (doc.data().deviceLabel || "") === deviceFilter
           );
+        }
+
+        // ② キーワードで全文検索フィルタ
+        if (keyword) {
+          docs = docs.filter((doc) => {
+            const data = doc.data() || {};
+
+            const createdAt = data.createdAt
+              ? data.createdAt.toDate()
+              : data.clientTimeISO
+              ? new Date(data.clientTimeISO)
+              : null;
+
+            const timeStr = createdAt
+              ? createdAt.toLocaleTimeString("ja-JP", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                })
+              : "";
+
+            const taskText = data.taskLabel
+              ? data.taskLabel
+              : data.extra && data.extra.noteText
+              ? data.extra.noteText
+              : "";
+
+            // 検索対象を全部くっつけて1本の文字列にする
+            const haystack = [
+              timeStr,                      // 時刻
+              data.businessKey || "",       // 営業日
+              data.deviceLabel || "未設定", // 端末
+              data.action || "",            // 操作
+              taskText || "",               // タスク / メモ
+            ]
+              .join(" ")
+              .toLowerCase();
+
+            return haystack.includes(keyword);
+          });
+        }
+
+        renderLogs(docs, businessKey, deviceFilter);
+        setLogStatus(`読み込み完了（${docs.length}件）`, true);
+      },
+      (error) => {
+        console.error("checklistLogs 読み込みエラー", error);
+        setLogStatus("ログの読み込みに失敗しました。", false);
+        logTableBody.innerHTML =
+          "<tr><td colspan='5'>ログの読み込みに失敗しました。</td></tr>";
       }
+    );
+}
+
 
       // 日付ショートカットボタン
       const logTodayBtn = document.getElementById("logTodayBtn");
