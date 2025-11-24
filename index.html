@@ -1751,8 +1751,9 @@ async function logChecklistAction({ taskId, taskLabel, action, extra }) {
 
     // 端末ラベル or 名前（どちらも未入力なら "未設定"）
     const rawLabel =
-      (localStorage.getItem("deviceLabel") || "") ||
-      (localStorage.getItem("staffName") || "");
+  (localStorage.getItem("nb_lawson_device_label") || "") ||
+  (localStorage.getItem("staffName") || "");
+
 
     const deviceLabel =
       rawLabel && rawLabel.trim() ? rawLabel.trim() : "未設定";
