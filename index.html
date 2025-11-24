@@ -807,24 +807,30 @@
 
       <!-- お知らせ（① 既読バッジ＋ボタン対応版） -->
       <section class="slot" id="notice-section">
-        <div class="slot-header">
-          <div class="slot-title">お知らせ</div>
-          <div class="slot-note">
-            経営者からの共有事項
-            <span id="notice-status-badge" class="notice-status-badge"></span>
-          </div>
-        </div>
-        <div class="tasks-group">
-          <h3><span class="badge badge-a">お知らせ</span></h3>
-          <ul class="info-list" id="notice-list">
-            <li>お知らせを読み込み中...</li>
-          </ul>
+  <div class="slot-header">
+    <div class="slot-title">📢 お知らせ</div>
+    <div class="slot-note">
+      経営者からの共有事項
+      <span id="notice-status-badge" class="notice-status-badge"></span>
+    </div>
+  </div>
 
-          <button id="notice-read-btn" class="notice-read-btn">
-            すべて読んだことにする
-          </button>
-        </div>
-      </section>
+  <!-- 追加：リード文（1行） -->
+  <p class="notice-lead">
+    ※シフト変更や重要な連絡は、必ずここを確認してください。
+  </p>
+
+  <div class="tasks-group">
+    <h3><span class="badge badge-a">お知らせ</span></h3>
+    <ul class="info-list" id="notice-list">
+      <li>お知らせを読み込み中...</li>
+    </ul>
+
+    <button id="notice-read-btn" class="notice-read-btn">
+      すべて読んだことにする
+    </button>
+  </div>
+</section>
 
       <!-- ★ 共通 引き継ぎメモ（全時間帯共通） -->
       <section class="slot handover-slot" data-slot="global">
