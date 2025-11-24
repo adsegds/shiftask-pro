@@ -2025,16 +2025,35 @@
       }
 
       // 「全部読んだことにする」ボタン
-      if (noticeReadBtn) {
-        noticeReadBtn.addEventListener("click", () => {
-          if (!latestNoticeMs) {
-            alert("お知らせがありません。");
-            return;
-          }
-          localStorage.setItem(NOTICE_LAST_READ_KEY, String(latestNoticeMs));
-          updateNoticeBadge();
-        });
-      }
+if (noticeReadBtn) {
+  noticeReadBtn.addEventListener("click", () => {
+    if (!latestNoticeMs) {
+      alert("お知らせがありません。");
+      return;
+    }
+
+    // 変更前の既読タイムスタンプを取得
+    const prevStr = localStorage.getItem(NOTICE_LAST_READ_KEY);
+    const prevMs  = prevStr ? Number(prevStr) : 0;
+
+    // 未読が本当にあったかどうか（ログのため）
+    const hadUnread = prevMs < latestNoticeMs;
+
+    // ローカルに「ここまで読んだ」を保存
+    localStorage.setItem(NOTICE_LAST_READ_KEY, String(latestNoticeMs));
+    updateNoticeBadge();
+
+    // ★ 未読 → 既読になったときだけログを残す
+    if (hadUnread) {
+      logChecklistAction({
+        taskId: "ownerNews",
+        taskLabel: "お知らせを既読にした",
+        action: "noticeRead",
+        extra: { latestNoticeMs }
+      });
+    }
+  });
+}
 
       // 7:00自動リセット開始
       setupDailyResetAt7AM();
