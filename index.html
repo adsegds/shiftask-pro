@@ -162,6 +162,7 @@
 
   main { padding: 10px 12px 20px; }
 
+  /* ===== スロット（時間帯カード）周り ===== */
   .slot {
     margin-bottom: 12px;
     background: #fff;
@@ -175,8 +176,9 @@
     justify-content: space-between;
     align-items: baseline;
     margin-bottom: 4px;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 4px;
+    /* 下の線は消して、完了率バー側で線を引く */
+    /* border-bottom: 1px solid #eee; */
+    /* padding-bottom: 4px; */
   }
   .slot-title {
     font-size: 1.27em;
@@ -663,17 +665,19 @@
     background: #f0f0f0;
   }
 
-  /* ===== ② 各時間帯の完了率バー（セクションの一番下に表示） ===== */
+  /* ===== ② 各時間帯の完了率バー ===== */
   .slot-progress {
-    margin-top: 8px;
-    padding-top: 4px;
-    border-top: 1px solid #eee;  /* ーーーーー のイメージ */
+    margin-top: 4px;
+    margin-bottom: 6px;
+    padding: 6px 0;
     width: 100%;
+    border-top: 1px solid #eee;   /* 上のーーーーーーーーーーー */
+    border-bottom: 1px solid #eee;/* 下のーーーーーーーーーーー */
   }
   .slot-progress-label {
     font-size: 0.9em;
     color: #666;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
   }
   .slot-progress-bar {
     width: 100%;
@@ -686,7 +690,7 @@
     height: 100%;
     width: 0%;
     border-radius: 999px;
-    background: #1f7aec; /* 青いバー */
+    background: #1f7aec;
     transition: width 0.15s ease-out;
   }
   </style>
