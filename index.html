@@ -663,9 +663,11 @@
     background: #f0f0f0;
   }
 
-  /* ===== ② 各時間帯の完了率バー ===== */
+  /* ===== ② 各時間帯の完了率バー（セクションの一番下に表示） ===== */
   .slot-progress {
-    margin-top: 4px;
+    margin-top: 8px;
+    padding-top: 4px;
+    border-top: 1px solid #eee;  /* ーーーーー のイメージ */
     width: 100%;
   }
   .slot-progress-label {
@@ -684,7 +686,7 @@
     height: 100%;
     width: 0%;
     border-radius: 999px;
-    background: #1f7aec;
+    background: #1f7aec; /* 青いバー */
     transition: width 0.15s ease-out;
   }
   </style>
@@ -1448,16 +1450,20 @@
       const taskDocRef = db.collection("tasks").doc("lawson-main");
       let applyingRemote = false;
 
-      // ② 各時間帯のヘッダーに完了率バーを差し込む
+      // ② 各時間帯の最後の tasks-group の下に完了率バーを差し込む
       function initializeProgressBars() {
         timeSlotIds.forEach((slotId) => {
           const section = document.getElementById(slotId);
           if (!section) return;
-          const header = section.querySelector(".slot-header");
-          if (!header) return;
+
+          // その時間帯の .tasks-group を全部取得
+          const groups = section.querySelectorAll(".tasks-group");
+
+          // なければセクション自体をターゲットに
+          const target = groups.length > 0 ? groups[groups.length - 1] : section;
 
           // 二重生成防止
-          if (header.querySelector(".slot-progress")) return;
+          if (target.querySelector(".slot-progress")) return;
 
           const wrap = document.createElement("div");
           wrap.className = "slot-progress";
@@ -1469,7 +1475,7 @@
               <div class="slot-progress-bar-inner" data-slot-progress-bar="${slotId}"></div>
             </div>
           `;
-          header.appendChild(wrap);
+          target.appendChild(wrap);
         });
       }
 
