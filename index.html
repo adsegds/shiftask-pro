@@ -1000,16 +1000,16 @@
 
     // ★ URL から店舗IDを取得（例：owner.html?store=nambucho）
     //   store パラメータがない場合は "nambucho" をデフォルトにする
-    const urlParams = new URLSearchParams(window.location.search);
-    let STORE_ID = urlParams.get("store");
+   const urlParams = new URLSearchParams(window.location.search);
+let STORE_ID = urlParams.get("store");
 
-    if (!STORE_ID) {
-      // Firestore 上に作っている店舗IDに合わせて変更してね
-      STORE_ID = "nambucho";
-    }
+// store パラメータが無いときは「南部町ローソン」をデフォルトにする
+if (!STORE_ID) {
+  STORE_ID = "nambucho";   // ← 好きなID名でOK（Firestoreのdoc IDと合わせる）
+}
 
-    // ここから先はすべて stores/{STORE_ID}/ 以下を使う
-    const storeRef = db.collection("stores").doc(STORE_ID);
+// ここから先はすべて stores/{STORE_ID}/ 以下を使う
+const storeRef = db.collection("stores").doc(STORE_ID);
 
     // =============================
     // 営業日キー計算（7:00切り替え）
