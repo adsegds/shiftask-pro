@@ -1261,7 +1261,7 @@ const storeRef = db.collection("stores").doc(STORE_ID);
       const shiftImageUrlSaveBtn = document.getElementById("shiftImageUrlSaveBtn");
       const shiftImagePreview = document.getElementById("shiftImagePreview");
       const shiftStatus = document.getElementById("shiftStatus");
-      const shiftDocRef = db.collection("settings").doc("shiftSheet");
+      const shiftDocRef = storeRef.collection("settings").doc("shiftSheet");
 
       // Storage の参照を用意
       const storage = firebase.storage();
