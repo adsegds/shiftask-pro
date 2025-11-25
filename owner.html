@@ -880,6 +880,16 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // ★ 店舗ID（storeId）を最初に聞く
+const STORE_ID = prompt("店舗IDを入力してください（例：nambacho）");
+if (!STORE_ID) {
+  alert("店舗IDがありません。画面を閉じます。");
+  location.href = "https://google.com";
+}
+
+// すべてのデータは stores/{STORE_ID}/ 以下に保存する
+const storeRef = db.collection("stores").doc(STORE_ID);
+
     // 6:00切り替えの「今日の営業日」
     function getCurrentBusinessKey() {
       const now = new Date();
