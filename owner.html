@@ -1393,7 +1393,7 @@ const storeRef = db.collection("stores").doc(STORE_ID);
       const logTableBody = document.getElementById("logTableBody");
       const logEmptyMsg = document.getElementById("logEmptyMsg");
       const logStatus = document.getElementById("logStatus");
-      const logsColRef = db.collection("checklistLogs");
+      const logsColRef = storeRef.collection("checklistLogs");
       let logsUnsub = null;
 
       function setLogStatus(msg, ok) {
