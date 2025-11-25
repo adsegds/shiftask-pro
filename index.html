@@ -1403,8 +1403,8 @@ const storeRef = db.collection("stores").doc(STORE_ID);
       let shiftImageUrl = null;
 
       function loadShiftImageUrl() {
-        db.collection("settings").doc("shiftSheet").get()
-          .then((snap) => {
+  storeRef.collection("settings").doc("shiftSheet").get()
+    .then((snap) => {
             if (!snap.exists) {
               [openShiftBtn, openShiftFromMenu].forEach((btn) => {
                 if (btn) {
