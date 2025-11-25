@@ -1519,6 +1519,28 @@ function getStoreIdWithCache() {
     }
 
     document.addEventListener("DOMContentLoaded", () => {
+
+
+      // 店舗ID / パスワード表示
+      const storeIdDisplay = document.getElementById("storeIdDisplay");
+      const storePassDisplay = document.getElementById("storePassDisplay");
+
+      if (storeIdDisplay) {
+        storeIdDisplay.textContent = STORE_ID || "未設定";
+      }
+
+      if (storePassDisplay) {
+        const pass = STORE_PASSWORDS[STORE_ID];
+        if (pass) {
+          storePassDisplay.value = pass;       // 黒丸表示されるだけ
+        } else {
+          storePassDisplay.value = "";
+          storePassDisplay.placeholder = "未設定";
+        }
+      }
+
+
+      
       // ===== DMM風メニュー開閉 =====
       const appMenuBtn = document.getElementById("appMenuBtn");
       const appMenuOverlay = document.getElementById("appMenuOverlay");
