@@ -1428,6 +1428,59 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+
+
+<script>
+  // ===== お知らせ（日付フォーマット） =====
+  function formatDateForSummary(ts) {
+    if (!ts) return "";
+    const d = ts.toDate();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mi = String(d.getMinutes()).padStart(2, "0");
+    return `${mm}/${dd} ${hh}:${mi}`;
+  }
+
+  const ownerNewsSummaryList = document.getElementById("ownerNewsSummaryList");
+  const ownerNewsSummaryEmpty = document.getElementById("ownerNewsSummaryEmpty");
+
+  // ownerNews の「最新3件だけ」をリアルタイムで取得
+  db.collection("ownerNews")
+    .orderBy("createdAt", "desc")
+    .limit(3)
+    .onSnapshot((snap) => {
+      ownerNewsSummaryList.innerHTML = "";
+
+      if (snap.empty) {
+        ownerNewsSummaryEmpty.style.display = "block";
+        return;
+      }
+      ownerNewsSummaryEmpty.style.display = "none";
+
+      snap.forEach((doc) => {
+        const data = doc.data();
+        const div = document.createElement("div");
+        div.className = "owner-news-item";
+
+        const title = data.title || "(タイトルなし)";
+        const body = (data.body || "").replace(/\n/g, "　"); // 改行をスペースに
+        const author = data.author || "オーナー";
+        const date = formatDateForSummary(data.createdAt);
+
+        div.innerHTML = `
+          <div class="owner-news-item-title">・${title}</div>
+          <div class="owner-news-item-body">${body}</div>
+          <div class="owner-news-item-meta">${author} ／ ${date}</div>
+        `;
+        ownerNewsSummaryList.appendChild(div);
+      });
+    });
+</script>
+
+    
+    
+
     // ★ 店舗ごとのパスワード設定
     const STORE_PASSWORDS = {
       nambucho: "nanbu",
