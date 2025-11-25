@@ -1286,6 +1286,18 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // ★ URL から店舗IDを取得（例：index.html?store=nambacho）
+const urlParams = new URLSearchParams(window.location.search);
+const STORE_ID = urlParams.get("store");
+
+if (!STORE_ID) {
+  alert("店舗ID（store パラメータ）が指定されていません。");
+  // 必要なら location.href でどこかに飛ばしてもOK
+}
+
+// ここから先はすべて stores/{STORE_ID}/ 以下を使う
+const storeRef = db.collection("stores").doc(STORE_ID);
+
     // =============================
     // 営業日キー計算（7:00切り替え）
     // =============================
