@@ -1093,16 +1093,18 @@
   }
 
   if (pwd === OWNER_PASSWORD) {
-    // 店舗IDを保存
-    localStorage.setItem("lw_ownerStoreId", storeId);
+  // 店舗IDを保存
+  localStorage.setItem("lw_ownerStoreId", storeId);
 
-    saveSession();
-    errorLabel.textContent = "";
-    showApp();
-  } else {
-    errorLabel.textContent = "パスワードが違います。";
-  }
+  saveSession();
+  errorLabel.textContent = "";
+
+  // ★ storeId を反映させるためにページごと再読み込み
+  location.reload();
+} else {
+  errorLabel.textContent = "パスワードが違います。";
 }
+
 
 
         loginBtn.addEventListener("click", tryLogin);
