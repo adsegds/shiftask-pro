@@ -1270,9 +1270,10 @@ const storeRef = db.collection("stores").doc(STORE_ID);
       const ownerNewsColRef = storeRef.collection("ownerNews");
 
       function setNewsStatus(msg, ok) {
-        newsStatus.textContent = msg || "";
-        newsStatus.className = "status " + (ok ? "ok" : "err";
-      }
+  newsStatus.textContent = msg || "";
+  newsStatus.className = "status " + (ok ? "ok" : "err");
+}
+
 
       newsAddBtn.addEventListener("click", async () => {
         const title = newsTitleInput.value.trim();
