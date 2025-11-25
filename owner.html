@@ -1068,19 +1068,35 @@
         }
 
         function tryLogin() {
-          const input = pwdInput.value.trim();
-          if (!input) {
-            errorLabel.textContent = "パスワードを入力してください。";
-            return;
-          }
-          if (input === OWNER_PASSWORD) {
-            saveSession();
-            errorLabel.textContent = "";
-            showApp();
-          } else {
-            errorLabel.textContent = "パスワードが違います。";
-          }
-        }
+  const pwd = pwdInput.value.trim();
+  const storeId = storeIdInput.value.trim();
+
+  if (!storeId) {
+    errorLabel.textContent = "店舗IDを入力してください。";
+    return;
+  }
+  if (!ALLOWED_STORES.includes(storeId)) {
+    errorLabel.textContent = "店舗IDが違います。";
+    return;
+  }
+
+  if (!pwd) {
+    errorLabel.textContent = "パスワードを入力してください。";
+    return;
+  }
+
+  if (pwd === OWNER_PASSWORD) {
+    // 店舗IDを保存
+    localStorage.setItem("lw_ownerStoreId", storeId);
+
+    saveSession();
+    errorLabel.textContent = "";
+    showApp();
+  } else {
+    errorLabel.textContent = "パスワードが違います。";
+  }
+}
+
 
         loginBtn.addEventListener("click", tryLogin);
         pwdInput.addEventListener("keydown", (e) => {
