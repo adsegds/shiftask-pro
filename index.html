@@ -1266,32 +1266,27 @@
     };
 
     // ★ 許可店舗リスト（パスワードを持っている店舗だけ許可）
-    const ALLOWED_STORES = Object.keys(STORE_PASSWORDS);
+    // ★ 許可店舗リスト（パスワードを持っている店舗だけ許可）
+const ALLOWED_STORES = Object.keys(STORE_PASSWORDS);
 
-    // ★ URLパラメータから店舗IDを取得
-    const urlParams = new URLSearchParams(window.location.search);
-    let STORE_ID = urlParams.get("store");
+// ★ 店舗ID取得（15時間キャッシュを利用）
+let STORE_ID = getStoreIdWithCache();
 
-    // URLに store が無いときだけ、入力ダイアログを出す
-    if (!STORE_ID) {
-      const input = prompt("店舗IDを入力してください（例：nambucho）");
-      if (input) {
-        STORE_ID = input.trim();
-      }
-    }
+// ここまで来ても STORE_ID が無い or 許可外なら即ブロック
+if (!STORE_ID || !ALLOWED_STORES.includes(STORE_ID)) {
+  alert("この店舗IDではチェックリストを利用できません。店頭のQRコードから開き直してください。");
+  location.href = "https://google.com";
+}
 
-    // ここまで来ても STORE_ID が無い or 許可外なら即ブロック
-    if (!STORE_ID || !ALLOWED_STORES.includes(STORE_ID)) {
-      alert("この店舗IDではチェックリストを利用できません。店頭のQRコードから開き直してください。");
-      location.href = "https://google.com";
-    }
-
-    // ★ パスワードチェックを実行（1日1回）
-    checkStorePassword(STORE_ID);
-
+// ★ パスワードチェックを実行（15時間ごと）
+checkStorePassword(STORE_ID);
 
 // ここから先はすべて stores/{STORE_ID}/ 以下を使う
 const storeRef = db.collection("stores").doc(STORE_ID);
+
+
+
+
 
 
     // =============================
