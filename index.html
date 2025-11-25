@@ -1257,26 +1257,37 @@
     const db = firebase.firestore();
 
     // ★ URL から店舗IDを取得（例：owner.html?store=nambucho）
-  // ★ 許可された店舗IDリスト
-const ALLOWED_STORES = ["nambucho"];  // 2店舗目以降はここに追加
+   // ★ 店舗ごとのパスワード設定
+    const STORE_PASSWORDS = {
+      nambucho: "nanbu3150",   // 南部町ローソン
+      // 2店舗目以降はここに追加していく
+      // oosakanamba: "osaka777",
+      // hyogo123: "hyougo999",
+    };
 
-// ★ URLパラメータから店舗IDを取得
-const urlParams = new URLSearchParams(window.location.search);
-let STORE_ID = urlParams.get("store");
+    // ★ 許可店舗リスト（パスワードを持っている店舗だけ許可）
+    const ALLOWED_STORES = Object.keys(STORE_PASSWORDS);
 
-// URLに store が無いときだけ、入力ダイアログを出す
-if (!STORE_ID) {
-  const input = prompt("店舗IDを入力してください（例：nambucho）");
-  if (input) {
-    STORE_ID = input.trim();
-  }
-}
+    // ★ URLパラメータから店舗IDを取得
+    const urlParams = new URLSearchParams(window.location.search);
+    let STORE_ID = urlParams.get("store");
 
-// ここまで来ても STORE_ID が無い or 許可外なら即ブロック
-if (!STORE_ID || !ALLOWED_STORES.includes(STORE_ID)) {
-  alert("この店舗IDではチェックリストを利用できません。店頭のQRコードから開き直してください。");
-  location.href = "https://google.com";
-}
+    // URLに store が無いときだけ、入力ダイアログを出す
+    if (!STORE_ID) {
+      const input = prompt("店舗IDを入力してください（例：nambucho）");
+      if (input) {
+        STORE_ID = input.trim();
+      }
+    }
+
+    // ここまで来ても STORE_ID が無い or 許可外なら即ブロック
+    if (!STORE_ID || !ALLOWED_STORES.includes(STORE_ID)) {
+      alert("この店舗IDではチェックリストを利用できません。店頭のQRコードから開き直してください。");
+      location.href = "https://google.com";
+    }
+
+    // ★ パスワードチェックを実行（1日1回）
+    checkStorePassword(STORE_ID);
 
 
 // ここから先はすべて stores/{STORE_ID}/ 以下を使う
