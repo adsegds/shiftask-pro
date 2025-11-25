@@ -1482,6 +1482,7 @@ const storeRef = db.collection("stores").doc(STORE_ID);
       const handoverSlots  = document.querySelectorAll(".handover-slot");
       const handoverColRef = storeRef.collection("handover");
 
+
       handoverSlots.forEach((slotEl) => {
         const slotId    = slotEl.dataset.slot || "global";
         const logEl     = slotEl.querySelector(".handover-log");
