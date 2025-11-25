@@ -881,11 +881,18 @@
     const db = firebase.firestore();
 
     // ★ 店舗ID（storeId）を最初に聞く
-const STORE_ID = prompt("店舗IDを入力してください（例：nambucho）");
-if (!STORE_ID) {
-  alert("店舗IDがありません。画面を閉じます。");
+// ★ 許可された店舗IDリスト（ここに追加していく）
+const ALLOWED_STORES = ["nambucho"];
+
+// ★ 店舗IDを入力させる
+let STORE_ID = prompt("店舗IDを入力してください（例：nambucho）");
+
+// ★ 入力チェック：許可されていないIDは弾く
+if (!ALLOWED_STORES.includes(STORE_ID)) {
+  alert("この店舗IDは存在しません。オーナーに確認してください。");
   location.href = "https://google.com";
 }
+
 
 // すべてのデータは stores/{STORE_ID}/ 以下に保存する
 const storeRef = db.collection("stores").doc(STORE_ID);
