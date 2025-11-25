@@ -1680,7 +1680,7 @@ const storeRef = db.collection("stores").doc(STORE_ID);
       }
 
       async function loadTaskDefinitions() {
-        const taskSlotsRef = db.collection("taskSlots");
+        const taskSlotsRef = storeRef.collection("taskSlots");
         await Promise.all(
           timeSlotIds.map(async (slotId) => {
             const section = document.getElementById(slotId);
