@@ -897,7 +897,7 @@ const storeRef = db.collection("stores").doc(STORE_ID);
       const m = now.getMonth();
       const d = now.getDate();
       const base = new Date(y, m, d);
-      if (now.getHours() < 6) {
+      if (now.getHours() < 7) {
         base.setDate(base.getDate() - 1);
       }
       const yy = base.getFullYear();
