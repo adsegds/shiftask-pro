@@ -1105,7 +1105,8 @@ const storeRef = db.collection("stores").doc(STORE_ID);
       const saveSlotBtn = document.getElementById("saveSlotBtn");
       const taskStatus = document.getElementById("taskStatus");
       const taskSlotsRef = storeRef.collection("taskSlots");
-　　　const tasksDocRef  = storeRef.collection("tasks").doc("main"); // チェック状態リセット用
+const tasksDocRef  = storeRef.collection("tasks").doc("main"); // チェック状態リセット用
+ // チェック状態リセット用
 
       function setTaskStatus(msg, ok) {
         taskStatus.textContent = msg || "";
