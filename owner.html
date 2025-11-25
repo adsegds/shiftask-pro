@@ -994,7 +994,7 @@ const storeRef = db.collection("stores").doc(STORE_ID);
       const newsClearBtn = document.getElementById("newsClearFormBtn");
       const newsStatus = document.getElementById("newsStatus");
       const newsList = document.getElementById("newsList");
-      const ownerNewsColRef = db.collection("ownerNews");
+      const ownerNewsColRef = storeRef.collection("ownerNews");
 
       function setNewsStatus(msg, ok) {
         newsStatus.textContent = msg || "";
