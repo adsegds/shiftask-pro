@@ -1047,7 +1047,7 @@
         localStorage.setItem(SESSION_KEY, JSON.stringify(payload));
       }
 
-      window.addEventListener("DOMContentLoaded", () => {
+            window.addEventListener("DOMContentLoaded", () => {
         const loginWrap = document.getElementById("ownerLogin");
         const appWrap = document.getElementById("ownerApp");
         const pwdInput = document.getElementById("ownerPasswordInput");
@@ -1069,47 +1069,45 @@
 
         // すでにセッションが有効なら、ログイン画面スキップ
         const currentStoreId = localStorage.getItem("lw_ownerStoreId");
-if (currentStoreId && ALLOWED_STORES.includes(currentStoreId) && isSessionValid()) {
-  // ついでに入力欄も埋めておく
-  if (storeIdInput) storeIdInput.value = currentStoreId;
-  showApp();
-} else {
-  showLogin();
-}
-
+        if (currentStoreId && ALLOWED_STORES.includes(currentStoreId) && isSessionValid()) {
+          // ついでに入力欄も埋めておく
+          if (storeIdInput) storeIdInput.value = currentStoreId;
+          showApp();
+        } else {
+          showLogin();
+        }
 
         function tryLogin() {
-  const pwd = pwdInput.value.trim();
-  const storeId = storeIdInput.value.trim();
+          const pwd = pwdInput.value.trim();
+          const storeId = storeIdInput.value.trim();
 
-  if (!storeId) {
-    errorLabel.textContent = "店舗IDを入力してください。";
-    return;
-  }
-  if (!ALLOWED_STORES.includes(storeId)) {
-    errorLabel.textContent = "店舗IDが違います。";
-    return;
-  }
+          if (!storeId) {
+            errorLabel.textContent = "店舗IDを入力してください。";
+            return;
+          }
+          if (!ALLOWED_STORES.includes(storeId)) {
+            errorLabel.textContent = "店舗IDが違います。";
+            return;
+          }
 
-  if (!pwd) {
-    errorLabel.textContent = "パスワードを入力してください。";
-    return;
-  }
+          if (!pwd) {
+            errorLabel.textContent = "パスワードを入力してください。";
+            return;
+          }
 
-  if (pwd === OWNER_PASSWORD) {
-  // 店舗IDを保存
-  localStorage.setItem("lw_ownerStoreId", storeId);
+          if (pwd === OWNER_PASSWORD) {
+            // 店舗IDを保存
+            localStorage.setItem("lw_ownerStoreId", storeId);
 
-  saveSession();
-  errorLabel.textContent = "";
+            saveSession();
+            errorLabel.textContent = "";
 
-  // ★ storeId を反映させるためにページごと再読み込み
-  location.reload();
-} else {
-  errorLabel.textContent = "パスワードが違います。";
-}
-
-
+            // ★ storeId を反映させるためにページごと再読み込み
+            location.reload();
+          } else {
+            errorLabel.textContent = "パスワードが違います。";
+          }
+        }
 
         loginBtn.addEventListener("click", tryLogin);
         pwdInput.addEventListener("keydown", (e) => {
@@ -1119,6 +1117,7 @@ if (currentStoreId && ALLOWED_STORES.includes(currentStoreId) && isSessionValid(
         });
       });
     })();
+
 
     // =============================
     // Firebase 設定
