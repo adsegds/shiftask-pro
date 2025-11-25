@@ -1774,16 +1774,17 @@ async function logChecklistAction({ taskId, taskLabel, action, extra }) {
     const deviceLabel =
       rawLabel && rawLabel.trim() ? rawLabel.trim() : "未設定";
 
-    await db.collection("checklistLogs").add({
-      taskId: taskId ?? null,
-      taskLabel: taskLabel ?? null,
-      action,
-      deviceLabel,
-      businessKey,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      clientTimeISO: now.toISOString(),
-      extra: extra ?? null
-    });
+    await storeRef.collection("checklistLogs").add({
+  taskId: taskId ?? null,
+  taskLabel: taskLabel ?? null,
+  action,
+  deviceLabel,
+  businessKey,
+  createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+  clientTimeISO: now.toISOString(),
+  extra: extra ?? null
+});
+
   } catch (err) {
     console.error("ログ保存エラー:", err);
   }
