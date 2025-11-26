@@ -326,6 +326,11 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+
+    // ★ サイドバー全体をとってくる
+const sidebarNav = document.querySelector(".sidebar-nav");
+
+
     // ===== 役割切り替え =====
     const roleSelect = document.getElementById("roleSelect");
     function updateRole(role) {
