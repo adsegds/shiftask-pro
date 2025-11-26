@@ -934,6 +934,22 @@
   text-decoration: underline;
 }
 
+.notice-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.notice-center-link {
+  font-size: 13px;
+  color: #b66a00;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+
+    
     
   </style>
 </head>
@@ -1067,18 +1083,16 @@
           <ul class="info-list" id="notice-list">
             <li>お知らせを読み込み中...</li>
           </ul>
-          <button id="notice-read-btn" class="notice-read-btn">
-            すべて読んだことにする
-          </button>
-          
-                
+          <div class="notice-bottom-row">
+  <button id="notice-read-btn" class="notice-read-btn">
+    すべて読んだことにする
+  </button>
 
-          <!-- ここから追加：お知らせセンターリンク -->
-          <div class="notice-center-link">
-            <a href="notice.html">
-              ▶ お知らせセンター（過去のお知らせ・掲示板を見る）
-            </a>
-          </div>
+  <a href="notice.html" class="notice-center-link">
+    ▶ お知らせセンターを見る
+  </a>
+</div>
+
           <!-- ここまで追加 -->
 
         </div>
