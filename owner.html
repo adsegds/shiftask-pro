@@ -1134,7 +1134,28 @@
     };
 
     firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+    const db = firebase.firestore();
+
+// ★ サイドバー全体をとってくる
+const sidebarNav = document.querySelector(".sidebar-nav");
+// ★ サイドバーのメニューをクリックしたときの処理
+sidebarNav.addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-view]");
+  if (!btn) return;
+
+  const view = btn.dataset.view;
+
+  // ★ 追加：お知らせセンターだけは別タブで notice.html を開く
+  if (view === "notice-center") {
+    window.open("notice.html", "_blank"); // ← 別タブで notice.html を開く
+    return; // ここで終了（switchView は呼ばない）
+  }
+
+  // 🔽 ここから下は「今まで owner.html に書いてあった処理」と同じことを呼ぶ
+  switchView(view);
+});
+
+    
 
 // ★ 店舗ID（storeId）はログイン画面で localStorage に保存しておく想定
 const ALLOWED_STORES = ["nambucho"];               // 許可する店舗ID
