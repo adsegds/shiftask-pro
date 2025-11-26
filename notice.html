@@ -210,38 +210,26 @@
       <button class="tab-btn" data-tab="board">③ 全員掲示板</button>
     </div>
 
-    <!-- ① 経営者 → 全員 -->
+        <!-- ① 経営者 → 全員 -->
     <section class="tab-panel active" id="tab-ownerNews">
       <div class="section-head">
         <h2>① 経営者 → 全員へのお知らせ</h2>
-        <p>オーナーから全スタッフに伝えたいことをまとめて表示。</p>
+        <p>オーナーから全スタッフに伝えたいことをまとめて表示します。</p>
       </div>
 
-      <!-- オーナーだけ投稿フォーム -->
-      <div class="card owner-only">
-        <form id="ownerNewsForm">
-          <div class="form-group">
-            <label for="ownerNewsTitle">タイトル</label>
-            <input id="ownerNewsTitle" type="text" placeholder="例：今週の重点商品について" />
-          </div>
-          <div class="form-group">
-            <label for="ownerNewsBody">本文</label>
-            <textarea id="ownerNewsBody" placeholder="伝えたい内容を入力してください"></textarea>
-          </div>
-          <div class="form-group">
-            <label for="ownerNewsAuthor">名前（表示用）</label>
-            <input id="ownerNewsAuthor" type="text" placeholder="例：オーナー / 店長" />
-          </div>
-          <div class="btn-row">
-            <button type="submit" class="btn btn-primary">お知らせを投稿する</button>
-          </div>
-        </form>
+      <!-- ★ ここは「読むだけ」エリア -->
+      <div class="card">
+        <p class="tab-note">
+          ※ここは経営者からの連絡専用です。<br>
+          投稿・編集は <strong>管理画面（owner.html の「お知らせ管理」）</strong> からのみ行えます。
+        </p>
       </div>
 
       <!-- 一覧（全員見れる） -->
       <div id="ownerNewsList"></div>
       <div id="ownerNewsEmpty" class="empty-text">まだお知らせはありません。</div>
     </section>
+
 
     <!-- ② スタッフ → 経営者 -->
     <section class="tab-panel" id="tab-reports">
