@@ -1249,29 +1249,51 @@ if (STORE_ID && ALLOWED_STORES.includes(STORE_ID)) {
 
       sidebarOverlay?.addEventListener("click", closeSidebar);
 
-      // =============================
-      // 左メニュー切り替え
-      // =============================
-      const navButtons = document.querySelectorAll(".sidebar-nav button");
-      const views = document.querySelectorAll(".view-panel");
+     // =============================
+// 左メニュー切り替え
+// =============================
+const navButtons = document.querySelectorAll(".sidebar-nav button");
+const views = document.querySelectorAll(".view-panel");
 
-      // Analytics 用参照（activateView 内で使うので先に宣言だけ）
-      let runAnalyticsRef = null;
-      let analyticsDateInputRef = null;
+// Analytics 用参照（activateView 内で使うので先に宣言だけ）
+let runAnalyticsRef = null;
+let analyticsDateInputRef = null;
 
-      function activateView(viewId) {
-        views.forEach((v) =>
-          v.classList.toggle("active", v.id === "view-" + viewId)
-        );
-        navButtons.forEach((btn) => {
+function activateView(viewId) {
+  // ビューパネルの表示切り替え
+  views.forEach((v) =>
+    v.classList.toggle("active", v.id === "view-" + viewId)
+  );
+
+  // サイドバーの active 切り替え
+  navButtons.forEach((btn) =>
+    btn.classList.toggle("active", btn.dataset.view === viewId)
+  );
+
+  // シフト表タブが開かれたら現在設定を読み込む
+  if (viewId === "shift") {
+    loadShiftImageSetting();
+  }
+
+  // グラフ分析タブが開かれたら自動で集計（初回）
+  if (viewId === "analytics" && runAnalyticsRef) {
+    if (analyticsDateInputRef && !analyticsDateInputRef.value) {
+      analyticsDateInputRef.value = getCurrentBusinessKey();
+    }
+    runAnalyticsRef();
+  }
+}
+
+// 左メニューボタンにクリックイベントを付与
+navButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
     const viewId = btn.dataset.view;
 
     // ★ お知らせセンターだけは別タブで notice.html を開く
     if (viewId === "notice-center") {
-      window.open("notice.html", "_blank");  // 同じフォルダにある想定
-      closeSidebar();                        // スマホならメニュー閉じる
-      return;                                // ここで終了
+      window.open("notice.html", "_blank"); // 同じフォルダにある想定
+      closeSidebar();                       // スマホならメニュー閉じる
+      return;                               // ここで終了
     }
 
     // それ以外のメニューは普通にビュー切り替え
@@ -1280,31 +1302,9 @@ if (STORE_ID && ALLOWED_STORES.includes(STORE_ID)) {
   });
 });
 
+// デフォルト：お知らせ管理ビューを表示
+activateView("news");
 
-        // シフト表タブが開かれたら現在設定を読み込む
-        if (viewId === "shift") {
-          loadShiftImageSetting();
-        }
-
-        // グラフ分析タブが開かれたら自動で集計（初回）
-        if (viewId === "analytics" && runAnalyticsRef) {
-          if (analyticsDateInputRef && !analyticsDateInputRef.value) {
-            analyticsDateInputRef.value = getCurrentBusinessKey();
-          }
-          runAnalyticsRef();
-        }
-      }
-
-      navButtons.forEach((btn) => {
-        btn.addEventListener("click", () => {
-          activateView(btn.dataset.view);
-          // スマホではメニューを閉じる
-          closeSidebar();
-        });
-      });
-
-      // デフォルト：お知らせ管理
-      activateView("news");
 
       // =============================
       // 1) ownerNews （お知らせ管理）
