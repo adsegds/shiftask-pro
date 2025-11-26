@@ -1263,9 +1263,23 @@ if (STORE_ID && ALLOWED_STORES.includes(STORE_ID)) {
         views.forEach((v) =>
           v.classList.toggle("active", v.id === "view-" + viewId)
         );
-        navButtons.forEach((btn) =>
-          btn.classList.toggle("active", btn.dataset.view === viewId)
-        );
+        navButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    const viewId = btn.dataset.view;
+
+    // ★ お知らせセンターだけは別タブで notice.html を開く
+    if (viewId === "notice-center") {
+      window.open("notice.html", "_blank");  // 同じフォルダにある想定
+      closeSidebar();                        // スマホならメニュー閉じる
+      return;                                // ここで終了
+    }
+
+    // それ以外のメニューは普通にビュー切り替え
+    activateView(viewId);
+    closeSidebar();
+  });
+});
+
 
         // シフト表タブが開かれたら現在設定を読み込む
         if (viewId === "shift") {
