@@ -765,19 +765,15 @@
             </p>
 
             <div class="row">
-              <label for="slotSelect">編集する時間帯</label>
-              <select id="slotSelect">
-                <option value="t6-8">6:00〜8:00（朝の立ち上げ）</option>
-                <option value="t9-11">9:00〜11:00（午前帯）</option>
-                <option value="t12-14">12:00〜14:00（昼帯）</option>
-                <option value="t15-17">15:00〜17:00（夕方前）</option>
-                <option value="t18-20">18:00〜20:00（夕方〜夜）</option>
-                <option value="t21-23">21:00〜23:00（夜帯）</option>
-                <option value="t0-2">0:00〜2:00（深夜前半）</option>
-                <option value="t3-5">3:00〜5:00（早朝）</option>
-              </select>
-              <p class="slot-note">時間帯を変更すると、その時間帯のタスク定義を Firestore から読み込みます。</p>
-            </div>
+  <label for="slotSelect">編集する時間帯</label>
+  <select id="slotSelect">
+    <!-- ★ 時間帯リストは JavaScript で自動生成 -->
+  </select>
+  <p class="slot-note">
+    時間帯を変更すると、その時間帯のタスク定義を Firestore から読み込みます。
+  </p>
+</div>
+
 
             <div class="row">
               <label for="tasksAInput">Aタスク（必須）</label>
