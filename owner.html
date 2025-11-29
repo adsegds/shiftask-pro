@@ -783,116 +783,126 @@
 
         <!-- ② タスク定義編集 -->
         <section id="view-tasks" class="view-panel">
-          <section class="card" id="tasks-card">
-            <h2>時間帯ごとのタスク編集（taskSlots）</h2>
-            <p class="card-sub">
-              各時間帯の Aタスク（必須）・Bタスク（余裕）を編集できます。<br>
-              スタッフ画面のチェックリストはここで定義された内容から自動生成されます。
-            </p>
-
-            <div class="row">
-  <label for="slotSelect">編集する時間帯</label>
-  <select id="slotSelect">
-    <!-- ★ 時間帯リストは JavaScript で自動生成 -->
-  </select>
-  <p class="slot-note">
-    時間帯を変更すると、その時間帯のタスク定義を Firestore から読み込みます。
+         <section class="card" id="tasks-card">
+  <h2>時間帯ごとのタスク編集（taskSlots）</h2>
+  <p class="card-sub">
+    ① 時間帯の自動生成で「骨組み」を作り、<br>
+    ② 各時間帯ごとのタスクを編集して、<br>
+    ③ 必要ならカスタム編集で細かく調整するイメージです。
   </p>
-</div>
 
-
-            <div class="row">
-              <label for="tasksAInput">Aタスク（必須）</label>
-              <textarea id="tasksAInput" placeholder="例）&#10;CDC納品・片づけ（2便）&#10;ベーカリー納品・片づけ（2便）"></textarea>
-              <div class="hint">1行につき1タスク。空行は無視されます。</div>
-            </div>
-
-            <div class="row">
-              <label for="tasksBInput">Bタスク（余裕あれば）</label>
-              <textarea id="tasksBInput" placeholder="例）&#10;店内・店頭ゴミ箱の清掃&#10;サービスコーナー清掃"></textarea>
-              <div class="hint">1行につき1タスク。空行は無視されます。</div>
-            </div>
-
-            <div class="btn-row">
-              <button type="button" class="btn-secondary" id="reloadSlotBtn">選択中の時間帯を再読み込み</button>
-              <button type="button" class="btn-primary" id="saveSlotBtn">この内容で保存</button>
-            </div>
-            <div class="status" id="taskStatus"></div>
-
-            <hr>
-
-            <p class="hint">
-              ※保存すると、その時間帯のチェック状態（完了チェック）だけリセットされます（他の時間帯はそのまま）。<br>
-              ※チェックリスト本体の HTML（スタッフ用画面）は書き換え不要です。この画面は定義だけをいじる役割。
-            </p>
-<hr>
-
-<!-- ★ ここから追加：時間帯の自動生成UI -->
-<div class="row">
-  <label>時間帯の自動生成（営業開始〜終了と区切り時間）</label>
-  <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;">
-    <div style="min-width:120px;">
-      <div style="font-size:11px;color:#555;">開始</div>
-      <input type="time" id="slotConfigStart" value="06:00" />
+  <!-- ① 時間帯の自動生成（営業開始〜終了と区切り時間） -->
+  <div class="row">
+    <label>時間帯の自動生成（営業開始〜終了と区切り時間）</label>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;">
+      <div style="min-width:120px;">
+        <div style="font-size:11px;color:#555;">開始</div>
+        <input type="time" id="slotConfigStart" value="06:00" />
+      </div>
+      <div style="min-width:120px;">
+        <div style="font-size:11px;color:#555;">終了</div>
+        <input type="time" id="slotConfigEnd" value="23:00" />
+      </div>
+      <div style="min-width:150px;">
+        <div style="font-size:11px;color:#555;">区切り</div>
+        <select id="slotConfigInterval">
+          <option value="60">1時間ごと</option>
+          <option value="120">2時間ごと</option>
+          <option value="180" selected>3時間ごと</option>
+          <option value="240">4時間ごと</option>
+          <option value="300">5時間ごと</option>
+        </select>
+      </div>
+      <div>
+        <button type="button" class="btn-secondary" id="slotConfigGenerateBtn">
+          この設定で時間帯を自動生成
+        </button>
+      </div>
     </div>
-    <div style="min-width:120px;">
-      <div style="font-size:11px;color:#555;">終了</div>
-      <input type="time" id="slotConfigEnd" value="23:00" />
-    </div>
-    <div style="min-width:150px;">
-      <div style="font-size:11px;color:#555;">区切り</div>
-      <select id="slotConfigInterval">
-        <option value="60">1時間ごと</option>
-        <option value="120">2時間ごと</option>
-        <option value="180" selected>3時間ごと</option>
-        <option value="240">4時間ごと</option>
-        <option value="300">5時間ごと</option>
-      </select>
-    </div>
-    <div>
-      <button type="button" class="btn-secondary" id="slotConfigGenerateBtn">
-        この設定で時間帯を自動生成
-      </button>
-    </div>
+    <p class="hint">
+      ※「開始」「終了」と「区切り時間」を変えて「自動生成」すると、時間帯のリストが作り直されます。<br>
+      ※時間帯を作り直すと、新しい時間帯IDごとにタスクを管理できます（タスク内容は下の入力欄で編集）。
+    </p>
   </div>
-  <p class="hint">
-    ※「開始」「終了」と「区切り時間」を変えて「自動生成」すると、時間帯のリストが作り直されます。<br>
-    ※時間帯を作り直すと、新しい時間帯IDごとにタスクを管理できます（タスク内容は上の入力欄で編集）。
-  </p>
-</div>
-<!-- ★ ここまで追加 -->
 
-         <hr>
+  <hr>
 
-<!-- ★ 追加：時間帯をテキストで直接編集（不規則な区切り用） -->
-<div class="row">
-  <label>時間帯のカスタム編集（不規則な区切りに対応）</label>
-  <textarea
-    id="slotCustomInput"
-    placeholder="例）&#10;06:00-09:00 朝の立ち上げ&#10;09:00-12:00 午前帯&#10;12:00-14:00 昼ピーク&#10;14:00-15:00 14時廃棄・仕込み帯&#10;15:00-18:00 夕方前&#10;18:00-21:00 夕方〜夜ピーク&#10;21:00-22:00 21時廃棄・補充&#10;22:00-24:00 夜ラスト&#10;00:00-03:00 深夜前半&#10;03:00-06:00 早朝立ち上げ"></textarea>
-  <div class="hint">
-    1行につき1時間帯です。<br>
-    形式：<code>HH:MM-HH:MM ラベル</code>（ラベルは空でもOK。分は必ず00で入力してください）
+  <!-- ② 時間帯ごとのタスク編集（taskSlots） -->
+  <div class="row">
+    <label for="slotSelect">編集する時間帯</label>
+    <select id="slotSelect">
+      <!-- ★ 時間帯リストは JavaScript で自動生成 -->
+    </select>
+    <p class="slot-note">
+      時間帯を変更すると、その時間帯のタスク定義を Firestore から読み込みます。
+    </p>
+  </div>
+
+  <div class="row">
+    <label for="tasksAInput">Aタスク（必須）</label>
+    <textarea
+      id="tasksAInput"
+      placeholder="例）&#10;CDC納品・片づけ（2便）&#10;ベーカリー納品・片づけ（2便）"
+    ></textarea>
+    <div class="hint">1行につき1タスク。空行は無視されます。</div>
+  </div>
+
+  <div class="row">
+    <label for="tasksBInput">Bタスク（余裕あれば）</label>
+    <textarea
+      id="tasksBInput"
+      placeholder="例）&#10;店内・店頭ゴミ箱の清掃&#10;サービスコーナー清掃"
+    ></textarea>
+    <div class="hint">1行につき1タスク。空行は無視されます。</div>
   </div>
 
   <div class="btn-row">
-    <button type="button" class="btn-secondary" id="slotCustomLoadBtn">
-      現在の時間帯をテキストに展開
+    <button type="button" class="btn-secondary" id="reloadSlotBtn">
+      選択中の時間帯を再読み込み
     </button>
-    <button type="button" class="btn-primary" id="slotCustomSaveBtn">
-      このテキスト内容で時間帯を更新
+    <button type="button" class="btn-primary" id="saveSlotBtn">
+      この内容で保存
     </button>
   </div>
+  <div class="status" id="taskStatus"></div>
+
+  <hr>
 
   <p class="hint">
-    ※このテキストで時間帯を更新すると、上の「編集する時間帯」プルダウンも新しいリストに入れ替わります。<br>
-    ※タスク内容はそのまま残りますが、新しい時間帯IDには新しくタスクを設定する必要があります。
+    ※保存すると、その時間帯のチェック状態（完了チェック）だけリセットされます（他の時間帯はそのまま）。<br>
+    ※チェックリスト本体の HTML（スタッフ用画面）は書き換え不要です。この画面は定義だけをいじる役割。
   </p>
-</div>
 
+  <hr>
 
-            
-          </section>
+  <!-- ③ 時間帯のカスタム編集（不規則な区切りに対応） -->
+  <div class="row">
+    <label>時間帯のカスタム編集（不規則な区切りに対応）</label>
+    <textarea
+      id="slotCustomInput"
+      placeholder="例）&#10;06:00-09:00 朝の立ち上げ&#10;09:00-12:00 午前帯&#10;12:00-14:00 昼ピーク&#10;14:00-15:00 14時廃棄・仕込み帯&#10;15:00-18:00 夕方前&#10;18:00-21:00 夕方〜夜ピーク&#10;21:00-22:00 21時廃棄・補充&#10;22:00-24:00 夜ラスト&#10;00:00-03:00 深夜前半&#10;03:00-06:00 早朝立ち上げ"
+    ></textarea>
+    <div class="hint">
+      1行につき1時間帯です。<br>
+      形式：<code>HH:MM-HH:MM ラベル</code>（ラベルは空でもOK。分は必ず00で入力してください）
+    </div>
+
+    <div class="btn-row">
+      <button type="button" class="btn-secondary" id="slotCustomLoadBtn">
+        現在の時間帯をテキストに展開
+      </button>
+      <button type="button" class="btn-primary" id="slotCustomSaveBtn">
+        このテキスト内容で時間帯を更新
+      </button>
+    </div>
+
+    <p class="hint">
+      ※このテキストで時間帯を更新すると、上の「編集する時間帯」プルダウンも新しいリストに入れ替わります。<br>
+      ※タスク内容はそのまま残りますが、新しい時間帯IDには新しくタスクを設定する必要があります。
+    </p>
+  </div>
+</section>
+
         </section>
 
         <!-- ③ シフト表設定 -->
