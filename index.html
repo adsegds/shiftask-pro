@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <title>業務チェックリスト</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
   <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -19,11 +18,12 @@
     background: #f5f5f5;
     color: #111;
     line-height: 1.6;
-    font-size: var(--font-small);
+    font-size: var(--font-small);  /* デフォルト：小 */
   }
 
+  /* ★ 本文だけサイズ可変にする */
   main {
-    font-size: var(--font-small);
+    font-size: var(--font-small);  /* デフォルト：小 */
   }
   body.font-medium main {
     font-size: var(--font-medium);
@@ -32,247 +32,742 @@
     font-size: var(--font-large);
   }
 
-  a { color: inherit; text-decoration: none; }
-  button { font-family: inherit; cursor: pointer; }
+  /* メニュー画面（フルスクリーン）の文字サイズも連動させる */
+  body.font-medium .app-menu-sheet {
+    font-size: var(--font-medium);
+  }
+  body.font-large .app-menu-sheet {
+    font-size: var(--font-large);
+  }
 
-  .app-shell {
-    max-width: 960px;
-    margin: 0 auto;
+  /* ===== ログイン画面 ===== */
+  #loginScreen {
     min-height: 100vh;
     display: flex;
-    flex-direction: column;
-    padding: 8px 8px 16px;
-  }
-
-  .app-header {
-    background: #fff;
-    border-radius: 10px;
-    padding: 10px 12px;
-    margin-bottom: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    display: flex;
-    flex-wrap: wrap;
     align-items: center;
-    justify-content: space-between;
-    gap: 8px;
+    justify-content: center;
+    padding: 24px 12px;
   }
-
-  .header-left { min-width: 0; }
-  .header-title {
-    font-size: 16px;
-    font-weight: 600;
-  }
-  .header-sub {
-    font-size: 11px;
-    color: #666;
-    margin-top: 2px;
-  }
-
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-  }
-
-  .today-label { font-size: 11px; color: #444; white-space: nowrap; }
-
-  .font-size-switch { display: flex; align-items: center; gap: 4px; }
-  .font-size-switch span {
-    font-size: 11px;
-    color: #666;
-  }
-
-  .font-btn {
-    border: 1px solid #ccc;
-    background: #f7f7f7;
-    border-radius: 999px;
-    padding: 2px 6px;
-    font-size: 11px;
-    line-height: 1.2;
-  }
-  .font-btn.active {
-    background: #111;
-    color: #fff;
-    border-color: #111;
-  }
-
-  .login-card {
+  .login-wrap {
+    width: 100%;
+    max-width: 360px;
     background: #fff;
-    border-radius: 10px;
-    padding: 14px 12px 12px;
-    margin-bottom: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    border-radius: 12px;
+    padding: 20px 18px 18px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
   }
   .login-title {
-    font-size: 14px;
+    font-size: 18px;
     font-weight: 600;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
-  .login-desc {
-    font-size: 11px;
+  .login-subtitle {
+    font-size: 13px;
     color: #555;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
   }
-  .login-row { margin-bottom: 8px; }
-  .login-label {
+  .login-field {
+    margin-bottom: 10px;
+  }
+  .login-field label {
     display: block;
-    font-size: 11px;
+    font-size: 12px;
     color: #555;
     margin-bottom: 2px;
   }
-
-  .login-input {
+  .login-field input {
     width: 100%;
-    padding: 6px 8px;
-    border-radius: 6px;
+    padding: 7px 9px;
+    border-radius: 8px;
     border: 1px solid #ccc;
-    font-size: 12px;
+    font-size: 13px;
   }
-
   .login-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 6px;
+    margin-top: 8px;
+    margin-bottom: 8px;
   }
-
-  .btn-primary {
-    background: #111;
-    color: #fff;
+  #loginBtn {
+    width: 100%;
     border: none;
     border-radius: 999px;
-    padding: 6px 14px;
-    font-size: 12px;
-    font-weight: 500;
-  }
-
-  .btn-outline {
-    background: #fff;
-    color: #111;
-    border-radius: 999px;
-    padding: 6px 12px;
-    font-size: 11px;
-    border: 1px solid #ccc;
-  }
-
-  .login-note {
-    font-size: 10px;
-    color: #777;
-    margin-top: 6px;
-  }
-
-  .login-status {
-    font-size: 11px;
-    margin-top: 4px;
-  }
-  .login-status.ok { color: #18794e; }
-  .login-status.err { color: #b3261e; }
-
-  .timeslot-nav-wrap {
-    margin-top: 4px;
-    margin-bottom: 6px;
-  }
-  .timeslot-nav {
-    display: flex;
-    gap: 4px;
-    overflow-x: auto;
-    padding-bottom: 2px;
-  }
-
-  .timeslot-chip {
-    flex: 0 0 auto;
-    border-radius: 999px;
-    padding: 4px 10px;
-    font-size: 11px;
-    border: 1px solid #ddd;
-    background: #fff;
-    white-space: nowrap;
-  }
-  .timeslot-chip.active {
+    padding: 8px 0;
+    font-size: 14px;
+    font-weight: 600;
     background: #111;
     color: #fff;
-    border-color: #111;
+    cursor: pointer;
+  }
+  #loginBtn:hover {
+    background: #333;
+  }
+  .login-note {
+    font-size: 11px;
+    color: #777;
+    line-height: 1.5;
   }
 
-  .overall-progress-card {
-    background: #fff;
-    border-radius: 10px;
-    padding: 10px 12px 8px;
-    margin-bottom: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  .app {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding-bottom: 80px;
+    display: none;  /* ← 最初は非表示。ログイン後に表示する */
   }
-  .overall-row {
+
+  /* ===== ヘッダー ===== */
+  .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 4000;
+    background: #111;
+    color: #fff;
+    padding: 10px 14px 8px;
+  }
+
+  .app-header {
     display: flex;
     align-items: center;
     gap: 8px;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    margin-bottom: 4px;
   }
-  .overall-label {
-    font-size: 12px;
+
+  .top-bar h1 {
+    font-size: 1.45em;
     font-weight: 600;
   }
-  .overall-value {
-    font-size: 12px;
+
+  .top-bar p {
+    font-size: 1em;
+    opacity: 0.85;
+    margin-top: 2px;
   }
 
-  .overall-bar {
-    width: 100%;
-    height: 6px;
+  /* DMM風 9ドットメニュー */
+  .app-menu-btn {
+    border: none;
+    background: transparent;
+    padding: 4px;
     border-radius: 999px;
-    background: #eee;
-    overflow: hidden;
-    margin-top: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .app-menu-btn:hover {
+    background: rgba(255,255,255,0.08);
+  }
+  .dots-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 4px);
+    grid-auto-rows: 4px;
+    gap: 3px;
+  }
+  .dots-grid span {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #fff;
   }
 
-  .overall-bar-inner {
-    width: 0%;
-    height: 100%;
+  /* ナビ（時間帯ジャンプ） */
+  .nav {
+    display: none;
+    overflow-x: auto;
+    gap: 6px;
+    padding: 8px 2px 4px;
+    margin-top: 8px;
+    scrollbar-width: none;
+  }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav a {
+    flex: 0 0 auto;
+    padding: 4px 8px;
+    font-size: 1em;
     border-radius: 999px;
-    background: #1f7aec;
-    transition: width 0.15s ease-out;
+    border: 1px solid #555;
+    color: #eee;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .nav a:hover {
+    background: #fff;
+    color: #111;
   }
 
-  .slot-section {
+  /* 文字サイズ切り替えバー（ヘッダー内） */
+  .font-size-selector {
+    display: none;
+    gap: 6px;
+    padding: 6px 0 2px;
+  }
+  .font-size-selector button,
+  .btn-secondary {
+    padding: 3px 10px;
+    font-size: 0.95em;
+    background: #222;
+    border: 1px solid #555;
+    border-radius: 999px;
+    color: #eee;
+    cursor: pointer;
+  }
+  .font-size-selector button:hover,
+  .btn-secondary:hover {
+    background: #444;
+  }
+  .font-size-selector button.active,
+  .btn-secondary.active {
+    background: #fff;
+    color: #111;
+    border-color: #fff;
+  }
+
+  .btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  main { padding: 10px 12px 20px; }
+
+  /* ===== スロット（時間帯カード）周り ===== */
+  .slot {
+    margin-bottom: 12px;
     background: #fff;
     border-radius: 10px;
     padding: 10px 10px 8px;
-    margin-bottom: 8px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
   }
 
   .slot-header {
     display: flex;
     justify-content: space-between;
-    gap: 8px;
-    align-items: center;
-    margin-bottom: 6px;
+    align-items: baseline;
+    margin-bottom: 4px;
   }
-
   .slot-title {
-    font-size: 13px;
+    font-size: 1.27em;
     font-weight: 600;
   }
-
-  .slot-meta {
-    font-size: 11px;
+  .slot-note {
+    font-size: 0.9em;
     color: #666;
   }
 
-  .slot-progress {
-    margin-top: 8px;
+  .tasks-group {
+    margin-top: 6px;
+  }
+  .tasks-group h3 {
+    font-size: 1.1em;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 4px;
+  }
+  .badge {
+    font-size: 0.9em;
+    padding: 1px 6px;
+    border-radius: 999px;
+  }
+  .badge-a { background: #111; color: #fff; }
+  .badge-b { background: #e0e0e0; color: #333; }
+
+  ul.tasks {
+    list-style: none;
+    padding-left: 10px;
+    border-left: 2px solid #111;
+    margin-bottom: 4px;
+  }
+  ul.tasks.b { border-left-color: #bbb; }
+
+  .task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-size: 1em;
+    padding: 2px 0;
+  }
+  .task-item input[type="checkbox"] {
+    margin-top: 2px;
+  }
+  .task-text { flex: 1; }
+
+  .footer-note {
+    font-size: 0.9em;
+    color: #666;
+    padding: 6px 4px 20px;
+    text-align: center;
+  }
+
+  /* ===== お知らせ・引き継ぎ用 ===== */
+  .info-list {
+    list-style: none;
+    font-size: 1em;
+    padding-left: 4px;
+  }
+  .info-list li {
+    padding: 2px 0;
+  }
+
+  .handover {
+    margin-top: 4px;
+  }
+  .handover-title {
+    font-size: 1.18em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .handover-note {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 4px;
+  }
+
+  .handover-log {
+    list-style: none;
+    font-size: 1em;
+    border-top: 1px dashed #ddd;
     padding-top: 4px;
-    border-top: 1px solid #eee;
-    width: 100%;
   }
-
-  .slot-progress-label {
-    font-size: 11px;
+  .handover-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2px 0;
+  }
+  .handover-text {
+    flex: 1;
+    margin-right: 6px;
+  }
+  .handover-time {
+    font-size: 0.9em;
     color: #666;
-    margin-bottom: 2px;
+    margin-right: 4px;
+    white-space: nowrap;
+  }
+  .handover-remove {
+    border: none;
+    background: transparent;
+    font-size: 1.1em;
+    cursor: pointer;
+    color: #999;
+  }
+  .handover-remove:hover { color: #f33; }
+
+  .handover-clear {
+    margin-top: 4px;
+    text-align: right;
+  }
+  .handover-clear button {
+    border: none;
+    background: #eee;
+    border-radius: 999px;
+    padding: 2px 8px;
+    font-size: 0.9em;
+    cursor: pointer;
   }
 
+  /* 端末ラベル */
+  .device-label-bar {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    font-size: 12px;
+  }
+  .device-label-title { font-weight: 600; }
+  .device-label-display {
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: #222;
+    color: #fff;
+    font-size: 11px;
+  }
+  .device-label-input {
+    flex: 1;
+    min-width: 140px;
+    max-width: 220px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid #ccc;
+    font-size: 12px;
+  }
+  .device-label-save-btn {
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: none;
+    font-size: 12px;
+    background: #1f7aec;
+    color: #fff;
+    cursor: pointer;
+  }
+  .device-label-save-btn:hover { opacity: 0.9; }
+
+  /* シフト表ショートカット（ヘッダー内） */
+  .shift-shortcut {
+    margin-top: 8px;
+    display: none;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    font-size: 11px;
+  }
+  .shift-btn {
+    background: #fff;
+    color: #111;
+    border-radius: 999px;
+    border: 1px solid #ddd;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+  }
+  .shift-btn:hover { background: #f5f5f5; }
+  .shift-btn:disabled { opacity: 0.5; cursor: default; }
+  .shift-note { color: #ccc; font-size: 10px; }
+
+  /* 今の時間帯ジャンプバナー */
+  .jump-banner {
+    margin-top: 14px;
+    margin-bottom: 12px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: #fff7e5;
+    border: 1px solid #ffd48a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: flex-end;
+  }
+  .jump-banner-note {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: #c25a00;
+    flex: 1;
+  }
+  .jump-banner-icon { font-size: 18px; line-height: 1; }
+  .jump-btn {
+    background: #111;
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.2;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.16);
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+  }
+  .jump-btn-main { font-weight: 600; }
+  .jump-btn-sub {
+    font-size: 10px;
+    opacity: 0.9;
+  }
+  .jump-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 6px rgba(0,0,0,0.22);
+  }
+  .jump-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+  }
+
+  @media (max-width: 640px) {
+    .jump-banner {
+      flex-direction: column;
+      align-items: flex-start;
+      border-radius: 16px;
+    }
+    .jump-btn {
+      width: 100%;
+      align-items: center;
+    }
+    .sp-only { display: inline; }
+  }
+  .sp-only { display: none; }
+
+  /* 引き継ぎメモ：チップ＋もっと表示 */
+  .handover-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+  }
+  .handover-chips-primary,
+  .handover-chips-extra {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .handover-chips-extra {
+    width: 100%;
+    margin-top: 4px;
+  }
+  .handover-chips-extra.is-hidden { display: none; }
+
+  .handover-chip {
+    border: 1px solid #ccc;
+    border-radius: 999px;
+    padding: 3px 8px;
+    font-size: 0.9em;
+    background: #fafafa;
+    cursor: pointer;
+  }
+  .handover-chip:hover { background: #eee; }
+
+  .handover-chips-toggle {
+    margin-left: auto;
+    margin-top: 0;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: #a05a00;
+    background: #fff7e5;
+    border: 1px solid #ffc27a;
+    border-radius: 20px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+    transition: all 0.2s ease;
+  }
+  .handover-chips-toggle:hover {
+    background: #ffe9c6;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.12);
+  }
+  .handover-chips-toggle span.arrow {
+    display: inline-block;
+    transition: transform 0.25s ease;
+  }
+  .handover-chips-toggle.open {
+    background: #ffe0b2;
+    border-color: #ffb74d;
+    color: #8d4b00;
+  }
+  .handover-chips-toggle.open span.arrow {
+    transform: rotate(180deg);
+  }
+
+  /* メニューオーバーレイ */
+  .app-menu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .app-menu-title {
+    font-size: 1em;
+    font-weight: 600;
+  }
+  .app-menu-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: 1px solid #e0e0e0;
+    background: #f7f7f7;
+    color: #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+    transition:
+      background 0.15s ease,
+      color 0.15s ease,
+      border-color 0.15s ease,
+      box-shadow 0.15s ease,
+      transform 0.08s ease;
+  }
+  .app-menu-close:hover {
+    background: #222;
+    color: #fff;
+    border-color: #222;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.18);
+    transform: translateY(-1px);
+  }
+  .app-menu-close:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+  }
+  .app-menu-section {
+    margin-top: 10px;
+  }
+  .app-menu-section h3 {
+    font-size: 0.95em;
+    margin-bottom: 4px;
+  }
+  #scrollSpeedSelect {
+    margin-top: 2px;
+    padding: 4px 8px;
+    border-radius: 999px;
+    border: 1px solid #ccc;
+    font-size: 0.9em;
+  }
+
+  /* ==== DMM風：行メニュー ==== */
+  .app-menu-body {
+    margin-top: 4px;
+  }
+
+  .app-menu-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #eee;
+    background: #fff;
+  }
+
+  .app-menu-item {
+    display: flex;
+    align-items: center;
+    padding: 10px 12px;
+    border-bottom: 1px solid #f1f1f1;
+  }
+
+  .app-menu-item:last-child {
+    border-bottom: none;
+  }
+
+  .app-menu-icon {
+    width: 28px;
+    font-size: 1.1em;
+    text-align: center;
+    margin-right: 10px;
+  }
+
+  .app-menu-main {
+    flex: 1;
+  }
+
+  .app-menu-sub {
+    font-size: 0.85em;
+    color: #777;
+  }
+
+  .app-menu-right {
+    margin-left: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .menu-link-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 0.9em;
+    background: #f5f5f5;
+    cursor: pointer;
+  }
+  .menu-link-btn:hover {
+    background: #eee;
+  }
+
+  .menu-arrow {
+    font-size: 1.1em;
+    color: #bbb;
+  }
+
+  .app-menu-font-buttons .btn-secondary {
+    padding: 4px 8px;
+    font-size: 0.9em;
+  }
+
+  /* === フルスクリーン化 === */
+  .app-menu-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.4);
+    display: none;
+    justify-content: flex-end;
+    z-index: 7000;
+  }
+
+  .app-menu-overlay.open {
+    display: flex;
+  }
+
+  .app-menu-sheet {
+    width: 100%;
+    height: 100vh;
+    background: #fff;
+    border-radius: 0;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    animation: slideUp 0.25s ease-out;
+  }
+
+  .app-menu-body {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 40px;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(20%); opacity: 0; }
+    to   { transform: translateY(0); opacity: 1; }
+  }
+
+  /* ===== ① お知らせ既読バッジ ＋ ボタン ===== */
+  .notice-status-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    font-size: 10px;
+    vertical-align: middle;
+  }
+  .notice-status-badge.unread {
+    background: #f44336;
+    color: #fff;
+  }
+  .notice-status-badge.read {
+    background: #4caf50;
+    color: #fff;
+  }
+
+  .notice-read-btn {
+    margin-top: 6px;
+    padding: 4px 10px;
+    font-size: 11px;
+    border-radius: 999px;
+    border: 1px solid #ccc;
+    background: #fafafa;
+    cursor: pointer;
+  }
+  .notice-read-btn:hover {
+    background: #f0f0f0;
+  }
+
+  /* ===== ② 各時間帯の完了率バー ===== */
+  .slot-progress {
+    margin-top: 4px;
+    margin-bottom: 6px;
+    padding: 6px 0;
+    width: 100%;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+  }
+  .slot-progress-label {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 4px;
+  }
   .slot-progress-bar {
     width: 100%;
     height: 6px;
@@ -280,7 +775,6 @@
     background: #eee;
     overflow: hidden;
   }
-
   .slot-progress-bar-inner {
     height: 100%;
     width: 0%;
@@ -289,506 +783,1595 @@
     transition: width 0.15s ease-out;
   }
 
-  .task-list { list-style: none; }
-
-  .task-item {
-    display: flex;
-    align-items: flex-start;
-    gap: 6px;
-    padding: 6px 0;
-    border-bottom: 1px solid #f0f0f0;
+  /* ===== お知らせカードだけ 特別デザイン ===== */
+  #notice-section {
+    margin-top: 12px;
+    border: 2px solid #ffb74d;
+    background: #fffaf0;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.06);
+    position: relative;
   }
-  .task-item:last-child { border-bottom: none; }
-
-  .task-checkbox { margin-top: 2px; }
-
-  .task-main { flex: 1; min-width: 0; }
-
-  .task-title-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 6px;
+  #notice-section::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff9800, #ffc107);
+    border-radius: 10px 10px 0 0;
+  }
+  #notice-section .slot-header {
     align-items: center;
-    margin-bottom: 1px;
+    margin-bottom: 6px;
   }
-
-  .task-title {
-    font-size: 12px;
-    font-weight: 500;
+  #notice-section .slot-title {
+    font-size: 1.25em;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
-
-  .task-tag {
-    font-size: 10px;
-    padding: 1px 6px;
+  #notice-section .slot-note {
+    font-size: 0.9em;
+    color: #b66a00;
+  }
+  .notice-lead {
+    font-size: 0.9em;
+    color: #b66a00;
+    background: #fff3cd;
+    border-radius: 6px;
+    padding: 4px 8px;
+    margin-bottom: 6px;
+  }
+  #notice-section .info-list li {
+    padding: 1px 0;
+  }
+  #notice-section .info-list li::before {
+    content: "●";
+    font-size: 0.5em;
+    color: #ff9800;
+    margin-right: 6px;
+  }
+  #notice-section #notice-status-badge {
+    margin-left: 8px;
+    padding: 2px 10px;
     border-radius: 999px;
-    background: #f1f5f9;
-    color: #334155;
-    white-space: nowrap;
+    font-size: 10px;
+  }
+  #notice-section #notice-status-badge.unread {
+    background: #e53935;
+    color: #fff;
+  }
+  #notice-section #notice-status-badge.read {
+    background: #43a047;
+    color: #fff;
+  }
+  #notice-section .notice-read-btn {
+    margin-top: 8px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid #ffb74d;
+    background: #fff;
+    font-size: 0.9em;
+    cursor: pointer;
+    color: #b66a00;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+  }
+  #notice-section .notice-read-btn:hover {
+    background: #ffe8c2;
   }
 
-  .task-note {
-    font-size: 11px;
-    color: #666;
-  }
 
-  .task-done .task-title {
-    text-decoration: line-through;
-    color: #888;
-  }
-  .task-done .task-note {
-    color: #aaa;
-  }
+.owner-news-summary {
+  background: #fff;
+  padding: 10px 12px;
+  margin: 8px 8px 12px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+}
 
-  .info-message {
-    font-size: 11px;
-    color: #666;
-    margin-top: 4px;
-  }
+.owner-news-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
 
-  .hidden { display: none !important; }
+.owner-news-item {
+  padding: 6px 0;
+  border-top: 1px solid #eee;
+}
+
+.owner-news-item:first-of-type {
+  border-top: none;
+}
+
+.owner-news-item-title {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.owner-news-item-body {
+  font-size: 12px;
+  color: #333;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* 1行で…にする */
+}
+
+.owner-news-item-meta {
+  font-size: 11px;
+  color: #777;
+  margin-top: 1px;
+}
+
+.owner-news-empty {
+  font-size: 12px;
+  color: #777;
+  margin: 4px 0;
+}
+
+.owner-news-more {
+  margin-top: 8px;
+  text-align: right;
+  font-size: 12px;
+}
+
+.owner-news-more a {
+  color: #111;
+  text-decoration: underline;
+}
+
+/* お知らせカード右下の「お知らせセンター」リンク */
+.notice-center-link {
+  margin-top: 6px;
+  text-align: right;
+  font-size: 12px;
+}
+.notice-center-link a {
+  color: #b66a00;
+  text-decoration: underline;
+}
+
+.notice-bottom-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-top: 10px;
+}
+
+.notice-center-link {
+  font-size: 13px;
+  color: #b66a00;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+
+    
+    
   </style>
-
-  <!-- ★ 簡易パクられ対策（完全には防げないけど、ちょっとだけ面倒にする） -->
-  <script>
-    // 右クリック禁止
-    document.addEventListener("contextmenu", function (e) {
-      e.preventDefault();
-    });
-
-    // 一部ショートカット（F12, Ctrl+Shift+I, Ctrl+U など）無効
-    document.addEventListener("keydown", function (e) {
-      const k = e.key.toLowerCase();
-      if (k === "f12") e.preventDefault();
-      if (e.ctrlKey && e.shiftKey && (k === "i" || k === "j" || k === "c")) e.preventDefault();
-      if (e.ctrlKey && (k === "u" || k === "s" || k === "p")) e.preventDefault();
-    });
-  </script>
-
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 </head>
-
 <body>
-  <div class="app-shell">
 
-    <!-- ================== ヘッダー ================== -->
-    <header class="app-header">
-      <div class="header-left">
-        <div class="header-title">業務チェックリスト</div>
-        <div class="header-sub" id="storeLabel">
-          店舗ID未設定 / スタッフ用
-        </div>
+  <!-- ===== ログイン画面 ===== -->
+  <div id="loginScreen">
+    <div class="login-wrap">
+      <div class="login-title">スタッフ ログイン</div>
+      <p class="login-subtitle">
+        店舗IDとパスワードを入力してください。
+      </p>
+      <div class="login-field">
+        <label for="loginStoreId">店舗ID</label>
+        <input id="loginStoreId" type="text" placeholder="例：nambucho" autocomplete="off" />
+      </div>
+      <div class="login-field">
+        <label for="loginStorePass">パスワード</label>
+        <input id="loginStorePass" type="password" />
+      </div>
+      <div class="login-actions">
+        <button id="loginBtn" type="button">ログイン</button>
+      </div>
+      <p class="login-note">
+        ※同じ端末・同じブラウザでは、約15時間ログイン状態が続きます。
+      </p>
+    </div>
+  </div>
+
+  <!-- ===== 本体画面 ===== -->
+  <div class="app">
+    <!-- ===== ヘッダー ===== -->
+    <header class="top-bar">
+      <div class="app-header">
+        <button type="button" class="app-menu-btn" id="appMenuBtn" aria-label="メニュー">
+          <div class="dots-grid">
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+          </div>
+        </button>
+        <h1>業務チェックリスト</h1>
+      </div>
+      <p>時間帯ごとの A＝必須 / B＝余裕あれば。迷ったらAから。</p>
+
+      <!-- 端末ラベル -->
+      <div class="device-label-bar">
+        <span class="device-label-title">名前を入力：</span>
+        <span id="deviceLabelDisplay" class="device-label-display">未設定</span>
+        <input
+          id="deviceLabelInput"
+          class="device-label-input"
+          type="text"
+          placeholder="例：たなか"
+        />
+        <button id="deviceLabelSaveBtn" class="device-label-save-btn">
+          保存
+        </button>
       </div>
 
-      <div class="header-right">
-        <div class="today-label" id="todayLabel"></div>
+      <!-- シフト表ワンタップ -->
+      <div class="shift-shortcut">
+        <button type="button" id="openShiftBtn" class="shift-btn">
+          <span>📅 シフト表</span>
+        </button>
+        <span class="shift-note">
+          ※「今週のシフト表画像」を別タブで開きます。
+        </span>
+      </div>
 
-        <div class="font-size-switch">
-          <span>文字サイズ</span>
-          <button type="button" class="font-btn active" data-size="small">小</button>
-          <button type="button" class="font-btn" data-size="medium">中</button>
-          <button type="button" class="font-btn" data-size="large">大</button>
-        </div>
+      <!-- 時間帯ナビ -->
+      <nav class="nav">
+        <a href="#t6-8">6〜8時</a>
+        <a href="#t9-11">9〜11時</a>
+        <a href="#t12-14">12〜14時</a>
+        <a href="#t15-17">15〜17時</a>
+        <a href="#t18-20">18〜20時</a>
+        <a href="#t21-23">21〜23時</a>
+        <a href="#t0-2">0〜2時</a>
+        <a href="#t3-5">3〜5時</a>
+      </nav>
+
+      <!-- 文字サイズ（ヘッダー用） -->
+      <div class="font-size-selector">
+        <button data-size="small">小</button>
+        <button data-size="medium">中</button>
+        <button data-size="large">大</button>
       </div>
     </header>
 
-    <!-- ================== メイン ================== -->
     <main>
 
-      <!-- ===== ログインカード ===== -->
-      <section class="login-card" id="loginSection">
-        <div class="login-title">店舗ログイン</div>
-        <div class="login-desc">
-          店舗IDとスタッフ用パスワードを入力して、今日の業務チェックを表示します。
+
+
+
+      
+      <!-- 現在時刻表示 -->
+      <div id="time-display" style="padding: 10px; color: #333;">
+        時刻を読み込み中…
+      </div>
+
+      <!-- 今の時間帯へジャンプ -->
+      <div class="jump-banner">
+        <div class="jump-banner-note">
+          <span class="jump-banner-icon">⏰</span>
+          <span class="jump-banner-text">
+            ※お知らせを読んだら、ボタンを押して<br class="sp-only">
+            「今やる時間帯」の欄まで移動してください。
+          </span>
         </div>
+        <button id="jumpNowSlotBtn" class="jump-btn">
+          <span class="jump-btn-main">今の時間帯へ</span>
+          <span class="jump-btn-sub">タスク欄までジャンプ</span>
+        </button>
+      </div>
 
-        <div class="login-row">
-          <label for="storeIdInput" class="login-label">店舗ID</label>
-          <input id="storeIdInput" class="login-input" type="text"
-            placeholder="例）nanbu-lawson-01" />
+      <!-- お知らせ -->
+      <section class="slot" id="notice-section">
+        <div class="slot-header">
+          <div class="slot-title">📢 お知らせ</div>
+          <div class="slot-note">
+            経営者からの共有事項
+            <span id="notice-status-badge" class="notice-status-badge"></span>
+          </div>
         </div>
+        <p class="notice-lead">
+          ※シフト変更や重要な連絡は、必ずここを確認してください。
+        </p>
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">お知らせ</span></h3>
+          <ul class="info-list" id="notice-list">
+            <li>お知らせを読み込み中...</li>
+          </ul>
+          <div class="notice-bottom-row">
+  <button id="notice-read-btn" class="notice-read-btn">
+    すべて読んだことにする
+  </button>
 
-        <div class="login-row">
-          <label for="staffPassInput" class="login-label">スタッフ用パスワード</label>
-          <input id="staffPassInput" class="login-input" type="password"
-            autocomplete="current-password" />
+  <a href="notice.html" class="notice-center-link">
+    ▶ お知らせセンターを見る
+  </a>
+</div>
+
+          <!-- ここまで追加 -->
+
         </div>
+      </section>
 
-        <div class="login-actions">
-          <button type="button" class="btn-primary" id="loginButton">ログイン</button>
-          <button type="button" class="btn-outline" id="clearSavedButton">端末の保存情報を削除</button>
+      <!-- 共通 引き継ぎメモ -->
+      <section class="slot handover-slot" data-slot="global">
+        <div class="slot-header">
+          <div class="slot-title">引き継ぎメモ（全員で共有・全時間帯共通）</div>
+          <div class="slot-note">時間帯をまたぐ時の共有メモ</div>
         </div>
+        <div class="handover">
+          <p class="handover-note">
+            文章を書くのがだるい人向け。下のボタンをタップするとメモに追加されます。<br>
+            ※右側に「時間 / 名前」が表示されます。
+          </p>
+          <div class="handover-chips"></div>
+          <ul class="handover-log"></ul>
+          <div class="handover-clear">
+            <button type="button" class="handover-clear-btn">メモを全部消す</button>
+          </div>
+        </div>
+      </section>
 
-        <div class="login-status" id="loginStatus"></div>
+      <!-- ===== 以下、時間帯ごとのタスク ===== -->
 
-        <div class="login-note">
-          ※一度ログインすると、この端末に店舗IDが保存されます（レジ裏スマホなど想定）。
+      <!-- 6〜8時 -->
+      <section id="t6-8" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">6:00〜8:00</div>
+          <div class="slot-note">朝の立ち上げ</div>
+        </div>
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span> この時間に必ずやること</h3>
+          <ul class="tasks a">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">CDC納品・片づけ（2便）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ベーカリー納品・片づけ（2便）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">コーヒーマシン清掃（本体・コンディメント什器・周辺）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ点検</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ポットのお湯確認</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店内・店頭ゴミ袋の点検・交換</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">温度チェック</span></label></li>
+          </ul>
+        </div>
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span> 時間が余ったときにできたら助かること</h3>
+          <ul class="tasks b">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店内・店頭ゴミ箱の清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">サービスコーナー（Loppi・ATM・コピー機）・イートイン清掃</span></label></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 9〜11時 -->
+      <section id="t9-11" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">9:00〜11:00</div>
+          <div class="slot-note">午前帯</div>
+        </div>
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span> この時間に必ずやること</h3>
+          <ul class="tasks a">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ点検</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">12時締め発注</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">床清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">プライスカード取り付け</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ポットのお湯確認</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">レジ点検（現金・金券）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">コーヒーマシン清掃（本体・コンディメント・周辺）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店舗周辺の清掃</span></label></li>
+          </ul>
+        </div>
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span> 時間が余ったときにできたら助かること</h3>
+          <ul class="tasks b">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店内・店頭ゴミ袋の点検・交換</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">消耗品発注（必要あれば）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">FF・厨房原料 使用期限チェック</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">灰皿清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">前陳（ソフトドリンク・冷蔵酒・菓子・即席麺）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">床清掃（2回目）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">品出し（ソフトドリンク・冷蔵酒）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">補充（たばこ）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">FF販売許容確認・廃棄</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ホット/常温FF作成（昼）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">マチカフェ販売準備（アイスカップ補充など）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ清掃（1日1回）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">隙あらば前陳（米飯・オープンケース・デザート・ベーカリー）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">月曜のみ：新商品販促物設置</span></label></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 12〜14時 -->
+      <section id="t12-14" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">12:00〜14:00</div>
+          <div class="slot-note">昼帯</div>
+        </div>
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span> この時間に必ずやること</h3>
+          <ul class="tasks a">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">CDC納品・片づけ（3便）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">前陳（ソフトドリンク・冷蔵酒、菓子・即席麺）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ポットのお湯確認</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">14時オープンケース廃棄（米飯・調理パン・ベーカリー）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">廃棄登録</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">コーヒーマシン清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ清掃（1日1回）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">伝票整理</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">送金</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">灰皿清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">補充（ホットドリンク）</span></label></li>
+          </ul>
+        </div>
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span> 時間が余ったときにできたら助かること</h3>
+          <ul class="tasks b">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">隙あらば前陳（米飯・オープンケース・デザート・ベーカリー）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">品出し（菓子・即席麺・ドリンク剤・アイス・冷凍食品）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店内・店頭ゴミ箱の清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">床清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ダスタークロスがけ</span></label></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 15〜17時 -->
+      <section id="t15-17" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">15:00〜17:00</div>
+          <div class="slot-note">夕方前</div>
+        </div>
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span> この時間に必ずやること</h3>
+          <ul class="tasks a">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">隙あらば前陳（米飯・オープンケース・デザート・ベーカリー）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">前陳（アイス・冷凍食品、ソフトドリンク・冷蔵酒、菓子・即席麺）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">補充（たばこ）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">FF販売許容確認・廃棄</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ホット・常温FF作成（夕）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ点検</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店舗周辺の清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">温度チェック</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">たばこ納品・片づけ</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">中華まん作成（昼）</span></label></li>
+          </ul>
+        </div>
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span> 時間が余ったときにできたら助かること</h3>
+          <ul class="tasks b">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">レジ点検</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ダスタークロスがけ</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">入口ドア拭き上げ</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">月曜のみ：販促物設置</span></label></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 18〜20時 -->
+      <section id="t18-20" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">18:00〜20:00</div>
+          <div class="slot-note">夕方〜夜</div>
+        </div>
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span> この時間に必ずやること</h3>
+          <ul class="tasks a">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店内・店頭ゴミ袋の点検・交換</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ清掃（1日1回）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">前陳（菓子・即席麺、ソフトドリンク・冷蔵酒）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ点検</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店舗周辺の清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">コーヒーマシン清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">油の酸価度チェック</span></label></li>
+          </ul>
+        </div>
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span> 時間が余ったときにできたら助かること</h3>
+          <ul class="tasks b">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">雑誌・書籍メンテ</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">夕刊返品</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ホット・常温FF作成（夜）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">製氷機清掃（水・土）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">棚清掃（日用品1台）（水・土）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">床清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ダスタークロスがけ</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">返本</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店頭（軒下・ガラス面）清掃（水・土）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店内・店頭ゴミ箱清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">20時オープンケース廃棄（長鮮度おにぎり・長鮮手巻）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店外/店内マット清掃（水・土）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">冷凍機器清掃（水）</span></label></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 21〜23時 -->
+      <section id="t21-23" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">21:00〜23:00</div>
+          <div class="slot-note">夜帯</div>
+        </div>
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span> この時間に必ずやること</h3>
+          <ul class="tasks a">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">補充（たばこ）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">DDC納品・片づけ（※水・土はDDC無し → 掃除の日）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">22時オープンケース廃棄（米飯・調理パン・チルド弁当・調理麺…）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">マチカフェ販売準備（アイスカップ）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ点検</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">灰皿清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">温度チェック</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ点検（再）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">0時オープンケース廃棄（次時間帯へ）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ホットドリンク販売許容確認・廃棄</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">廃棄登録</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">コーヒーマシン清掃（本体クリーニング）</span></label></li>
+          </ul>
+        </div>
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span> 時間が余ったときにできたら助かること</h3>
+          <ul class="tasks b">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">店内販促物設置（新商品納品日でない日）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">トイレ清掃（1日1回）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">平場販売許容確認・廃棄</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">フィルター・吸込口・換気扇清掃（水・土）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">フライヤー清掃・油交換（水・土）</span></label></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 0〜2時 -->
+      <section id="t0-2" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">0:00〜2:00</div>
+          <div class="slot-note">深夜前半</div>
+        </div>
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span> この時間に必ずやること</h3>
+          <ul class="tasks a">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">FDC納品・片づけ</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">温度チェック</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">検収印日付変更</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">精算</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">コピー機精算・用紙補充（入金含む）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">雑誌納品・片づけ</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">FF什器清掃（中華まん）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">FF販売許容確認・廃棄</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ホットドリンク販売許容確認・廃棄</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">1時オープンケース廃棄（米飯・調理パン）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">平場販売許容確認・廃棄</span></label></li>
+          </ul>
+        </div>
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span> 時間が余ったときにできたら助かること</h3>
+          <ul class="tasks b">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">カウンター清掃</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">深夜時間帯の紙幣確認・調整</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">レジ・カウンター周辺清掃</span></label></li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 3〜5時 -->
+      <section id="t3-5" class="slot">
+        <div class="slot-header">
+          <div class="slot-title">3:00〜5:00</div>
+          <div class="slot-note">早朝</div>
+        </div>
+        <div class="tasks-group">
+          <h3><span class="badge badge-a">A 必須</span> この時間に必ずやること</h3>
+          <ul class="tasks a">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">朝刊納品・片づけ</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">品出し（全商品）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">品出し（チルド飲料）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">棚滑り掃除（1台）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">ホット・常温FF作成（朝）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">中華まん作成（朝）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">CDC納品・片づけ（2便）</span></label></li>
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">4時オープンケース廃棄（米飯・長鮮手巻・チルド弁当…）</span></label></li>
+          </ul>
+        </div>
+        <div class="tasks-group">
+          <h3><span class="badge badge-b">B 余裕</span> 時間が余ったときにできたら助かること</h3>
+          <ul class="tasks b">
+            <li><label class="task-item"><input type="checkbox"><span class="task-text">余裕があれば：前陳・清掃を追加</span></label></li>
+          </ul>
         </div>
       </section>
 
 
-      <!-- ===== 時間帯チップ（ログイン後に表示） ===== -->
-      <section class="timeslot-nav-wrap hidden" id="timeslotNavWrap">
-        <div class="timeslot-nav" id="timeslotNav"></div>
-      </section>
+      <!-- ================== グローバル設定メニュー ================== -->
+      <div class="app-menu-overlay" id="appMenuOverlay">
+        <div class="app-menu-sheet">
+          <div class="app-menu-header">
+            <div class="app-menu-title">表示・シフト設定</div>
+            <button type="button" class="app-menu-close" id="appMenuClose">✕</button>
+          </div>
 
-      <!-- ===== 全体の進捗カード ===== -->
-      <section class="overall-progress-card hidden" id="overallCard">
-        <div class="overall-row">
-          <span class="overall-label">全体の完了率</span>
-          <span class="overall-value" id="overallValue">0%</span>
+          <div class="app-menu-body">
+            <ul class="app-menu-list">
+              <li class="app-menu-item">
+                <div class="app-menu-icon">📅</div>
+                <div class="app-menu-main">
+                  <div class="app-menu-title">シフト表</div>
+                  <div class="app-menu-sub">今週のシフト画像を開く</div>
+                </div>
+                <div class="app-menu-right app-menu-font-buttons">
+                  <button type="button" id="openShiftFromMenu" class="menu-link-btn">
+                    開く
+                  </button>
+                  <span class="menu-arrow">›</span>
+                </div>
+              </li>
+
+              <li class="app-menu-item">
+                <div class="app-menu-icon">🔤</div>
+                <div class="app-menu-main">
+                  <div class="app-menu-title">文字の大きさ</div>
+                  <div class="app-menu-sub">見やすいサイズを選んでください</div>
+                </div>
+                <div class="app-menu-right app-menu-font-buttons">
+                  <button type="button" data-size="small" class="btn-secondary">小</button>
+                  <button type="button" data-size="medium" class="btn-secondary">中</button>
+                  <button type="button" data-size="large" class="btn-secondary">大</button>
+                </div>
+              </li>
+            </ul>
+          </div>
         </div>
-
-        <div class="overall-bar">
-          <div class="overall-bar-inner" id="overallBar"></div>
-        </div>
-      </section>
-
-      <!-- ===== 各時間帯セクション（ここに JS で生成） ===== -->
-      <div id="slotContainer"></div>
+      </div>
 
     </main>
 
-  </div> <!-- app-shell ここまで -->
+    <div class="footer-note">
+      迷ったら：Aタスク → 前陳 → 清掃 の順で動けばOK。
+    </div>
+  </div>
 
-  <!-- ================== Firebase 初期化 ================== -->
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+
   <script>
+    // =============================
+    // Firebase 設定
+    // =============================
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_DOMAIN",
-      projectId: "YOUR_PROJECT_ID",
+      apiKey: "AIzaSyAPBMvTpzKCcPxLETncBqVR8fzf0cqKirc",
+      authDomain: "lawson-workflow.firebaseapp.com",
+      projectId: "lawson-workflow",
+      storageBucket: "lawson-workflow.appspot.com",
+      messagingSenderId: "335371795694",
+      appId: "1:335371795694:web:3b0950a616d368b284c7ff",
+      measurementId: "G-BGENZNZMRC"
     };
-    const app = firebase.initializeApp(firebaseConfig);
+
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-  </script>
 
-  <!-- ================== ここから JS 本体 ================== -->
-  <script>
-    // 今日の日付表示
-    const todayLabel = document.getElementById("todayLabel");
-    const today = new Date();
-    todayLabel.textContent = `${today.getMonth()+1}月${today.getDate()}日（${["日","月","火","水","木","金","土"][today.getDay()]}）`;
 
-    // 保存情報
-    const storeIdInput = document.getElementById("storeIdInput");
-    const staffPassInput = document.getElementById("staffPassInput");
-    const loginStatus = document.getElementById("loginStatus");
 
-    const savedStore = localStorage.getItem("storeId");
-    if (savedStore) {
-      storeIdInput.value = savedStore;
-    }
 
-    document.getElementById("clearSavedButton").addEventListener("click", () => {
-      localStorage.removeItem("storeId");
-      storeIdInput.value = "";
-      loginStatus.textContent = "保存された端末情報を削除しました。";
-      loginStatus.className = "login-status ok";
-    });
 
-    // ======================
-    // ★ ログイン処理
-    // ======================
-    document.getElementById("loginButton").addEventListener("click", async () => {
-      const storeId = storeIdInput.value.trim();
-      const pass = staffPassInput.value.trim();
-      if (!storeId || !pass) {
-        loginStatus.textContent = "店舗ID と パスワードを入力してください。";
-        loginStatus.className = "login-status err";
+ // ===== お知らせ（日付フォーマット） =====
+  function formatDateForSummary(ts) {
+    if (!ts) return "";
+    const d = ts.toDate();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const hh = String(d.getHours()).padStart(2, "0");
+    const mi = String(d.getMinutes()).padStart(2, "0");
+    return `${mm}/${dd} ${hh}:${mi}`;
+  }
+
+  const ownerNewsSummaryList = document.getElementById("ownerNewsSummaryList");
+  const ownerNewsSummaryEmpty = document.getElementById("ownerNewsSummaryEmpty");
+
+  // ownerNews の「最新3件だけ」をリアルタイムで取得
+  db.collection("ownerNews")
+    .orderBy("createdAt", "desc")
+    .limit(3)
+    .onSnapshot((snap) => {
+      ownerNewsSummaryList.innerHTML = "";
+
+      if (snap.empty) {
+        ownerNewsSummaryEmpty.style.display = "block";
         return;
       }
+      ownerNewsSummaryEmpty.style.display = "none";
 
-      try {
-        const doc = await db.collection("stores").doc(storeId).collection("settings").doc("auth").get();
-        if (!doc.exists) {
-          loginStatus.textContent = "店舗ID が存在しません。";
-          loginStatus.className = "login-status err";
-          return;
-        }
-
+      snap.forEach((doc) => {
         const data = doc.data();
-        if (data.staffPass !== pass) {
-          loginStatus.textContent = "パスワードが違います。";
-          loginStatus.className = "login-status err";
+        const div = document.createElement("div");
+        div.className = "owner-news-item";
+
+        const title = data.title || "(タイトルなし)";
+        const body = (data.body || "").replace(/\n/g, "　");
+        const author = data.author || "オーナー";
+        const date = formatDateForSummary(data.createdAt);
+
+        div.innerHTML = `
+          <div class="owner-news-item-title">・${title}</div>
+          <div class="owner-news-item-body">${body}</div>
+          <div class="owner-news-item-meta">${author} ／ ${date}</div>
+        `;
+        ownerNewsSummaryList.appendChild(div);
+      });
+    });
+    
+
+    
+
+
+    
+    // ★ 店舗ごとのパスワード設定
+    const STORE_PASSWORDS = {
+      nambucho: "nanbu",
+      // 2店舗目以降はここに追加
+      // oosakanamba: "osaka777",
+    };
+
+    const ALLOWED_STORES = Object.keys(STORE_PASSWORDS);
+
+    // ★ ログイン状態キャッシュ
+    const STORE_ID_CACHE_KEY = "cachedStoreId";
+    const STORE_ID_TIME_KEY = "cachedStoreId_time";
+    const STORE_PASS_CACHE_PREFIX = "storePass_";
+    const LOGIN_LIMIT_MS = 15 * 60 * 60 * 1000; // 15時間
+
+    // 現在ログインしている店舗IDとFirestore参照
+    let STORE_ID = null;
+    let storeRef = null;
+
+    function saveLoginCache(storeId) {
+      const now = Date.now();
+      localStorage.setItem(STORE_ID_CACHE_KEY, storeId);
+      localStorage.setItem(STORE_ID_TIME_KEY, String(now));
+      localStorage.setItem(STORE_PASS_CACHE_PREFIX + storeId, String(now));
+    }
+
+    function getCachedLoginStoreId() {
+      const now = Date.now();
+      const storeId = localStorage.getItem(STORE_ID_CACHE_KEY);
+      if (!storeId || !ALLOWED_STORES.includes(storeId)) return null;
+
+      const tId = Number(localStorage.getItem(STORE_ID_TIME_KEY));
+      const tPass = Number(localStorage.getItem(STORE_PASS_CACHE_PREFIX + storeId));
+      if (!tId || !tPass) return null;
+      if (now - tId > LOGIN_LIMIT_MS || now - tPass > LOGIN_LIMIT_MS) return null;
+
+      return storeId;
+    }
+
+    // =============================
+    // 営業日キー計算（7:00切り替え）
+    // =============================
+    function getCurrentBusinessKey() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = now.getMonth();
+      const d = now.getDate();
+      const base = new Date(y, m, d);
+
+      if (now.getHours() < 7) {
+        base.setDate(base.getDate() - 1);
+      }
+
+      const yy = base.getFullYear();
+      const mm = String(base.getMonth() + 1).padStart(2, "0");
+      const dd = String(base.getDate()).padStart(2, "0");
+      return `${yy}-${mm}-${dd}`;
+    }
+
+    // =============================
+    // 7:00 自動リセット
+    // =============================
+    function setupDailyResetAt7AM() {
+      function scheduleNextReset() {
+        const now = new Date();
+        const next = new Date();
+        next.setHours(7, 0, 0, 0);
+        if (now >= next) {
+          next.setDate(next.getDate() + 1);
+        }
+        const ms = next - now;
+        setTimeout(() => {
+          location.reload();
+          scheduleNextReset();
+        }, ms);
+      }
+      scheduleNextReset();
+    }
+
+    // =============================
+    // 時間帯ID 判定
+    // =============================
+    function getCurrentSlotIdByHour(hour) {
+      if (hour >= 6 && hour < 9)  return "t6-8";
+      if (hour >= 9 && hour < 12) return "t9-11";
+      if (hour >= 12 && hour < 15) return "t12-14";
+      if (hour >= 15 && hour < 18) return "t15-17";
+      if (hour >= 18 && hour < 21) return "t18-20";
+      if (hour >= 21 && hour < 24) return "t21-23";
+      if (hour >= 0 && hour < 3)   return "t0-2";
+      return "t3-5";
+    }
+
+    function scrollToCurrentTimeSlot() {
+      const now = new Date();
+      const h = now.getHours();
+      const slotId = getCurrentSlotIdByHour(h);
+      const el = document.getElementById(slotId);
+      if (!el) return;
+
+      setTimeout(() => {
+        const header = document.querySelector(".top-bar") || document.querySelector("header");
+        const headerHeight = header ? header.offsetHeight : 80;
+        const rect = el.getBoundingClientRect();
+        const targetY = rect.top + window.scrollY - headerHeight - 10;
+        window.scrollTo({
+          top: targetY,
+          behavior: "smooth"
+        });
+      }, 400);
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const loginScreen = document.getElementById("loginScreen");
+      const appEl = document.querySelector(".app");
+      const loginStoreIdInput = document.getElementById("loginStoreId");
+      const loginStorePassInput = document.getElementById("loginStorePass");
+      const loginBtn = document.getElementById("loginBtn");
+
+      function showLogin() {
+        if (loginScreen) loginScreen.style.display = "flex";
+        if (appEl) appEl.style.display = "none";
+      }
+      function showApp() {
+        if (loginScreen) loginScreen.style.display = "none";
+        if (appEl) appEl.style.display = "block";
+      }
+
+      // =============================
+      // 本体初期化（STORE_ID / storeRef がセット済みで呼ぶ）
+      // =============================
+      function startApp() {
+        // 店舗ID / パスワード表示
+        const storeIdDisplay = document.getElementById("storeIdDisplay");
+        const storePassDisplay = document.getElementById("storePassDisplay");
+
+        if (storeIdDisplay) {
+          storeIdDisplay.textContent = STORE_ID || "未設定";
+        }
+
+        if (storePassDisplay) {
+          const pass = STORE_PASSWORDS[STORE_ID];
+          if (pass) {
+            storePassDisplay.value = pass;
+          } else {
+            storePassDisplay.value = "";
+            storePassDisplay.placeholder = "未設定";
+          }
+        }
+
+        // ===== DMM風メニュー開閉 =====
+        const appMenuBtn = document.getElementById("appMenuBtn");
+        const appMenuOverlay = document.getElementById("appMenuOverlay");
+        const appMenuClose = document.getElementById("appMenuClose");
+
+        function openAppMenu() {
+          if (appMenuOverlay) appMenuOverlay.style.display = "flex";
+        }
+        function closeAppMenu() {
+          if (appMenuOverlay) appMenuOverlay.style.display = "none";
+        }
+
+        appMenuBtn?.addEventListener("click", openAppMenu);
+        appMenuClose?.addEventListener("click", closeAppMenu);
+        appMenuOverlay?.addEventListener("click", (e) => {
+          if (e.target === appMenuOverlay) {
+            closeAppMenu();
+          }
+        });
+
+        // =============================
+        // シフト表URL読み込み
+        // =============================
+        const openShiftBtn = document.getElementById("openShiftBtn");
+        const openShiftFromMenu = document.getElementById("openShiftFromMenu");
+        let shiftImageUrl = null;
+
+        function loadShiftImageUrl() {
+          storeRef.collection("settings").doc("shiftSheet").get()
+            .then((snap) => {
+              if (!snap.exists) {
+                [openShiftBtn, openShiftFromMenu].forEach((btn) => {
+                  if (btn) {
+                    btn.textContent = "シフト表（未設定）";
+                    btn.disabled = true;
+                  }
+                });
+                return;
+              }
+              const data = snap.data() || {};
+              shiftImageUrl = data.imageUrl || null;
+
+              if (!shiftImageUrl) {
+                [openShiftBtn, openShiftFromMenu].forEach((btn) => {
+                  if (btn) {
+                    btn.textContent = "シフト表（未設定）";
+                    btn.disabled = true;
+                  }
+                });
+              }
+            })
+            .catch((err) => {
+              console.error("shiftSheet 読み込みエラー", err);
+              [openShiftBtn, openShiftFromMenu].forEach((btn) => {
+                if (btn) {
+                  btn.textContent = "シフト表読み込み失敗";
+                  btn.disabled = true;
+                }
+              });
+            });
+        }
+
+        function openShiftWindow() {
+          if (shiftImageUrl) {
+            window.open(shiftImageUrl, "_blank");
+          } else {
+            alert("まだシフト表が設定されていません。\nオーナー画面からURLを設定してください。");
+          }
+        }
+
+        if (openShiftBtn) openShiftBtn.addEventListener("click", openShiftWindow);
+        if (openShiftFromMenu) openShiftFromMenu.addEventListener("click", openShiftWindow);
+        loadShiftImageUrl();
+
+        // 今の時間帯へ
+        const jumpBtn = document.getElementById("jumpNowSlotBtn");
+        if (jumpBtn) {
+          jumpBtn.addEventListener("click", scrollToCurrentTimeSlot);
+        }
+
+        // 端末ラベル
+        const DEVICE_LABEL_KEY = "nb_lawson_device_label";
+        const deviceLabelDisplay = document.getElementById("deviceLabelDisplay");
+        const deviceLabelInput   = document.getElementById("deviceLabelInput");
+        const deviceLabelSaveBtn = document.getElementById("deviceLabelSaveBtn");
+        let currentDeviceLabel = "未設定";
+
+        function loadDeviceLabel() {
+          const saved = localStorage.getItem(DEVICE_LABEL_KEY);
+          if (saved && saved.trim() !== "") {
+            currentDeviceLabel = saved.trim();
+            if (deviceLabelDisplay) deviceLabelDisplay.textContent = currentDeviceLabel;
+            if (deviceLabelInput)   deviceLabelInput.value = currentDeviceLabel;
+          } else {
+            currentDeviceLabel = "未設定";
+            if (deviceLabelDisplay) deviceLabelDisplay.textContent = "未設定";
+          }
+        }
+
+        function saveDeviceLabel() {
+          if (!deviceLabelInput) return;
+          const value = deviceLabelInput.value.trim();
+          if (!value) {
+            alert("端末ラベルを入力してください（例：レジ横iPad）");
+            return;
+          }
+          currentDeviceLabel = value;
+          localStorage.setItem(DEVICE_LABEL_KEY, value);
+          if (deviceLabelDisplay) deviceLabelDisplay.textContent = value;
+        }
+
+        deviceLabelSaveBtn?.addEventListener("click", saveDeviceLabel);
+        deviceLabelInput?.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            saveDeviceLabel();
+          }
+        });
+
+        loadDeviceLabel();
+
+        // 文字サイズ
+        const sizeButtons = document.querySelectorAll("button[data-size]");
+        function applyFontSize(size) {
+          document.body.classList.remove("font-medium", "font-large");
+          if (size === "medium") document.body.classList.add("font-medium");
+          if (size === "large")  document.body.classList.add("font-large");
+
+          sizeButtons.forEach((btn) => {
+            btn.classList.toggle("active", btn.dataset.size === size);
+          });
+
+          localStorage.setItem("fontSizeSetting", size);
+        }
+
+        sizeButtons.forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const size = btn.dataset.size || "small";
+            applyFontSize(size);
+          });
+        });
+
+        const savedSize = localStorage.getItem("fontSizeSetting") || "small";
+        applyFontSize(savedSize);
+
+        // 現在時刻表示
+        const timeDisplay = document.getElementById("time-display");
+
+        function updateTimeDisplay() {
+          if (!timeDisplay) return;
+          const now = new Date();
+          const jp = now.toLocaleString("ja-JP", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            weekday: "short",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+          });
+
+          const businessKey = getCurrentBusinessKey();
+
+          let nextReset = new Date();
+          nextReset.setHours(7, 0, 0, 0);
+          if (now >= nextReset) {
+            nextReset.setDate(nextReset.getDate() + 1);
+          }
+          const nextResetStr = nextReset.toLocaleString("ja-JP", {
+            month: "2-digit",
+            day: "2-digit",
+            weekday: "short",
+            hour: "2-digit",
+            minute: "2-digit"
+          });
+
+          timeDisplay.innerHTML = `
+            <div><strong>現在時刻：</strong> ${jp}</div>
+            <div><strong>今日の営業日：</strong> ${businessKey}（7:00切替）</div>
+            <div><strong>次のリセット：</strong> ${nextResetStr}</div>
+          `;
+        }
+
+        updateTimeDisplay();
+        setInterval(updateTimeDisplay, 1000);
+
+        // タスク定義 & チェック状態
+        const timeSlotIds = ["t6-8","t9-11","t12-14","t15-17","t18-20","t21-23","t0-2","t3-5"];
+        const checkboxMap = new Map();
+        let latestCheckedIds = new Set();
+
+        const taskDocRef = storeRef.collection("tasks").doc("main");
+        let applyingRemote = false;
+
+        // 完了率バー作成
+        function initializeProgressBars() {
+          timeSlotIds.forEach((slotId) => {
+            const section = document.getElementById(slotId);
+            if (!section) return;
+            const header = section.querySelector(".slot-header");
+            if (!header) return;
+            if (section.querySelector(".slot-progress")) return;
+
+            const wrap = document.createElement("div");
+            wrap.className = "slot-progress";
+            wrap.innerHTML = `
+              <div class="slot-progress-label" data-slot-progress-label="${slotId}">
+                完了：0/0（0%）
+              </div>
+              <div class="slot-progress-bar">
+                <div class="slot-progress-bar-inner" data-slot-progress-bar="${slotId}"></div>
+              </div>
+            `;
+            header.insertAdjacentElement("afterend", wrap);
+          });
+        }
+
+        function updateCompletionUI() {
+          timeSlotIds.forEach((slotId) => {
+            let total = 0;
+            let done = 0;
+
+            checkboxMap.forEach((cb, id) => {
+              if (id.startsWith(slotId + "-")) {
+                total++;
+                if (cb.checked) done++;
+              }
+            });
+
+            const rate = total > 0 ? Math.round((done / total) * 100) : 0;
+
+            const labelEl = document.querySelector(
+              `[data-slot-progress-label="${slotId}"]`
+            );
+            const barEl = document.querySelector(
+              `[data-slot-progress-bar="${slotId}"]`
+            );
+
+            if (labelEl) {
+              labelEl.textContent = `完了：${done}/${total}（${rate}%）`;
+            }
+            if (barEl) {
+              barEl.style.width = `${rate}%`;
+            }
+          });
+        }
+
+        function buildTasksFromDefinition(slotId, ul, tasks, groupLabel) {
+          ul.innerHTML = "";
+          tasks.forEach((text, index) => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+              <label class="task-item">
+                <input type="checkbox">
+                <span class="task-text"></span>
+              </label>
+            `;
+            const cb   = li.querySelector('input[type="checkbox"]');
+            const span = li.querySelector(".task-text");
+            span.textContent = text;
+
+            const taskId = `${slotId}-${groupLabel}-${index}`;
+            cb.dataset.taskId = taskId;
+            checkboxMap.set(taskId, cb);
+            cb.checked = latestCheckedIds.has(taskId);
+            ul.appendChild(li);
+          });
+        }
+
+        async function loadTaskDefinitions() {
+          const taskSlotsRef = storeRef.collection("taskSlots");
+          await Promise.all(
+            timeSlotIds.map(async (slotId) => {
+              const section = document.getElementById(slotId);
+              if (!section) return;
+              const ulA = section.querySelector("ul.tasks.a");
+              const ulB = section.querySelector("ul.tasks.b");
+              if (!ulA || !ulB) return;
+
+              try {
+                const snap = await taskSlotsRef.doc(slotId).get();
+                if (snap.exists) {
+                  const data = snap.data() || {};
+                  const tasksA = data.tasksA || [];
+                  const tasksB = data.tasksB || [];
+                  buildTasksFromDefinition(slotId, ulA, tasksA, "A");
+                  buildTasksFromDefinition(slotId, ulB, tasksB, "B");
+                } else {
+                  const setupFromExisting = (ul, groupLabel) => {
+                    ul.querySelectorAll("li").forEach((li, index) => {
+                      const cb = li.querySelector('input[type="checkbox"]');
+                      if (!cb) return;
+                      const taskId = `${slotId}-${groupLabel}-${index}`;
+                      cb.dataset.taskId = taskId;
+                      checkboxMap.set(taskId, cb);
+                      cb.checked = latestCheckedIds.has(taskId);
+                    });
+                  };
+                  setupFromExisting(ulA, "A");
+                  setupFromExisting(ulB, "B");
+                }
+              } catch (e) {
+                console.error("タスク定義読み込みエラー:", slotId, e);
+              }
+            })
+          );
+        }
+
+        function saveTasksToFirestore() {
+          const checkedIds = [];
+          checkboxMap.forEach((cb, id) => {
+            if (cb.checked) checkedIds.push(id);
+          });
+          const businessKey = getCurrentBusinessKey();
+          taskDocRef.set(
+            { checkedIds, businessKey },
+            { merge: true }
+          );
+        }
+
+        taskDocRef.onSnapshot((doc) => {
+          const data = doc.exists ? doc.data() : {};
+          const storedKey  = data.businessKey;
+          const currentKey = getCurrentBusinessKey();
+
+          if (storedKey !== currentKey) {
+            taskDocRef.set(
+              { checkedIds: [], businessKey: currentKey },
+              { merge: true }
+            );
+            latestCheckedIds = new Set();
+          } else {
+            latestCheckedIds = new Set(data.checkedIds || []);
+          }
+
+          applyingRemote = true;
+          checkboxMap.forEach((cb, id) => {
+            cb.checked = latestCheckedIds.has(id);
+          });
+          applyingRemote = false;
+
+          updateCompletionUI();
+        });
+
+        // ログ共通関数
+        async function logChecklistAction({ taskId, taskLabel, action, extra }) {
+          try {
+            const now = new Date();
+            const businessKey = getCurrentBusinessKey();
+            const rawLabel =
+              (localStorage.getItem("nb_lawson_device_label") || "") ||
+              (localStorage.getItem("staffName") || "");
+            const deviceLabel =
+              rawLabel && rawLabel.trim() ? rawLabel.trim() : "未設定";
+
+            await storeRef.collection("checklistLogs").add({
+              taskId: taskId ?? null,
+              taskLabel: taskLabel ?? null,
+              action,
+              deviceLabel,
+              businessKey,
+              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+              clientTimeISO: now.toISOString(),
+              extra: extra ?? null
+            });
+          } catch (err) {
+            console.error("ログ保存エラー:", err);
+          }
+        }
+
+        // チェック → Firestore + ログ
+        document.body.addEventListener("change", (e) => {
+          const target = e.target;
+          if (!target.matches('input[type="checkbox"][data-task-id]')) return;
+          if (applyingRemote) return;
+
+          saveTasksToFirestore();
+          updateCompletionUI();
+
+          const taskId = target.dataset.taskId || null;
+          const taskLabel =
+            target.closest(".task-item")?.querySelector(".task-text")?.textContent || null;
+
+          logChecklistAction({
+            taskId,
+            taskLabel,
+            action: target.checked ? "check" : "uncheck"
+          });
+        });
+
+        initializeProgressBars();
+        loadTaskDefinitions().then(updateCompletionUI);
+
+        // 引き継ぎメモ（共通）
+        const handoverSlots  = document.querySelectorAll(".handover-slot");
+        const handoverColRef = storeRef.collection("handover");
+
+        handoverSlots.forEach((slotEl) => {
+          const slotId    = slotEl.dataset.slot || "global";
+          const logEl     = slotEl.querySelector(".handover-log");
+          const clearBtn  = slotEl.querySelector(".handover-clear-btn");
+          const chipsArea = slotEl.querySelector(".handover-chips");
+
+          // 表示
+          handoverColRef
+            .where("businessKey", "==", getCurrentBusinessKey())
+            .where("slotId", "==", slotId)
+            .onSnapshot((snapshot) => {
+              if (!logEl) return;
+              logEl.innerHTML = "";
+
+              if (snapshot.empty) {
+                const li = document.createElement("li");
+                li.textContent = "まだ引き継ぎメモはありません。";
+                li.style.fontSize = "0.9em";
+                li.style.color = "#999";
+                logEl.appendChild(li);
+                return;
+              }
+
+              const docs = [];
+              snapshot.forEach((doc) => docs.push(doc));
+              docs.sort((a, b) => {
+                const da = a.data().createdAt ? a.data().createdAt.toMillis() : 0;
+                const db = b.data().createdAt ? b.data().createdAt.toMillis() : 0;
+                return db - da;
+              });
+
+              docs.forEach((doc) => {
+                const data = doc.data();
+                const li = document.createElement("li");
+                li.className = "handover-item";
+
+                const textSpan = document.createElement("span");
+                textSpan.className = "handover-text";
+                textSpan.textContent = data.text || "";
+
+                const timeSpan = document.createElement("span");
+                timeSpan.className = "handover-time";
+                const t = data.timeLabel || "";
+                const name = data.deviceLabel || "";
+                timeSpan.textContent = name ? `${t} / ${name}` : t;
+
+                const delBtn = document.createElement("button");
+                delBtn.className = "handover-remove";
+                delBtn.textContent = "✕";
+                delBtn.addEventListener("click", () => {
+                  doc.ref.delete();
+                });
+
+                li.appendChild(textSpan);
+                li.appendChild(timeSpan);
+                li.appendChild(delBtn);
+                logEl.appendChild(li);
+              });
+            });
+
+          function addHandoverForSlot(text) {
+            const now = new Date();
+            const timeLabel = now.toLocaleTimeString("ja-JP", {
+              hour: "2-digit",
+              minute: "2-digit"
+            });
+            const businessKey = getCurrentBusinessKey();
+            handoverColRef.add({
+              text,
+              slotId,
+              businessKey,
+              timeLabel,
+              deviceLabel: currentDeviceLabel || "未設定",
+              createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+          }
+
+          // チップ（globalテンプレ）
+          if (chipsArea) {
+            storeRef.collection("handoverTemplates").doc("global").get()
+              .then((doc) => {
+                chipsArea.innerHTML = "";
+                if (!doc.exists) return;
+
+                const chips = doc.data().chips || [];
+                const PRIMARY_COUNT = 10;
+
+                const primaryContainer = document.createElement("div");
+                primaryContainer.className = "handover-chips-primary";
+
+                const extraContainer = document.createElement("div");
+                extraContainer.className = "handover-chips-extra is-hidden";
+
+                chipsArea.appendChild(primaryContainer);
+
+                let toggleBtn = null;
+                if (chips.length > PRIMARY_COUNT) {
+                  toggleBtn = document.createElement("button");
+                  toggleBtn.className = "handover-chips-toggle";
+                  toggleBtn.innerHTML = `
+                    <span class="arrow">▼</span>
+                    <span class="label">もっと表示</span>
+                  `;
+                  toggleBtn.addEventListener("click", () => {
+                    const isHidden = extraContainer.classList.toggle("is-hidden");
+                    if (isHidden) {
+                      toggleBtn.classList.remove("open");
+                      toggleBtn.querySelector(".label").textContent = "もっと表示";
+                    } else {
+                      toggleBtn.classList.add("open");
+                      toggleBtn.querySelector(".label").textContent = "閉じる";
+                    }
+                  });
+                  chipsArea.appendChild(toggleBtn);
+                }
+
+                chipsArea.appendChild(extraContainer);
+
+                chips.forEach((text, index) => {
+                  const btn = document.createElement("button");
+                  btn.className = "handover-chip";
+                  btn.textContent = text;
+                  btn.dataset.text = text;
+                  btn.addEventListener("click", () => {
+                    addHandoverForSlot(text);
+                  });
+
+                  if (index < PRIMARY_COUNT) {
+                    primaryContainer.appendChild(btn);
+                  } else {
+                    extraContainer.appendChild(btn);
+                  }
+                });
+              })
+              .catch((err) => {
+                console.error("handoverTemplates 読み込みエラー", err);
+              });
+          }
+
+          // 全消し
+          if (clearBtn) {
+            clearBtn.addEventListener("click", async () => {
+              if (!confirm("今日の引き継ぎメモを全部消しますか？")) return;
+              const businessKey = getCurrentBusinessKey();
+              const snap = await handoverColRef
+                .where("slotId", "==", slotId)
+                .where("businessKey", "==", businessKey)
+                .get();
+              if (snap.empty) return;
+              const batch = db.batch();
+              snap.forEach((doc) => batch.delete(doc.ref));
+              await batch.commit();
+            });
+          }
+        });
+
+        // 経営者お知らせ（ownerNews）
+        const infoListEl = document.querySelector(".info-list");
+        const noticeStatusBadge = document.getElementById("notice-status-badge");
+        const noticeReadBtn = document.getElementById("notice-read-btn");
+        const NOTICE_LAST_READ_KEY = "noticeLastReadAt";
+        let latestNoticeMs = 0;
+
+        function updateNoticeBadge() {
+          if (!noticeStatusBadge || latestNoticeMs === 0) return;
+
+          const lastReadStr = localStorage.getItem(NOTICE_LAST_READ_KEY);
+          const lastReadMs = lastReadStr ? Number(lastReadStr) : 0;
+          const hasUnread = lastReadMs < latestNoticeMs;
+
+          if (hasUnread) {
+            noticeStatusBadge.textContent = "未読あり";
+            noticeStatusBadge.classList.add("unread");
+            noticeStatusBadge.classList.remove("read");
+          } else {
+            noticeStatusBadge.textContent = "すべて確認済み";
+            noticeStatusBadge.classList.add("read");
+            noticeStatusBadge.classList.remove("unread");
+          }
+        }
+
+        if (infoListEl) {
+          const ownerNewsColRef = storeRef.collection("ownerNews");
+          ownerNewsColRef
+            .orderBy("createdAt", "desc")
+            .limit(5)
+            .onSnapshot(
+              (snapshot) => {
+                infoListEl.innerHTML = "";
+                latestNoticeMs = 0;
+
+                if (snapshot.empty) {
+                  const li = document.createElement("li");
+                  li.textContent = "現在、お知らせはありません。";
+                  infoListEl.appendChild(li);
+                  updateNoticeBadge();
+                  return;
+                }
+
+                snapshot.forEach((doc) => {
+                  const data = doc.data();
+                  const title = data.title || "";
+                  const body  = data.body  || "";
+                  const li = document.createElement("li");
+                  if (title && body) {
+                    li.textContent = `【${title}】 ${body}`;
+                  } else if (title) {
+                    li.textContent = `【${title}】`;
+                  } else {
+                    li.textContent = body || "";
+                  }
+                  infoListEl.appendChild(li);
+
+                  if (data.createdAt) {
+                    const ms = data.createdAt.toMillis();
+                    if (ms > latestNoticeMs) latestNoticeMs = ms;
+                  }
+                });
+
+                updateNoticeBadge();
+              },
+              (error) => {
+                console.error("ownerNews 読み込みエラー", error);
+                infoListEl.innerHTML = "";
+                const li = document.createElement("li");
+                li.textContent = "お知らせの読み込みに失敗しました。";
+                infoListEl.appendChild(li);
+              }
+            );
+        }
+
+        if (noticeReadBtn) {
+          noticeReadBtn.addEventListener("click", () => {
+            if (!latestNoticeMs) {
+              alert("お知らせがありません。");
+              return;
+            }
+
+            const prevStr = localStorage.getItem(NOTICE_LAST_READ_KEY);
+            const prevMs = prevStr ? Number(prevStr) : 0;
+            const hadUnread = prevMs < latestNoticeMs;
+
+            localStorage.setItem(NOTICE_LAST_READ_KEY, String(latestNoticeMs));
+            updateNoticeBadge();
+
+            if (hadUnread) {
+              logChecklistAction({
+                taskId: "ownerNews",
+                taskLabel: "お知らせを既読にした",
+                action: "noticeRead",
+                extra: { latestNoticeMs }
+              });
+            }
+          });
+        }
+
+        setupDailyResetAt7AM();
+      } // startApp ここまで
+
+      // =============================
+      // ログインボタン押下
+      // =============================
+      function handleLogin() {
+        const id = (loginStoreIdInput?.value || "").trim();
+        const pass = (loginStorePassInput?.value || "").trim();
+
+        if (!id) {
+          alert("店舗IDを入力してください（例：nambucho）");
+          return;
+        }
+        if (!ALLOWED_STORES.includes(id)) {
+          alert("この店舗IDではチェックリストを利用できません。");
+          return;
+        }
+        const expected = STORE_PASSWORDS[id];
+        if (!expected) {
+          alert("この店舗IDにはパスワードが設定されていません。");
+          return;
+        }
+        if (pass !== expected) {
+          alert("パスワードが違います。");
           return;
         }
 
-        // OK
-        localStorage.setItem("storeId", storeId);
+        // ログイン成功
+        STORE_ID = id;
+        storeRef = db.collection("stores").doc(STORE_ID);
+        saveLoginCache(STORE_ID);
+        showApp();
+        startApp();
+      }
 
-        loginStatus.textContent = "ログイン成功！読み込み中…";
-        loginStatus.className = "login-status ok";
+      if (loginBtn) {
+        loginBtn.addEventListener("click", handleLogin);
+      }
+      if (loginStorePassInput) {
+        loginStorePassInput.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            handleLogin();
+          }
+        });
+      }
 
-        // 読み込み実行
-        startChecklist(storeId);
-
-      } catch (err) {
-        console.error(err);
-        loginStatus.textContent = "エラーが発生しました。";
-        loginStatus.className = "login-status err";
+      // =============================
+      // 自動ログイン判定
+      // =============================
+      const cachedId = getCachedLoginStoreId();
+      if (cachedId) {
+        STORE_ID = cachedId;
+        storeRef = db.collection("stores").doc(STORE_ID);
+        showApp();
+        startApp();
+      } else {
+        showLogin();
       }
     });
-
-    // ======================
-    // ★ チェックリスト開始
-    // ======================
-    async function startChecklist(storeId) {
-      // ログイン画面を非表示
-      document.getElementById("loginSection").classList.add("hidden");
-
-      // 店舗名ラベル
-      document.getElementById("storeLabel").textContent = `${storeId} / スタッフ用`;
-
-      // 時間帯設定ロード
-      const slotIds = await loadTimeSlots(storeId);
-
-      // 時間帯チップ作成
-      renderTimeSlotChips(slotIds);
-
-      // タスク読み込み
-      loadTasks(storeId, slotIds);
-    }
-
-    // ======================
-    // ★ 時間帯設定読み込み
-    // ======================
-    async function loadTimeSlots(storeId) {
-      try {
-        const doc = await db.collection("stores").doc(storeId).collection("settings").doc("timeSlots").get();
-        if (doc.exists) {
-          const data = doc.data();
-          if (Array.isArray(data.slots) && data.slots.length > 0) {
-            return data.slots;  // 例: ["t6-8","t9-11", ...]
-          }
-        }
-      } catch(e){}
-
-      // デフォルト時間帯
-      return ["t6-8","t9-11","t12-14","t15-17","t18-20","t21-23","t0-2","t3-5"];
-    }
-
-    // ======================
-    // ★ 時間帯チップ描画
-    // ======================
-    function renderTimeSlotChips(slotIds) {
-      const wrap = document.getElementById("timeslotNavWrap");
-      const nav = document.getElementById("timeslotNav");
-
-      wrap.classList.remove("hidden");
-      nav.innerHTML = "";
-
-      slotIds.forEach((slot, i) => {
-        const btn = document.createElement("button");
-        btn.className = "timeslot-chip" + (i === 0 ? " active" : "");
-        btn.dataset.slot = slot;
-        btn.textContent = slot.replace("t","").replace("-","〜");
-        nav.appendChild(btn);
-      });
-    }
-
-
-
-    // ======================
-    // ★ タスク読み込み
-    // ======================
-    async function loadTasks(storeId, slotIds) {
-      const container = document.getElementById("slotContainer");
-      container.innerHTML = "";
-
-      // データ読み込み
-      const tasksSnap = await db
-        .collection("stores").doc(storeId)
-        .collection("tasks")
-        .get();
-
-      const tasks = {};
-      tasksSnap.forEach(doc => {
-        tasks[doc.id] = doc.data();
-      });
-
-      // セクション生成
-      slotIds.forEach(slotId => {
-        const slotData = tasks[slotId] || { tasks: [] };
-        container.appendChild(createSlotSection(storeId, slotId, slotData));
-      });
-
-      // 時間帯全体進捗を更新
-      updateOverallProgress();
-    }
-
-    // ======================
-    // ★ 各時間帯の HTML 生成
-    // ======================
-    function createSlotSection(storeId, slotId, slotData) {
-      const section = document.createElement("section");
-      section.className = "slot-section";
-
-      section.innerHTML = `
-        <div class="slot-header">
-          <div class="slot-title">${slotId.replace("t","").replace("-","〜")}</div>
-          <div class="slot-meta">全${slotData.tasks.length}件</div>
-        </div>
-
-        <ul class="task-list">
-          ${slotData.tasks.map((t, idx) => `
-            <li class="task-item ${t.done ? "task-done" : ""}">
-              <input type="checkbox" class="task-checkbox" data-slot="${slotId}" data-index="${idx}" ${t.done ? "checked" : ""}/>
-              <div class="task-main">
-                <div class="task-title-row">
-                  <span class="task-title">${t.title || "(無題タスク)"}</span>
-                  ${t.tag ? `<span class="task-tag">${t.tag}</span>` : ""}
-                </div>
-                ${t.note ? `<div class="task-note">${t.note}</div>` : ""}
-              </div>
-            </li>
-          `).join("")}
-        </ul>
-
-        <div class="slot-progress">
-          <div class="slot-progress-label">完了率</div>
-          <div class="slot-progress-bar">
-            <div class="slot-progress-bar-inner" id="bar-${slotId}"></div>
-          </div>
-        </div>
-      `;
-
-      // 初期進捗を反映
-      requestAnimationFrame(() => {
-        updateSlotProgress(slotId, slotData);
-      });
-
-      // チェックイベント
-      section.querySelectorAll(".task-checkbox").forEach(cb => {
-        cb.addEventListener("change", async (e) => {
-          const slot = e.target.dataset.slot;
-          const index = Number(e.target.dataset.index);
-          const done = e.target.checked;
-
-          await updateTaskDone(storeId, slot, index, done);
-
-          // UI 更新
-          if (done) {
-            e.target.closest(".task-item").classList.add("task-done");
-          } else {
-            e.target.closest(".task-item").classList.remove("task-done");
-          }
-
-          // 進捗更新
-          const currentData = await fetchSlot(storeId, slot);
-          updateSlotProgress(slot, currentData);
-          updateOverallProgress();
-        });
-      });
-
-      return section;
-    }
-
-    // ======================
-    // ★ Firestore の特定時間帯を再取得
-    // ======================
-    async function fetchSlot(storeId, slotId) {
-      const doc = await db
-        .collection("stores").doc(storeId)
-        .collection("tasks").doc(slotId)
-        .get();
-      return doc.data() || { tasks: [] };
-    }
-
-    // ======================
-    // ★ チェック状態を Firestore へ保存
-    // ======================
-    async function updateTaskDone(storeId, slotId, index, done) {
-      const ref = db.collection("stores").doc(storeId).collection("tasks").doc(slotId);
-
-      await ref.update({
-        [`tasks.${index}.done`]: done
-      });
-    }
-
-    // ======================
-    // ★ 時間帯ごとの完了率更新
-    // ======================
-    function updateSlotProgress(slotId, slotData) {
-      const tasks = slotData.tasks || [];
-      const doneCount = tasks.filter(t => t.done).length;
-      const rate = tasks.length === 0 ? 0 : Math.round(doneCount / tasks.length * 100);
-
-      const bar = document.getElementById(`bar-${slotId}`);
-      if (bar) bar.style.width = rate + "%";
-    }
-
-    // ======================
-    // ★ 全体の完了率
-    // ======================
-    function updateOverallProgress() {
-      const sections = document.querySelectorAll(".slot-section");
-
-      let total = 0;
-      let done = 0;
-
-      sections.forEach(sec => {
-        const checkboxes = sec.querySelectorAll(".task-checkbox");
-        checkboxes.forEach(cb => {
-          total++;
-          if (cb.checked) done++;
-        });
-      });
-
-      const rate = total === 0 ? 0 : Math.round(done / total * 100);
-
-      document.getElementById("overallValue").textContent = `${rate}%`;
-      document.getElementById("overallBar").style.width = `${rate}%`;
-      document.getElementById("overallCard").classList.remove("hidden");
-    }
-
-
-    // ======================
-    // ★ 文字サイズ切り替え
-    // ======================
-    document.querySelectorAll(".font-btn").forEach(btn => {
-      btn.addEventListener("click", () => {
-        document.body.classList.remove("font-small","font-medium","font-large");
-
-        const size = btn.dataset.size;
-        document.body.classList.add(`font-${size}`);
-
-        document.querySelectorAll(".font-btn").forEach(b => b.classList.remove("active"));
-        btn.classList.add("active");
-      });
-    });
-
-    // ======================
-    // ★ 各時間帯チップを押したらスクロール
-    // ======================
-    document.getElementById("timeslotNav").addEventListener("click", (e) => {
-      if (!e.target.classList.contains("timeslot-chip")) return;
-
-      const slot = e.target.dataset.slot;
-
-      // チップの active 切替
-      document.querySelectorAll(".timeslot-chip").forEach(btn => btn.classList.remove("active"));
-      e.target.classList.add("active");
-
-      // 対応する時間帯セクションにスクロール
-      const sections = [...document.querySelectorAll(".slot-section")];
-      const target = sections.find(sec => sec.querySelector(`#bar-${slot}`));
-      if (target) {
-        target.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
-    });
-
-    // ======================
-    // ★ 追加パクられ対策（console を一部ハック）
-    // ======================
-    (function() {
-      const original = console.log;
-      console.log = function(...msg) {
-        if (msg.some(m => typeof m === "string" && m.includes("<html"))) return;
-        original.apply(console, msg);
-      };
-    })();
   </script>
-
 </body>
 </html>
