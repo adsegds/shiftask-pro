@@ -1936,10 +1936,10 @@
         updateTimeDisplay();
         setInterval(updateTimeDisplay, 1000);
 
-        // タスク定義 & チェック状態
-        const timeSlotIds = ["t6-8","t9-11","t12-14","t15-17","t18-20","t21-23","t0-2","t3-5"];
+                // タスク定義 & チェック状態
         const checkboxMap = new Map();
         let latestCheckedIds = new Set();
+
 
         const taskDocRef = storeRef.collection("tasks").doc("main");
         let applyingRemote = false;
