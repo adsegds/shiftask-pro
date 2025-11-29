@@ -1484,6 +1484,14 @@ activateView("news");
       // Firestore 上の時間帯設定ドキュメント
       const timeSlotsConfigRef = storeRef.collection("settings").doc("timeSlotsConfig");
 
+
+      // ★ カスタム時間帯テキスト用の要素
+const slotCustomInput     = document.getElementById("slotCustomInput");
+const slotCustomLoadBtn   = document.getElementById("slotCustomLoadBtn");
+const slotCustomSaveBtn   = document.getElementById("slotCustomSaveBtn");
+
+      
+
       // デフォルトの時間帯リスト（いままでと同じ）
       function getDefaultSlots() {
         return [
