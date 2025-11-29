@@ -2140,8 +2140,10 @@
           });
         });
 
+        await loadTimeSlotsConfig();
         initializeProgressBars();
-        loadTaskDefinitions().then(updateCompletionUI);
+        await loadTaskDefinitions();
+        updateCompletionUI();
 
         // 引き継ぎメモ（共通）
         const handoverSlots  = document.querySelectorAll(".handover-slot");
