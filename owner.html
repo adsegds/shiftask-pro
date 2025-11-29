@@ -1690,7 +1690,9 @@ activateView("news");
       });
 
       // 初回ロード
-      loadSlotDefinition(slotSelect.value);
+      // ★ 初回は時間帯設定を読み込んでからプルダウン生成
+      loadTimeSlotsConfig(true);
+
 
       // =============================
       // 3) handoverTemplates（引き継ぎメモ用ボタン）
