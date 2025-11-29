@@ -835,6 +835,36 @@
   </p>
 </div>
 <!-- ★ ここまで追加 -->
+
+         <hr>
+
+<!-- ★ 追加：時間帯をテキストで直接編集（不規則な区切り用） -->
+<div class="row">
+  <label>時間帯のカスタム編集（不規則な区切りに対応）</label>
+  <textarea
+    id="slotCustomInput"
+    placeholder="例）&#10;06:00-09:00 朝の立ち上げ&#10;09:00-12:00 午前帯&#10;12:00-14:00 昼ピーク&#10;14:00-15:00 14時廃棄・仕込み帯&#10;15:00-18:00 夕方前&#10;18:00-21:00 夕方〜夜ピーク&#10;21:00-22:00 21時廃棄・補充&#10;22:00-24:00 夜ラスト&#10;00:00-03:00 深夜前半&#10;03:00-06:00 早朝立ち上げ"></textarea>
+  <div class="hint">
+    1行につき1時間帯です。<br>
+    形式：<code>HH:MM-HH:MM ラベル</code>（ラベルは空でもOK。分は必ず00で入力してください）
+  </div>
+
+  <div class="btn-row">
+    <button type="button" class="btn-secondary" id="slotCustomLoadBtn">
+      現在の時間帯をテキストに展開
+    </button>
+    <button type="button" class="btn-primary" id="slotCustomSaveBtn">
+      このテキスト内容で時間帯を更新
+    </button>
+  </div>
+
+  <p class="hint">
+    ※このテキストで時間帯を更新すると、上の「編集する時間帯」プルダウンも新しいリストに入れ替わります。<br>
+    ※タスク内容はそのまま残りますが、新しい時間帯IDには新しくタスクを設定する必要があります。
+  </p>
+</div>
+
+
             
           </section>
         </section>
