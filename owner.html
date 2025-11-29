@@ -1513,6 +1513,20 @@ const slotCustomSaveBtn   = document.getElementById("slotCustomSaveBtn");
           slots = getDefaultSlots();
         }
 
+
+        // slots配列を textarea 用テキストに変換
+function slotsToCustomText(slots) {
+  if (!slots || slots.length === 0) return "";
+  return slots
+    .map((s) => {
+      // ラベルの中に時間がもう入ってる場合もあるけど、とりあえずそのまま
+      return s._raw || s.label || s.id;
+    })
+    .join("\n");
+}
+
+
+        
         slots.forEach((s) => {
           const opt = document.createElement("option");
           opt.value = s.id;
