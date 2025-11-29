@@ -1675,6 +1675,67 @@
         const storeIdDisplay = document.getElementById("storeIdDisplay");
         const storePassDisplay = document.getElementById("storePassDisplay");
 
+
+        // ★ ヘッダーナビを表示（CSSでは display: none なので JSでON）
+        const navEl = document.querySelector(".nav");
+        if (navEl) {
+          navEl.style.display = "flex";
+        }
+
+        // ===== 時間帯IDリスト（デフォルト） =====
+        let timeSlotIds = ["t6-8","t9-11","t12-14","t15-17","t18-20","t21-23","t0-2","t3-5"];
+
+        // ★ Firestore の settings/timeSlots から時間帯設定を読み込む
+        async function loadTimeSlotsConfig() {
+          try {
+            const doc = await storeRef.collection("settings").doc("timeSlots").get();
+            if (!doc.exists) return;
+
+            const data  = doc.data() || {};
+            const slots = Array.isArray(data.slots) ? data.slots : [];
+            if (!slots.length) return;
+
+            // グローバルに保持（getCurrentSlotIdByHour 用）
+            timeSlotsConfig = slots;
+
+            // timeSlotIds も設定側の並びにそろえる（id は owner.html と同じ想定）
+            const ids = slots
+              .map((s) => s && s.id)
+              .filter((id) => typeof id === "string" && id.trim() !== "");
+            if (ids.length > 0) {
+              timeSlotIds = ids;
+            }
+
+            // ナビの表示名＆各セクションのタイトルを書き換え
+            slots.forEach((slot) => {
+              if (!slot || !slot.id) return;
+              const id    = slot.id;
+              const label = slot.label || "";
+
+              // ヘッダーナビ
+              const navLink = document.querySelector(`.nav a[href="#${id}"]`);
+              if (navLink && label) {
+                navLink.textContent = label;
+              }
+
+              // 各時間帯セクションのタイトル
+              const section = document.getElementById(id);
+              if (section && label) {
+                const titleEl = section.querySelector(".slot-title");
+                if (titleEl) {
+                  titleEl.textContent = label;
+                }
+              }
+            });
+          } catch (e) {
+            console.error("timeSlots 設定の読み込みエラー:", e);
+          }
+        }
+
+
+
+
+        
         if (storeIdDisplay) {
           storeIdDisplay.textContent = STORE_ID || "未設定";
         }
