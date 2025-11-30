@@ -627,14 +627,15 @@
   }
 
   .app-menu-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    border-radius: 10px;
-    overflow: hidden;
-    border: 1px solid #eee;
-    background: #fff;
-  }
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: none;             /* 枠線なし */
+  background: transparent;  /* 背景もカードっぽくしない */
+  border-radius: 0;         /* 角丸もなし（Twitter寄せ） */
+  overflow: visible;        /* はみ出し制限解除（お好みでOK） */
+}
+
 
   .app-menu-item {
     display: flex;
