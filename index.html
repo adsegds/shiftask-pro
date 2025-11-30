@@ -1543,6 +1543,25 @@ body.app-ready .app {
       }, 400);
     }
 
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const loginScreen = document.getElementById("loginScreen");
+      const appEl = document.querySelector(".app");
+      const loginStoreIdInput = document.getElementById("loginStoreId");
+      const loginStorePassInput = document.getElementById("loginStorePass");
+      const loginBtn = document.getElementById("loginBtn");
+
+      // ★ 念のため、読み込み中クラスを付けておく
+      document.body.classList.add("app-loading");
+
+      // ★ アプリ準備完了時に呼ぶ
+      function setAppReady() {
+        document.body.classList.remove("app-loading");
+        document.body.classList.add("app-ready");
+      }
+
+
+    
     document.addEventListener("DOMContentLoaded", () => {
       const loginScreen = document.getElementById("loginScreen");
       const appEl = document.querySelector(".app");
