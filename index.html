@@ -1615,6 +1615,39 @@
 
 
 
+    // ★ owner のカスタム時間帯にも対応した判定版（後勝ちで上書き）
+    function getCurrentSlotIdByHour(hour) {
+      if (!SLOT_RANGES.length) {
+        // フォールバック：デフォルト 6-8 を返す
+        return "t6-8";
+      }
+      const h = ((hour % 24) + 24) % 24; // 念のため 0-23 に正規化
+
+      for (const r of SLOT_RANGES) {
+        const start = ((r.start % 24) + 24) % 24;
+        const end   = ((r.end   % 24) + 24) % 24;
+
+        if (start === end) continue; // ありえないけど保険
+
+        if (start < end) {
+          // 同日内（例：9〜11）
+          if (h >= start && h < end) return r.id;
+        } else {
+          // 日またぎ（例：21〜3 → 21-23 & 0-3 みたいなケースも一応想定）
+          if (h >= start || h < end) return r.id;
+        }
+      }
+
+      // どれにも当てはまらない場合は最後のスロット
+      return SLOT_RANGES[SLOT_RANGES.length - 1].id;
+    }
+
+
+
+
+    
+
+
 
     
 
