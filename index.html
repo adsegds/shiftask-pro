@@ -1998,6 +1998,102 @@ async function loadTimeSlots(storeRef) {
     navEl.innerHTML = "";
   }
 
+  const pad = (v) => String(v).padStart(2, "0");
+  const usedSlotIds = [];
+
+  // =============================
+  // ① カスタム timeSlots がある場合
+  //    → その個数ぶんだけカードを使う
+  //    → 余ったカードは非表示にする
+  // =============================
+  if (Array.isArray(slots) && slots.length) {
+    for (let i = 0; i < DEFAULT_SLOT_IDS.length; i++) {
+      const baseId  = DEFAULT_SLOT_IDS[i];   // 例: "t6-8"
+      const section = document.getElementById(baseId);
+      if (!section) continue;
+
+      // Firestore にデータが無いカードは「使わない」→ 非表示
+      if (i >= slots.length) {
+        section.style.display = "none";
+        continue;
+      }
+
+      section.style.display = ""; // 念のため表示ON
+
+      const slot    = slots[i] || {};
+      const titleEl = section.querySelector(".slot-title");
+      const noteEl  = section.querySelector(".slot-note");
+
+      // --- Firestore 側のフィールド想定 ---
+      // id        : "t6-9" など（無ければ既存のIDを使う）
+      // label     : "朝の立ち上げ"
+      // note      : 右上の小さい説明文
+      // startHour : 6
+      // endHour   : 9
+      const label = slot.label || slot.name || slot.title || DEFAULT_SLOT_TITLES[i];
+      const note  = slot.note  || slot.description || "";
+
+      let timeText = "";
+      if (slot.startHour != null && slot.endHour != null) {
+        timeText = `${pad(slot.startHour)}:00〜${pad(slot.endHour)}:00`;
+      } else if (slot.timeRange || slot.range || slot.time) {
+        timeText = slot.timeRange || slot.range || slot.time;
+      }
+
+      // section の id （アンカー用）
+      const slotId = slot.id || baseId;
+      section.id = slotId;
+      usedSlotIds.push(slotId);
+
+      // 見出しテキスト
+      if (titleEl) {
+        titleEl.textContent = timeText
+          ? `${timeText} ${label}`
+          : label;
+      }
+      if (noteEl) {
+        noteEl.textContent = note || "";
+      }
+
+      // ナビボタン
+      if (navEl) {
+        const a = document.createElement("a");
+        a.href = `#${slotId}`;
+        a.textContent = slot.navLabel || label || timeText || `時間帯${i + 1}`;
+        navEl.appendChild(a);
+      }
+    }
+  } else {
+    // =============================
+    // ② カスタム無し（従来どおり 8枚全部表示）
+    // =============================
+    DEFAULT_SLOT_IDS.forEach((baseId, i) => {
+      const section = document.getElementById(baseId);
+      if (!section) return;
+      section.style.display = ""; // 念のため表示ON
+
+      const slotId = baseId;
+      usedSlotIds.push(slotId);
+
+      if (navEl) {
+        const label = DEFAULT_SLOT_TITLES[i] || `時間帯${i + 1}`;
+        const a = document.createElement("a");
+        a.href = `#${slotId}`;
+        a.textContent = label;
+        navEl.appendChild(a);
+      }
+    });
+  }
+
+  if (navEl && usedSlotIds.length) {
+    navEl.style.display = "flex";
+  }
+
+  // ここで「有効な時間帯IDだけ」を全体に共有
+  timeSlotIds = usedSlotIds;
+}
+
+
 
           const pad = (v) => String(v).padStart(2, "0");
           const usedSlotIds = [];
