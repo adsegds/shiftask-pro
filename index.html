@@ -1656,6 +1656,87 @@
         if (appEl) appEl.style.display = "block";
       }
 
+
+
+
+
+// ========= カスタム時間帯の一覧 =========
+// owner.html で settings/timeSlots に保存されたやつをここに入れる
+// 形式: [{ id, label, start, end, sortOrder }, ...]
+let activeTimeSlots = [];
+
+/**
+ * settings/timeSlots ドキュメントから時間帯設定を読む
+ * 無ければ従来のデフォルト時間帯を使う
+ */
+async function loadTimeSlots(storeRef) {
+  try {
+    const doc = await storeRef.collection("settings").doc("timeSlots").get();
+
+    if (!doc.exists) {
+      // ▼ ドキュルト（今までのやつ）にフォールバック
+      activeTimeSlots = [
+        { id: "t6-9",  label: "朝の立ち上げ", start: "06:00", end: "09:00", sortOrder: 1 },
+        { id: "t9-12", label: "午前帯",       start: "09:00", end: "12:00", sortOrder: 2 },
+        { id: "t12-15",label: "昼ピーク",     start: "12:00", end: "15:00", sortOrder: 3 },
+        { id: "t15-18",label: "午後帯",       start: "15:00", end: "18:00", sortOrder: 4 },
+        { id: "t18-21",label: "夕方ピーク",   start: "18:00", end: "21:00", sortOrder: 5 },
+        { id: "t21-24",label: "深夜帯",       start: "21:00", end: "24:00", sortOrder: 6 }
+      ];
+      return;
+    }
+
+    const data = doc.data() || {};
+
+    // owner.html 側でこういう形で保存してる想定:
+    // { slots: [ {id, label, start, end, sortOrder}, ... ] }
+    if (Array.isArray(data.slots) && data.slots.length) {
+      activeTimeSlots = data.slots.slice().sort((a, b) =>
+        (a.sortOrder ?? 0) - (b.sortOrder ?? 0)
+      );
+      return;
+    }
+
+    // もし "06:00-09:00 朝の立ち上げ" みたいなテキストだけ保存してる場合
+    if (typeof data.text === "string") {
+      activeTimeSlots = data.text
+        .split("\n")
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map((line, idx) => {
+          const m = line.match(/^(\d{1,2}:\d{2})\s*-\s*(\d{1,2}:\d{2})\s*(.+)$/);
+          if (m) {
+            return {
+              id: `slot${idx + 1}`,
+              start: m[1],
+              end:   m[2],
+              label: m[3],
+              sortOrder: idx + 1
+            };
+          }
+          // パースできなかった行はそのままラベルだけ
+          return {
+            id: `slot${idx + 1}`,
+            start: null,
+            end:   null,
+            label: line,
+            sortOrder: idx + 1
+          };
+        });
+    }
+  } catch (e) {
+    console.error("時間帯設定の取得に失敗", e);
+  }
+}
+
+
+
+
+
+
+
+      
+
       // =============================
       // 本体初期化（STORE_ID / storeRef がセット済みで呼ぶ）
       // =============================
