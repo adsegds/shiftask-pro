@@ -2448,16 +2448,11 @@ body.app-ready .app {
       // =============================
       // 自動ログイン判定
       // =============================
-            const cachedId = getCachedLoginStoreId();
+             const cachedId = getCachedLoginStoreId();
       if (cachedId) {
         STORE_ID = cachedId;
         storeRef = db.collection("stores").doc(STORE_ID);
-
         showApp();
-
-        // ★ 自動ログインのときも、ここで準備完了にする
-        setAppReady();
-
         startApp();
       } else {
         showLogin();
