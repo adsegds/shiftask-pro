@@ -975,6 +975,18 @@
   cursor: pointer;
 }
 
+    /* ===== 初期読み込み中は本体を非表示にしてチラつき防止 ===== */
+body.app-loading .app {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.app-ready .app {
+  opacity: 1;
+  transition: opacity 0.2s ease-out;
+}
+
+
   </style>
 </head>
   
