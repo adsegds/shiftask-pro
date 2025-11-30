@@ -1635,54 +1635,92 @@ activateView("news");
         }
       }
 
-      // 入力値から時間帯スロットを自動生成（開始〜終了＋区切り）
+            // 時刻文字列 "HH:MM" → 分（0〜）に変換
+      function parseTimeToMinutes(hm) {
+        const [hStr, mStr] = hm.split(":");
+        const h = parseInt(hStr, 10);
+        const m = parseInt(mStr, 10);
+        if (
+          Number.isNaN(h) ||
+          Number.isNaN(m) ||
+          h < 0 || h > 24 ||
+          m < 0 || m >= 60
+        ) {
+          return null;
+        }
+        return (h * 60 + m) % (24 * 60); // 0〜1439 に丸める
+      }
+
+      // 分（0〜） → "HH:MM" に変換
+      function formatMinutesToTime(total) {
+        const t = ((total % (24 * 60)) + (24 * 60)) % (24 * 60);
+        const h = String(Math.floor(t / 60)).padStart(2, "0");
+        const m = String(t % 60).padStart(2, "0");
+        return `${h}:${m}`;
+      }
+
+      // 入力値から時間帯スロットを自動生成（開始〜終了＋区切り・分ベース）
       function generateSlotsFromInputs() {
         if (!slotConfigStartInput || !slotConfigEndInput || !slotConfigIntervalSelect) {
           return null;
         }
-        const start = slotConfigStartInput.value || "06:00";
-        const end   = slotConfigEndInput.value   || "23:00";
-        const intervalMin = parseInt(slotConfigIntervalSelect.value, 10) || 180;
 
-        const [sh, sm] = start.split(":").map(Number);
-        const [eh, em] = end.split(":").map(Number);
+        const startStr = slotConfigStartInput.value || "06:00";
+        const endStr   = slotConfigEndInput.value   || "23:00";
+        const intervalMinutes =
+          parseInt(slotConfigIntervalSelect.value, 10) || 60; // 15 / 30 / 60 / 120...
 
-        if (sm !== 0 || em !== 0) {
-          alert("時間は 00 分ちょうどにしてください（例: 06:00）");
+        const startMin = parseTimeToMinutes(startStr);
+        const endMin   = parseTimeToMinutes(endStr);
+
+        if (startMin === null || endMin === null) {
+          alert("時間の形式が正しくありません（例: 06:00）");
+          return null;
+        }
+        if (!intervalMinutes || intervalMinutes <= 0) {
+          alert("区切り時間（分）が不正です");
           return null;
         }
 
-        let startTotal = sh * 60 + sm;
-        let endTotal   = eh * 60 + em;
-
-        // 終了 <= 開始 の場合は翌日として扱う（例：06:00〜00:00）
-        if (endTotal <= startTotal) {
-          endTotal += 24 * 60;
-        }
-
-        if ((endTotal - startTotal) % intervalMin !== 0) {
-          alert("（終了 − 開始）の時間が区切り時間で割り切れるように設定してください。");
-          return null;
+        // 1日をまたぐ場合（終了 <= 開始 のときは翌日扱い）
+        let rangeEnd = endMin;
+        if (rangeEnd <= startMin) {
+          rangeEnd += 24 * 60;
         }
 
         const slots = [];
-        let t = startTotal;
-        while (t < endTotal) {
-          const next = t + intervalMin;
+        let cur = startMin;
+        let index = 0;
+        const MAX_SLOTS = 96; // 15分刻みで最大 24h
 
-          const h1 = Math.floor(t / 60);
-          const h2 = Math.floor(next / 60);
+        while (cur < rangeEnd && index < MAX_SLOTS) {
+          const next = Math.min(cur + intervalMinutes, rangeEnd);
 
-          const h1Disp = h1 % 24;
-          const h2Disp = h2 % 24;
+          const sLabel = formatMinutesToTime(cur);   // 例: "06:00"
+          const eLabel = formatMinutesToTime(next);  // 例: "06:30"
+          const label  = `${sLabel}〜${eLabel}`;
 
-          const id = `t${h1Disp}-${h2Disp}`;
-          const label = `${h1Disp}:00〜${h2Disp}:00`;
+          // slotId はユニークなら何でもOK（index.html 側も prefix として使うだけ）
+          const id = `slot_${sLabel.replace(":", "")}_${eLabel.replace(":", "")}`;
 
-          slots.push({ id, label });
-          t = next;
+          slots.push({
+            id,
+            label,
+            start: sLabel,
+            end: eLabel,
+            order: index
+          });
+
+          cur = next;
+          index++;
         }
-        return { slots, start, end, intervalMinutes: intervalMin };
+
+        return {
+          slots,
+          start: startStr,
+          end:   endStr,
+          intervalMinutes
+        };
       }
 
       // ★ カスタムテキストから slots 配列を作る
