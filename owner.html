@@ -805,6 +805,155 @@
 
 
 
+
+
+/* =========================
+   シフト表（1週間）デザイン
+   ========================= */
+.shiftboard-shell {
+  padding: 16px 20px 24px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 0 0 1px #e5e7eb;
+}
+
+/* 上部ヘッダー */
+.shiftboard-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.shiftboard-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.shiftboard-meta {
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.shiftboard-weeknav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.shiftboard-weeknav button {
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  border-radius: 4px;
+  padding: 3px 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.shiftboard-weeknav button:hover {
+  background: #eef2ff;
+}
+
+/* テーブル全体 */
+.shiftboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 11px;
+  border: 1px solid #9ca3af;
+}
+
+/* 行・セル共通 */
+.shiftboard-table th,
+.shiftboard-table td {
+  border: 1px solid #9ca3af;
+  padding: 3px 4px;
+  vertical-align: top;
+}
+
+/* ヘッダー行 */
+.shiftboard-head-row th {
+  background: #e5f3e5;      /* ちょい緑がかったグレー */
+  text-align: center;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* 左端：日付・曜日 */
+.shiftboard-col-date {
+  width: 70px;
+  text-align: center;
+  background: #f9fafb;
+  font-weight: 500;
+}
+
+/* 右端：M/H・複員人数 */
+.shiftboard-col-summary {
+  width: 70px;
+  text-align: right;
+  background: #f9fafb;
+}
+
+/* シフト入力セル */
+.shiftboard-cell {
+  min-height: 32px;
+  line-height: 1.3;
+  position: relative;
+}
+
+/* シフト入力欄を contenteditable にしてメモ帳っぽく */
+.shiftboard-cell[contenteditable="true"] {
+  outline: none;
+}
+
+/* placeholder 風の表示 */
+.shiftboard-cell[data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  font-size: 10px;
+  color: #9ca3af;
+}
+
+/* 行ごとの背景のしましま感 */
+.shiftboard-body-row:nth-child(odd) td {
+  background: #fdfdfd;
+}
+.shiftboard-body-row:nth-child(even) td {
+  background: #f7faf7;
+}
+
+/* 日付セルの色分け（例：土日） */
+.shiftboard-day-sat {
+  color: #2563eb;
+}
+.shiftboard-day-sun {
+  color: #dc2626;
+}
+
+/* 下の「週合計」行 */
+.shiftboard-footer-row td {
+  background: #fffde7;
+  font-weight: 600;
+}
+.shiftboard-footer-label {
+  text-align: right;
+}
+
+
+    
+
+
+
+
+
+
+    
+
+
+
     
 
     
