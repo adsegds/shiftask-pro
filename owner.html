@@ -1038,7 +1038,7 @@
             </span>
           </button>
 
-          <!-- ★ 追加：お知らせセンター（notice.html を開く用） -->
+          <!-- ★ お知らせセンター（別ページ） -->
           <button type="button" data-view="notice-center">
             <span class="label">
               <span class="label-icon">📢</span>
@@ -1074,11 +1074,19 @@
             </span>
           </button>
 
-          <!-- ★ ここが「シフト表」ビュー（新レイアウトが入る） -->
-          <button type="button" data-view="shift">
+          <!-- 🆕 シフト表デザイン（1週間レイアウト） -->
+          <button type="button" data-view="shiftboard">
             <span class="label">
               <span class="label-icon">📅</span>
-              <span class="label-text">シフト表</span>
+              <span class="label-text">シフト表デザイン</span>
+            </span>
+          </button>
+
+          <!-- 旧：画像URL版シフト表設定（残す） -->
+          <button type="button" data-view="shift">
+            <span class="label">
+              <span class="label-icon">🖼</span>
+              <span class="label-text">シフト表画像URL</span>
             </span>
           </button>
 
@@ -1259,10 +1267,10 @@
           </section>
         </section>
 
-        <!-- ③ シフト表（1週間レイアウト・新規） -->
-        <section id="view-shift" class="view-panel">
+        <!-- 🆕 ③ シフト表デザイン（1週間レイアウト） -->
+        <section id="view-shiftboard" class="view-panel">
           <div class="view-header">
-            <h2 class="view-title">シフト表</h2>
+            <h2 class="view-title">シフト表デザイン</h2>
             <p class="view-subtitle">
               1週間分のシフトをここで編集・印刷できます。（まずはデザインのみ）
             </p>
@@ -1437,7 +1445,58 @@
           </div>
         </section>
 
-        <!-- ④ 引き継ぎメモ用ボタン編集 -->
+        <!-- 旧：④ シフト表設定（画像URLのまま残す） -->
+        <section id="view-shift" class="view-panel">
+          <section class="card" id="shift-card">
+            <h2>シフト表設定</h2>
+            <p class="card-sub">
+              スタッフ画面からワンタップで開ける「シフト表画像」のURLを設定します。<br>
+              画像は Googleドライブ / Gyazo / 自分のサーバーなどにアップして、公開URLを貼ればOKです。
+            </p>
+
+            <!-- URL 直接入力欄 -->
+            <div class="row">
+              <label for="shiftImageUrlInput">シフト表画像URL</label>
+              <input
+                type="text"
+                id="shiftImageUrlInput"
+                placeholder="https:// から始まる画像URLを貼ってください"
+              />
+              <div class="hint">
+                URLを直接貼ってもOKです。<br>
+                下の「画像ファイルをアップロード」で選ぶと、自動でここにURLが入ります。
+              </div>
+            </div>
+
+            <!-- ファイルアップロード欄 -->
+            <div class="row">
+              <label for="shiftImageFileInput">シフト表画像ファイルをアップロード</label>
+              <input
+                type="file"
+                id="shiftImageFileInput"
+                accept="image/*"
+              />
+              <div class="hint">
+                ファイルを選ぶと自動で Firebase Storage にアップロードされ、<br>
+                URL欄とプレビューが更新されます。
+              </div>
+            </div>
+
+            <div class="btn-row">
+              <button type="button" class="btn-primary" id="shiftImageUrlSaveBtn">
+                この内容で保存
+              </button>
+            </div>
+            <div class="status" id="shiftStatus"></div>
+
+            <hr>
+
+            <label>プレビュー</label>
+            <img id="shiftImagePreview" src="" alt="シフト表プレビュー">
+          </section>
+        </section>
+
+        <!-- 引き継ぎメモ -->
         <section id="view-handover" class="view-panel">
           <section class="card" id="handover-card">
             <h2>引き継ぎメモ（ボタン文言の編集）</h2>
@@ -1473,7 +1532,7 @@
           </section>
         </section>
 
-        <!-- ⑤ スタッフログ -->
+        <!-- スタッフログ -->
         <section id="view-logs" class="view-panel">
           <section class="card" id="logs-card">
             <h2>スタッフログ（checklistLogs）</h2>
@@ -1534,7 +1593,7 @@
           </section>
         </section>
 
-        <!-- ⑥ グラフ分析（β） -->
+        <!-- グラフ分析 -->
         <section id="view-analytics" class="view-panel">
           <section class="card" id="analytics-card">
             <h2>グラフ分析（β）</h2>
@@ -1585,7 +1644,7 @@
           </section>
         </section>
 
-        <!-- ⑦ シフト作成（AI） -->
+        <!-- シフト作成（AI） -->
         <section id="view-shiftai" class="view-panel">
           <div class="shiftai-layout">
             <!-- ヘッダー -->
@@ -1636,7 +1695,7 @@
                 </div>
               </div>
 
-              <!-- AIが考えるときの優先度（今はダミーだけど将来使う） -->
+              <!-- AIが考えるときの優先度（今はダミー） -->
               <div class="shiftai-row">
                 <div class="shiftai-label">AIの優先度</div>
                 <div class="shiftai-field shiftai-chips">
@@ -1650,7 +1709,7 @@
                   </label>
                   <label class="shiftai-chip">
                     <input type="checkbox">
-                    <span>人件費を抑える</span>
+                      <span>人件費を抑える</span>
                   </label>
                 </div>
               </div>
@@ -1667,7 +1726,7 @@
               </div>
             </section>
 
-            <!-- AIの結果プレビュー（今は空っぽ） -->
+            <!-- AIの結果プレビュー -->
             <section class="shiftai-card">
               <h2 class="shiftai-card-title">AIのシフト提案プレビュー</h2>
               <p class="shiftai-empty" id="shiftaiPreviewEmpty">
@@ -1675,9 +1734,8 @@
                 ここに <strong>1週間 or 1ヶ月分のシフト案</strong> がカード形式で表示されます。
               </p>
 
-              <!-- 後でJSで中身を埋めるエリア -->
               <div id="shiftaiPreviewArea" class="shiftai-preview-area">
-                <!-- 例：日別カード・時間帯別の表をここに生成する -->
+                <!-- ここにAI結果を描画 -->
               </div>
             </section>
           </div>
@@ -1685,7 +1743,6 @@
       </main>
     </div>
   </div>
-
 
 
   <!-- Chart.js（グラフ用） -->
