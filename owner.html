@@ -998,7 +998,7 @@
 
   <!-- ② 本体アプリ（ログイン後に表示） -->
   <div id="ownerApp" style="display:none;">
-    <!-- 👇ここにAIボタンを追加 -->
+    <!-- 👇ここにAIボタン -->
     <button id="aiOptimizeBtn" class="ai-btn">
       🤖 AI最適化
     </button>
@@ -1074,7 +1074,7 @@
             </span>
           </button>
 
-          <!-- 🆕 シフト表デザイン（1週間レイアウト） -->
+          <!-- 🆕 シフト表デザイン（横棒タイプ） -->
           <button type="button" data-view="shiftboard">
             <span class="label">
               <span class="label-icon">📅</span>
@@ -1082,7 +1082,7 @@
             </span>
           </button>
 
-          <!-- 旧：画像URL版シフト表設定（残す） -->
+          <!-- 従来の画像URL版 -->
           <button type="button" data-view="shift">
             <span class="label">
               <span class="label-icon">🖼</span>
@@ -1142,7 +1142,7 @@
           </section>
         </section>
 
-        <!-- ② タスク定義編集 -->
+        <!-- ② 時間帯タスク編集 -->
         <section id="view-tasks" class="view-panel">
           <section class="card" id="tasks-card">
             <h2>時間帯ごとのタスク編集（taskSlots）</h2>
@@ -1152,7 +1152,7 @@
               ③ 必要ならカスタム編集で細かく調整するイメージです。
             </p>
 
-            <!-- ① 時間帯の自動生成（営業開始〜終了と区切り時間） -->
+            <!-- ① 時間帯の自動生成 -->
             <div class="row">
               <label>時間帯の自動生成（営業開始〜終了と区切り時間）</label>
               <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;">
@@ -1190,12 +1190,10 @@
 
             <hr>
 
-            <!-- ② 時間帯ごとのタスク編集（taskSlots） -->
+            <!-- ② 時間帯ごとのタスク編集 -->
             <div class="row">
               <label for="slotSelect">編集する時間帯</label>
-              <select id="slotSelect">
-                <!-- ★ 時間帯リストは JavaScript で自動生成 -->
-              </select>
+              <select id="slotSelect"></select>
               <p class="slot-note">
                 時間帯を変更すると、その時間帯のタスク定義を Firestore から読み込みます。
               </p>
@@ -1238,7 +1236,7 @@
 
             <hr>
 
-            <!-- ③ 時間帯のカスタム編集（不規則な区切りに対応） -->
+            <!-- ③ カスタム時間帯編集 -->
             <div class="row">
               <label>時間帯のカスタム編集（不規則な区切りに対応）</label>
               <textarea
@@ -1267,185 +1265,76 @@
           </section>
         </section>
 
-        <!-- 🆕 ③ シフト表デザイン（1週間レイアウト） -->
+        <!-- ③ シフト表デザイン（横棒レイアウト） -->
         <section id="view-shiftboard" class="view-panel">
-          <div class="view-header">
-            <h2 class="view-title">シフト表デザイン</h2>
-            <p class="view-subtitle">
-              1週間分のシフトをここで編集・印刷できます。（まずはデザインのみ）
+          <section class="card">
+            <h2>シフト表デザイン</h2>
+            <p class="card-sub">
+              ローソンの「シフト予定実績表」風に、1週間分のシフトを横棒で表示します。<br>
+              今はテスト用のダミーデータですが、あとで入力フォームやAI結果をここに流し込みます。
             </p>
-          </div>
 
-          <div class="shiftboard-shell">
-            <!-- 上部ヘッダー（週切り替えなど） -->
-            <div class="shiftboard-header">
-              <div class="shiftboard-title">シフト予定実績表</div>
-
-              <div class="shiftboard-weeknav">
-                <button type="button">◀ 先週</button>
-                <button type="button">今週</button>
-                <button type="button">翌週 ▶</button>
+            <div class="shiftboard-toolbar">
+              <div class="shiftboard-week-control">
+                <button type="button" class="btn-secondary" id="shiftPrevWeekBtn">◀ 先週</button>
+                <button type="button" class="btn-secondary" id="shiftThisWeekBtn">今週</button>
+                <button type="button" class="btn-secondary" id="shiftNextWeekBtn">翌週 ▶</button>
               </div>
-
               <div class="shiftboard-meta">
-                対象週：<span id="shiftWeekRange">2025/12/01 ～ 2025/12/07</span>
+                対象週：<span id="shiftWeekLabel">2025/12/01 ～ 2025/12/07</span>
+              </div>
+              <div class="shiftboard-actions">
+                <button type="button" class="btn-secondary" id="shiftPrintBtn">印刷</button>
               </div>
             </div>
 
-            <!-- シフト表本体 -->
-            <table class="shiftboard-table">
-              <!-- ヘッダー行（時間帯） -->
-              <tr class="shiftboard-head-row">
-                <th class="shiftboard-col-date">勤務日付</th>
-                <th>6:00〜9:00</th>
-                <th>9:00〜12:00</th>
-                <th>12:00〜15:00</th>
-                <th>15:00〜18:00</th>
-                <th>18:00〜21:00</th>
-                <th>21:00〜24:00</th>
-                <th>0:00〜3:00</th>
-                <th>3:00〜6:00</th>
-                <th class="shiftboard-col-summary">M/H</th>
-                <th class="shiftboard-col-summary">複員人数</th>
-              </tr>
+            <div class="shiftboard-shell">
+              <table class="shiftboard-table">
+                <thead>
+                  <tr>
+                    <th class="shiftboard-col-date">勤務日付</th>
+                    <!-- 6〜23, 0〜5 (24時間) -->
+                    <th class="shiftboard-col-hour">6</th>
+                    <th class="shiftboard-col-hour">7</th>
+                    <th class="shiftboard-col-hour">8</th>
+                    <th class="shiftboard-col-hour">9</th>
+                    <th class="shiftboard-col-hour">10</th>
+                    <th class="shiftboard-col-hour">11</th>
+                    <th class="shiftboard-col-hour">12</th>
+                    <th class="shiftboard-col-hour">13</th>
+                    <th class="shiftboard-col-hour">14</th>
+                    <th class="shiftboard-col-hour">15</th>
+                    <th class="shiftboard-col-hour">16</th>
+                    <th class="shiftboard-col-hour">17</th>
+                    <th class="shiftboard-col-hour">18</th>
+                    <th class="shiftboard-col-hour">19</th>
+                    <th class="shiftboard-col-hour">20</th>
+                    <th class="shiftboard-col-hour">21</th>
+                    <th class="shiftboard-col-hour">22</th>
+                    <th class="shiftboard-col-hour">23</th>
+                    <th class="shiftboard-col-hour">0</th>
+                    <th class="shiftboard-col-hour">1</th>
+                    <th class="shiftboard-col-hour">2</th>
+                    <th class="shiftboard-col-hour">3</th>
+                    <th class="shiftboard-col-hour">4</th>
+                    <th class="shiftboard-col-hour">5</th>
+                    <th class="shiftboard-col-mh">M/H</th>
+                    <th class="shiftboard-col-people">複員人数</th>
+                  </tr>
+                </thead>
+                <tbody id="shiftboardBody">
+                  <!-- JSで描画 -->
+                </tbody>
+              </table>
+            </div>
 
-              <!-- 1日目（月） -->
-              <tr class="shiftboard-body-row">
-                <td class="shiftboard-col-date">
-                  <div>12/1</div>
-                  <div>月</div>
-                </td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-col-summary" contenteditable="true" data-placeholder="--:--"></td>
-                <td class="shiftboard-col-summary" contenteditable="true" data-placeholder="人数"></td>
-              </tr>
-
-              <!-- 2日目（火） -->
-              <tr class="shiftboard-body-row">
-                <td class="shiftboard-col-date">
-                  <div>12/2</div>
-                  <div>火</div>
-                </td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-col-summary" contenteditable="true" data-placeholder="--:--"></td>
-                <td class="shiftboard-col-summary" contenteditable="true" data-placeholder="人数"></td>
-              </tr>
-
-              <!-- 3日目（水） -->
-              <tr class="shiftboard-body-row">
-                <td class="shiftboard-col-date">
-                  <div>12/3</div>
-                  <div>水</div>
-                </td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-col-summary" contenteditable="true" data-placeholder="--:--"></td>
-                <td class="shiftboard-col-summary" contenteditable="true" data-placeholder="人数"></td>
-              </tr>
-
-              <!-- 4日目（木） -->
-              <tr class="shiftboard-body-row">
-                <td class="shiftboard-col-date">
-                  <div>12/4</div>
-                  <div>木</div>
-                </td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-col-summary" contenteditable="true" data-placeholder="--:--"></td>
-                <td class="shiftboard-col-summary" contenteditable="true" data-placeholder="人数"></td>
-              </tr>
-
-              <!-- 5日目（金） -->
-              <tr class="shiftboard-body-row">
-                <td class="shiftboard-col-date">
-                  <div>12/5</div>
-                  <div>金</div>
-                </td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-col-summary" contenteditable="true" data-placeholder="--:--"></td>
-                <td class="shiftboard-col-summary" contenteditable="true" data-placeholder="人数"></td>
-              </tr>
-
-              <!-- 6日目（土） -->
-              <tr class="shiftboard-body-row">
-                <td class="shiftboard-col-date shiftboard-day-sat">
-                  <div>12/6</div>
-                  <div>土</div>
-                </td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-col-summary" contenteditable="true" data-placeholder="--:--"></td>
-                <td class="shiftboard-col-summary" contenteditable="true" data-placeholder="人数"></td>
-              </tr>
-
-              <!-- 7日目（日） -->
-              <tr class="shiftboard-body-row">
-                <td class="shiftboard-col-date shiftboard-day-sun">
-                  <div>12/7</div>
-                  <div>日</div>
-                </td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-cell" contenteditable="true" data-placeholder="名前を入力…"></td>
-                <td class="shiftboard-col-summary" contenteditable="true" data-placeholder="--:--"></td>
-                <td class="shiftboard-col-summary" contenteditable="true" data-placeholder="人数"></td>
-              </tr>
-
-              <!-- 週合計行 -->
-              <tr class="shiftboard-footer-row">
-                <td class="shiftboard-footer-label" colspan="9">週合計</td>
-                <td class="shiftboard-col-summary" contenteditable="true" data-placeholder="合計M/H"></td>
-                <td class="shiftboard-col-summary" contenteditable="true" data-placeholder="延べ人数"></td>
-              </tr>
-            </table>
-          </div>
+            <p class="hint" style="margin-top:8px;">
+              ※ 今はサンプルデータで表示しています。あとでシフト入力フォームやAIのシフト案から自動生成できます。
+            </p>
+          </section>
         </section>
 
-        <!-- 旧：④ シフト表設定（画像URLのまま残す） -->
+        <!-- ④ 旧：シフト表設定（画像URL方式） -->
         <section id="view-shift" class="view-panel">
           <section class="card" id="shift-card">
             <h2>シフト表設定</h2>
@@ -1558,7 +1447,7 @@
                 <input type="text" id="logDevice" placeholder="例：レジ横iPad">
               </div>
 
-              <!-- ★キーワード検索欄 -->
+              <!-- キーワード検索欄 -->
               <div class="field">
                 <label for="logKeyword">キーワード</label>
                 <input
