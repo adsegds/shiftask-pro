@@ -1333,41 +1333,62 @@
             <hr>
 
             <!-- ② 時間帯ごとのタスク編集 -->
-            <div class="row">
-              <label for="slotSelect">編集する時間帯</label>
-              <select id="slotSelect"></select>
-              <p class="slot-note">
-                時間帯を変更すると、その時間帯のタスク定義を Firestore から読み込みます。
-              </p>
-            </div>
+<div class="row">
+  <label for="slotSelect">編集する時間帯</label>
+  <select id="slotSelect"></select>
+  <p class="slot-note">
+    時間帯を変更すると、その時間帯のタスク定義を Firestore から読み込みます。
+  </p>
+</div>
 
-            <div class="row">
-              <label for="tasksAInput">Aタスク（必須）</label>
-              <textarea
-                id="tasksAInput"
-                placeholder="例）&#10;CDC納品・片づけ（2便）&#10;ベーカリー納品・片づけ（2便）"
-              ></textarea>
-              <div class="hint">1行につき1タスク。空行は無視されます。</div>
-            </div>
+<!-- 🆕 A-1：写真必須タスク -->
+<div class="row">
+  <label for="tasksPhotoInput">Aタスク（必須 ＋ 写真投稿）</label>
+  <textarea
+    id="tasksPhotoInput"
+    placeholder="例）&#10;FFケース内部清掃（扉を開けて撮影）&#10;ホットショーケース内部清掃（中の状態がわかる写真）"
+  ></textarea>
+  <div class="hint">
+    ※1行につき1タスク。写真が必須のAタスクだけ書いてね。<br>
+    ※スタッフ画面では Aタスクの中に混ざって表示されるけど、<br>
+    <strong>写真投稿が完了するまでチェックできない</strong>ようになるよ！
+  </div>
+</div>
 
-            <div class="row">
-              <label for="tasksBInput">Bタスク（余裕あれば）</label>
-              <textarea
-                id="tasksBInput"
-                placeholder="例）&#10;店内・店頭ゴミ箱の清掃&#10;サービスコーナー清掃"
-              ></textarea>
-              <div class="hint">1行につき1タスク。空行は無視されます。</div>
-            </div>
+<!-- A-2：普通の必須タスク -->
+<div class="row">
+  <label for="tasksAInput">Aタスク（必須・チェックのみ）</label>
+  <textarea
+    id="tasksAInput"
+    placeholder="例）&#10;レジ前FF前陳&#10;米飯・おにぎり 前陳＆整理"
+  ></textarea>
+  <div class="hint">
+    ※写真が不要な Aタスクはここ。1行につき1タスク。
+  </div>
+</div>
 
-            <div class="btn-row">
-              <button type="button" class="btn-secondary" id="reloadSlotBtn">
-                選択中の時間帯を再読み込み
-              </button>
-              <button type="button" class="btn-primary" id="saveSlotBtn">
-                この内容で保存
-              </button>
-            </div>
-            <div class="status" id="taskStatus"></div>
+<!-- B：余裕あれば -->
+<div class="row">
+  <label for="tasksBInput">Bタスク（余裕あれば）</label>
+  <textarea
+    id="tasksBInput"
+    placeholder="例）&#10;店外ゴミ箱チェック&#10;バックルーム整理"
+  ></textarea>
+  <div class="hint">
+    ※1行につき1タスク。空行は無視されます。
+  </div>
+</div>
+
+<div class="btn-row">
+  <button type="button" class="btn-secondary" id="reloadSlotBtn">
+    選択中の時間帯を再読み込み
+  </button>
+  <button type="button" class="btn-primary" id="saveSlotBtn">
+    この内容で保存
+  </button>
+</div>
+<div class="status" id="taskStatus"></div>
+
 
             <hr>
 
