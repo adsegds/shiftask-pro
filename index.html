@@ -987,6 +987,178 @@ body.app-ready .app {
 }
 
 
+
+
+
+
+
+
+
+
+
+.badge-photo {
+  display: inline-block;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 10px;
+  background: #ffe5e5;
+  color: #b00;
+  margin-left: 6px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ===== 写真タスク UI（美しく・SE最適化） ===== */
+
+.task-photo-area {
+  border: 1px solid #e5e5e5;
+  background: #fafafa;
+  padding: 8px 8px 4px;
+  border-radius: 8px;
+  margin: 6px auto 4px;   /* ← 左右 auto で中央寄せ */
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 420px;        /* ← PC/iPad では幅420pxでキレイに */
+  width: 100%;             /* ← スマホでは画面いっぱい使う */
+  box-sizing: border-box;
+}
+
+.task-photo-input {
+  font-size: 12px;
+  background: #fff;
+  padding: 5px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.task-photo-upload-btn {
+  background: #4a8df7;
+  color: #fff;
+  padding: 6px 8px;
+  font-size: 13px;
+  border-radius: 6px;
+  border: none;
+  width: 100%;
+  text-align: center;
+}
+
+.task-photo-upload-btn:active {
+  background: #3a76d1;
+}
+
+.task-photo-status {
+  font-size: 11px;
+  color: #666;
+  min-height: 0;    /* ← 14px → 0 に */
+  margin-top: 0;    /* ← 念のため */
+}
+
+/* === iPhone SE / スマホ最適化 === */
+@media (max-width: 430px) {
+  .task-photo-area {
+    padding: 6px 6px 4px;
+    gap: 4px;
+  }
+
+  .task-photo-input {
+    font-size: 11px;
+    padding: 4px;
+  }
+
+  .task-photo-upload-btn {
+    font-size: 12px;
+    padding: 5px 6px;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* 上の黒ヘッダーの右端に出すボタン */
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.staff-logout-btn {
+  margin-left: auto;
+  padding: 6px 14px;
+  border-radius: 999px;
+  border: none;
+  font-size: 12px;
+  background: #ffffff;
+  color: #333;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.staff-logout-btn:hover {
+  opacity: 0.9;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   </style>
 </head>
   
@@ -1029,6 +1201,13 @@ body.app-ready .app {
       </span>
     </button>
     <h1>業務チェックリスト</h1>
+
+ <button id="staffLogoutBtn" class="staff-logout-btn" type="button">
+      店舗切り替え / ログアウト
+    </button>
+
+
+
   </div>
   <p>時間帯ごとの A＝必須 / B＝余裕あれば。迷ったらAから。</p>
 
@@ -1076,6 +1255,9 @@ body.app-ready .app {
         <button data-size="medium">中</button>
         <button data-size="large">大</button>
       </div>
+
+
+
     </header>
 
     <main>
@@ -1121,9 +1303,13 @@ body.app-ready .app {
               すべて読んだことにする
             </button>
 
-            <a href="notice.html" class="notice-center-link">
-              ▶ お知らせセンターを見る
-            </a>
+            <a
+  href="#"
+  id="openNoticeCenterBtn"
+  class="notice-center-link"
+>
+  ▶ お知らせセンターを見る
+</a>
           </div>
         </div>
       </section>
@@ -1328,9 +1514,11 @@ body.app-ready .app {
     </div>
   </div>
 
-  <!-- Firebase SDK -->
+    <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-storage-compat.js"></script>
+
 
   <script>
     // =============================
@@ -1340,7 +1528,7 @@ body.app-ready .app {
       apiKey: "AIzaSyAPBMvTpzKCcPxLETncBqVR8fzf0cqKirc",
       authDomain: "lawson-workflow.firebaseapp.com",
       projectId: "lawson-workflow",
-      storageBucket: "lawson-workflow.appspot.com",
+      storageBucket: "lawson-workflow.firebasestorage.app",
       messagingSenderId: "335371795694",
       appId: "1:335371795694:web:3b0950a616d368b284c7ff",
       measurementId: "G-BGENZNZMRC"
@@ -1348,6 +1536,7 @@ body.app-ready .app {
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    const storage = firebase.storage();  // ★ 追加
 
     // ===== お知らせ（日付フォーマット） =====
     function formatDateForSummary(ts) {
@@ -1397,13 +1586,27 @@ body.app-ready .app {
         });
     }
 
-    // ★ 店舗ごとのパスワード設定
+        // ★ 店舗ごとのパスワード設定（Firestore未設定のときの保険用）
     const STORE_PASSWORDS = {
       nambucho: "1",
       // 2店舗目以降はここに追加
       // oosakanamba: "osaka777",
     };
 
+    // ★ 店舗ID：?store=xxx があればそれ、なければ空欄
+function resolveStoreId() {
+  const params = new URLSearchParams(location.search);
+  const fromUrl = params.get("store");
+
+  if (fromUrl && fromUrl.trim()) {
+    return fromUrl.trim();   // URL で指定された場合のみ自動入力
+  }
+  return "";                 // ← それ以外は空欄
+}
+
+
+    // （必要なら）事前に許可しておく店舗一覧
+    // 今はパスワード定義用としてだけ使うイメージ
     const ALLOWED_STORES = Object.keys(STORE_PASSWORDS);
 
     // ★ ログイン状態キャッシュ
@@ -1426,7 +1629,9 @@ body.app-ready .app {
     function getCachedLoginStoreId() {
       const now = Date.now();
       const storeId = localStorage.getItem(STORE_ID_CACHE_KEY);
-      if (!storeId || !ALLOWED_STORES.includes(storeId)) return null;
+
+      // ★ ALLOWED_STORES チェックは外す（?store=xxx みたいな将来の店舗も通すため）
+      if (!storeId) return null;
 
       const tId = Number(localStorage.getItem(STORE_ID_TIME_KEY));
       const tPass = Number(localStorage.getItem(STORE_PASS_CACHE_PREFIX + storeId));
@@ -1435,6 +1640,7 @@ body.app-ready .app {
 
       return storeId;
     }
+
 
     // =============================
     // 営業日キー計算（7:00切り替え）
@@ -1545,11 +1751,22 @@ body.app-ready .app {
 
 
     document.addEventListener("DOMContentLoaded", () => {
-      const loginScreen = document.getElementById("loginScreen");
-      const appEl = document.querySelector(".app");
-      const loginStoreIdInput = document.getElementById("loginStoreId");
-      const loginStorePassInput = document.getElementById("loginStorePass");
-      const loginBtn = document.getElementById("loginBtn");
+  const loginScreen = document.getElementById("loginScreen");
+  const appEl = document.querySelector(".app");
+  const loginStoreIdInput = document.getElementById("loginStoreId");
+  const loginStorePassInput = document.getElementById("loginStorePass");
+  const loginBtn = document.getElementById("loginBtn");
+
+  // ★ 店舗IDは「入力できる」ようにする（URLパラメータがあれば初期値にする）
+if (loginStoreIdInput) {
+  const initialId = resolveStoreId();   // ?store=xxx があればそれ、なければ空欄
+  if (initialId) {
+    loginStoreIdInput.value = initialId;  // ある場合のみ初期セット
+  }
+  // 👇非表示にはしない！（ユーザーが入力できる必要がある）
+}
+
+
 
       // ★ 念のため、読み込み中クラスを付けておく
       document.body.classList.add("app-loading");
@@ -1573,6 +1790,15 @@ body.app-ready .app {
       // 本体初期化（STORE_ID / storeRef がセット済みで呼ぶ）
       // =============================
       function startApp() {
+　　　　// ★ storeRef がなければ何もしない（安全ガード）
+        if (!STORE_ID || !storeRef) {
+          console.warn("STORE_ID / storeRef 未設定のため、startApp を中止します。");
+          showLogin();
+          setAppReady();
+          return;
+        }
+
+        
         // 店舗ID / パスワード表示（※ index.html には非表示だけど一応）
         const storeIdDisplay = document.getElementById("storeIdDisplay");
         const storePassDisplay = document.getElementById("storePassDisplay");
@@ -1618,6 +1844,36 @@ body.app-ready .app {
             closeAppMenu();
           }
         });
+
+
+
+      
+
+
+      // =============================
+        // お知らせセンター（スタッフ用）へのリンク
+        // =============================
+        const openNoticeBtn = document.getElementById("openNoticeCenterBtn");
+        if (openNoticeBtn && STORE_ID) {
+          const noticeUrl = `notice.html?store=${encodeURIComponent(STORE_ID)}`;
+
+          // aタグなら href にセット
+          if (openNoticeBtn.tagName === "A") {
+            openNoticeBtn.href = noticeUrl;
+            openNoticeBtn.target = "_blank";
+          } else {
+            // button などの場合は click で開く
+            openNoticeBtn.addEventListener("click", () => {
+              window.open(noticeUrl, "_blank");
+            });
+          }
+        }
+
+
+
+
+
+
 
         // =============================
         // シフト表URL読み込み
@@ -1982,67 +2238,173 @@ body.app-ready .app {
           });
         }
 
-        function buildTasksFromDefinition(slotId, ul, tasks, groupLabel) {
-          ul.innerHTML = "";
-          tasks.forEach((text, index) => {
-            const li = document.createElement("li");
-            li.innerHTML = `
-              <label class="task-item">
-                <input type="checkbox">
-                <span class="task-text"></span>
-              </label>
-            `;
-            const cb   = li.querySelector('input[type="checkbox"]');
-            const span = li.querySelector(".task-text");
-            span.textContent = text;
+        // =============================
+// タスク描画まわり（A写真必須＋Bタスク）
+// =============================
 
-            const taskId = `${slotId}-${groupLabel}-${index}`;
-            cb.dataset.taskId = taskId;
-            checkboxMap.set(taskId, cb);
-            cb.checked = latestCheckedIds.has(taskId);
-            ul.appendChild(li);
-          });
+// ★ 汎用タスク描画（主に Bタスク用）
+function buildTasksFromDefinition(slotId, ul, tasks, groupLabel) {
+  ul.innerHTML = "";
+  tasks.forEach((text, index) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <label class="task-item">
+        <input type="checkbox">
+        <span class="task-text"></span>
+      </label>
+    `;
+    const cb   = li.querySelector('input[type="checkbox"]');
+    const span = li.querySelector(".task-text");
+    span.textContent = text;
+
+    const taskId = `${slotId}-${groupLabel}-${index}`;
+    cb.dataset.taskId = taskId;
+    checkboxMap.set(taskId, cb);
+    cb.checked = latestCheckedIds.has(taskId);
+    ul.appendChild(li);
+  });
+}
+
+// ★ Aタスク専用：写真必須対応版
+function buildATasksWithPhoto(slotId, ulA, photoTasks, tasksA) {
+  ulA.innerHTML = "";
+
+  const photoList    = Array.isArray(photoTasks) ? photoTasks : [];
+  const requiredList = Array.isArray(tasksA)     ? tasksA     : [];
+
+  // ① 写真必須タスクから先に並べる
+  photoList.forEach((text, index) => {
+    const li = document.createElement("li");
+    li.className = "task-item";
+    li.dataset.slotId = slotId;
+    li.dataset.taskType = "A";
+    li.dataset.photoRequired = "1";
+    li.dataset.taskLabel = text;
+
+    const taskId = `${slotId}-AP-${index}`; // AP = A Photo のイメージ
+    const isDone = latestCheckedIds.has(taskId);
+
+    li.innerHTML = `
+      <div class="task-main-row">
+        <label class="task-main-label">
+          <input
+            type="checkbox"
+            class="task-checkbox"
+            data-task-id="${taskId}"
+            data-photo-lock="1"
+            ${isDone ? "checked" : ""}
+          >
+          <span class="task-text"></span>
+          <span class="badge badge-photo">写真必須</span>
+        </label>
+      </div>
+      <div class="task-photo-area">
+        <input type="file" accept="image/*" capture="environment" class="task-photo-input">
+        <button type="button" class="task-photo-upload-btn">写真アップロード</button>
+        <div class="task-photo-status"></div>
+      </div>
+    `;
+
+    const cb   = li.querySelector('input[type="checkbox"]');
+    const span = li.querySelector(".task-text");
+    span.textContent = text;
+
+    // ★チェック状態を反映
+    if (isDone) {
+      cb.dataset.photoUploaded = "1";
+      cb.dataset.photoLock = "0";
+    } else {
+      cb.dataset.photoUploaded = "0";
+      cb.dataset.photoLock = "1";
+    }
+
+    checkboxMap.set(taskId, cb);
+    ulA.appendChild(li);
+  });
+
+  // ② 普通の Aタスク（チェックのみ）
+  requiredList.forEach((text, index) => {
+    const li = document.createElement("li");
+    li.className = "task-item";
+    li.dataset.slotId = slotId;
+    li.dataset.taskType = "A";
+    li.dataset.taskLabel = text;
+
+    const taskId = `${slotId}-A-${index}`;
+    const isDone = latestCheckedIds.has(taskId);
+
+    li.innerHTML = `
+      <div class="task-main-row">
+        <label class="task-main-label">
+          <input
+            type="checkbox"
+            class="task-checkbox"
+            data-task-id="${taskId}"
+            ${isDone ? "checked" : ""}
+          >
+          <span class="task-text"></span>
+        </label>
+      </div>
+    `;
+
+    const cb   = li.querySelector('input[type="checkbox"]');
+    const span = li.querySelector(".task-text");
+    span.textContent = text;
+
+    checkboxMap.set(taskId, cb);
+    ulA.appendChild(li);
+  });
+}
+
+// ★ Firestore からタスク定義を読み込む（写真対応版）
+async function loadTaskDefinitions() {
+  const taskSlotsRef = storeRef.collection("taskSlots");
+  await Promise.all(
+    timeSlotIds.map(async (slotId) => {
+      const section = document.getElementById(slotId);
+      if (!section) return;
+      const ulA = section.querySelector("ul.tasks.a");
+      const ulB = section.querySelector("ul.tasks.b");
+      if (!ulA || !ulB) return;
+
+      try {
+        const snap = await taskSlotsRef.doc(slotId).get();
+        if (snap.exists) {
+          const data = snap.data() || {};
+
+          // 🆕 owner.html で保存してるフィールドを読む
+          const photoTasks = data.tasksPhoto || data.photoTasks || [];
+          const tasksA     = data.tasksA     || [];
+          const tasksB     = data.tasksB     || [];
+
+          // 🆕 Aタスク：写真必須＋普通の必須をまとめて描画
+          buildATasksWithPhoto(slotId, ulA, photoTasks, tasksA);
+
+          // Bタスクは今まで通り
+          buildTasksFromDefinition(slotId, ulB, tasksB, "B");
+        } else {
+          // Firestoreに定義がないときのフォールバック（既存liをそのまま活用）
+          const setupFromExisting = (ul, groupLabel) => {
+            ul.querySelectorAll("li").forEach((li, index) => {
+              const cb = li.querySelector('input[type="checkbox"]');
+              if (!cb) return;
+              const taskId = `${slotId}-${groupLabel}-${index}`;
+              cb.dataset.taskId = taskId;
+              checkboxMap.set(taskId, cb);
+              cb.checked = latestCheckedIds.has(taskId);
+            });
+          };
+          setupFromExisting(ulA, "A");
+          setupFromExisting(ulB, "B");
         }
+      } catch (e) {
+        console.error("タスク定義読み込みエラー:", slotId, e);
+      }
+    })
+  );
+}
 
-        async function loadTaskDefinitions() {
-          const taskSlotsRef = storeRef.collection("taskSlots");
-          await Promise.all(
-            timeSlotIds.map(async (slotId) => {
-              const section = document.getElementById(slotId);
-              if (!section) return;
-              const ulA = section.querySelector("ul.tasks.a");
-              const ulB = section.querySelector("ul.tasks.b");
-              if (!ulA || !ulB) return;
 
-              try {
-                const snap = await taskSlotsRef.doc(slotId).get();
-                if (snap.exists) {
-                  const data = snap.data() || {};
-                  const tasksA = data.tasksA || [];
-                  const tasksB = data.tasksB || [];
-                  buildTasksFromDefinition(slotId, ulA, tasksA, "A");
-                  buildTasksFromDefinition(slotId, ulB, tasksB, "B");
-                } else {
-                  // Firestore に定義がない場合 → 既存 li を ID 付与で使う（テンプレが空なら何も出ない）
-                  const setupFromExisting = (ul, groupLabel) => {
-                    ul.querySelectorAll("li").forEach((li, index) => {
-                      const cb = li.querySelector('input[type="checkbox"]');
-                      if (!cb) return;
-                      const taskId = `${slotId}-${groupLabel}-${index}`;
-                      cb.dataset.taskId = taskId;
-                      checkboxMap.set(taskId, cb);
-                      cb.checked = latestCheckedIds.has(taskId);
-                    });
-                  };
-                  setupFromExisting(ulA, "A");
-                  setupFromExisting(ulB, "B");
-                }
-              } catch (e) {
-                console.error("タスク定義読み込みエラー:", slotId, e);
-              }
-            })
-          );
-        }
 
         function saveTasksToFirestore() {
           const checkedIds = [];
@@ -2108,23 +2470,122 @@ body.app-ready .app {
 
         // チェック → Firestore + ログ
         document.body.addEventListener("change", (e) => {
-          const target = e.target;
-          if (!target.matches('input[type="checkbox"][data-task-id]')) return;
-          if (applyingRemote) return;
+  const target = e.target;
+  if (!target.matches('input[type="checkbox"][data-task-id]')) return;
 
-          saveTasksToFirestore();
-          updateCompletionUI();
+  // 🆕 写真必須タスクは、写真アップロードが終わるまでロック
+  if (target.dataset.photoLock === "1" && target.dataset.photoUploaded !== "1") {
+    // まだ写真がアップされてない
+    e.preventDefault?.();
+    target.checked = false;
+    alert("このタスクは写真アップロードが必要です。\n先に写真をアップしてください。");
+    return;
+  }
 
-          const taskId = target.dataset.taskId || null;
-          const taskLabel =
-            target.closest(".task-item")?.querySelector(".task-text")?.textContent || null;
+  if (applyingRemote) return;
 
-          logChecklistAction({
-            taskId,
-            taskLabel,
-            action: target.checked ? "check" : "uncheck"
-          });
-        });
+  saveTasksToFirestore();
+  updateCompletionUI();
+
+  const taskId = target.dataset.taskId || null;
+  const taskLabel =
+    target.closest(".task-item")?.querySelector(".task-text")?.textContent || null;
+
+  logChecklistAction({
+    taskId,
+    taskLabel,
+    action: target.checked ? "check" : "uncheck"
+  });
+});
+
+
+
+
+
+// 🆕 写真アップロードボタンの処理 ←★★ ここを今から追加
+document.body.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".task-photo-upload-btn");
+  if (!btn) return;
+
+  const li = btn.closest(".task-item");
+  if (!li) return;
+
+  const fileInput  = li.querySelector(".task-photo-input");
+  const statusEl   = li.querySelector(".task-photo-status");
+  const checkbox   = li.querySelector('input[type="checkbox"][data-task-id]');
+  const taskTextEl = li.querySelector(".task-text");
+
+  if (!fileInput || !checkbox || !taskTextEl) return;
+
+  const file = fileInput.files[0];
+  if (!file) {
+    alert("先に写真を選択してください。");
+    return;
+  }
+
+  if (!STORE_ID || !storeRef) {
+    alert("店舗情報が取得できていません。ログインし直してください。");
+    return;
+  }
+
+  const slotId      = li.dataset.slotId || "unknown";
+  const taskLabel   = li.dataset.taskLabel || taskTextEl.textContent || "";
+  const businessKey = getCurrentBusinessKey();
+
+  try {
+    btn.disabled = true;
+    btn.textContent = "アップロード中...";
+    if (statusEl) statusEl.textContent = "アップロード中...";
+
+    // === Storage にアップロード ===
+    const path = `stores/${STORE_ID}/photoTasks/${businessKey}/${slotId}/${Date.now()}_${Math.random().toString(36).slice(2)}_${file.name}`;
+    const storageRefPath = storage.ref().child(path);
+
+    await storageRefPath.put(file);
+    const downloadUrl = await storageRefPath.getDownloadURL();
+
+    // === Firestore にも記録（notice.html 用） ===
+    await storeRef.collection("photoReports").add({
+      slotId,
+      taskLabel,
+      photoUrl: downloadUrl,
+      businessKey,
+      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+      deviceLabel: currentDeviceLabel || "未設定",
+    });
+
+    // === チェックを解禁＆自動チェック ===
+    checkbox.dataset.photoUploaded = "1";
+    checkbox.dataset.photoLock = "0";
+    checkbox.checked = true;
+
+    saveTasksToFirestore();
+    updateCompletionUI();
+
+    logChecklistAction({
+      taskId: checkbox.dataset.taskId || null,
+      taskLabel,
+      action: "photoUploaded",
+      extra: { photoUrl: downloadUrl },
+    });
+
+    fileInput.value = "";
+    if (statusEl) statusEl.textContent = "アップロード完了";
+    btn.textContent = "再アップロード";
+
+  } catch (err) {
+    console.error("写真アップロードエラー", err);
+    alert("写真のアップロードに失敗しました。通信環境を確認してください。");
+    if (statusEl) statusEl.textContent = "アップロード失敗";
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+
+
+
+        
 
         // 引き継ぎメモ（共通）
         const handoverSlots  = document.querySelectorAll(".handover-slot");
@@ -2286,7 +2747,7 @@ body.app-ready .app {
           }
         });
 
-        // 経営者お知らせ（ownerNews）
+                // 経営者お知らせ（ownerNews）
         const infoListEl = document.querySelector(".info-list");
         const noticeStatusBadge = document.getElementById("notice-status-badge");
         const noticeReadBtn = document.getElementById("notice-read-btn");
@@ -2386,6 +2847,175 @@ body.app-ready .app {
           });
         }
 
+        // =============================
+        // 🔑 スタッフ用パスワード変更（view-auth）
+        // =============================
+        const newStaffPassInput  = document.getElementById("newStaffPassInput");
+        const changeStaffPassBtn = document.getElementById("changeStaffPassBtn");
+        const changeStaffPassMsg = document.getElementById("changeStaffPassMsg");
+
+        if (changeStaffPassBtn && newStaffPassInput && changeStaffPassMsg) {
+          changeStaffPassBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+
+            const newPass = newStaffPassInput.value.trim();
+            if (!newPass) {
+              changeStaffPassMsg.textContent = "新しいパスワードを入力してください。";
+              changeStaffPassMsg.className = "status err";
+              return;
+            }
+
+            if (!storeRef) {
+              changeStaffPassMsg.textContent =
+                "店舗情報がまだ読み込み中です。少し待ってから再度お試しください。";
+              changeStaffPassMsg.className = "status err";
+              return;
+            }
+
+            try {
+              changeStaffPassMsg.textContent = "更新中…";
+              changeStaffPassMsg.className = "status";
+
+              await storeRef
+                .collection("settings")
+                .doc("auth")
+                .set(
+                  {
+                    staffPassword: newPass,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                  },
+                  { merge: true }
+                );
+
+              changeStaffPassMsg.textContent =
+                "スタッフパスワードを更新しました。スタッフ用ログイン画面でこのパスワードを使ってください。";
+              changeStaffPassMsg.className = "status ok";
+              newStaffPassInput.value = "";
+            } catch (err) {
+              console.error("スタッフパスワード更新エラー", err);
+              changeStaffPassMsg.textContent =
+                "更新に失敗しました。時間をおいて再度お試しください。";
+              changeStaffPassMsg.className = "status err";
+            }
+          });
+        }
+
+        // =============================
+        // ② reports（スタッフ → 経営者）一覧
+        // =============================
+        const adminReportsList  = document.getElementById("adminReportsList");
+        const adminReportsEmpty = document.getElementById("adminReportsEmpty");
+
+        function formatReportDate(ts) {
+          if (!ts || !ts.toDate) return "";
+          const d = ts.toDate();
+          const yyyy = d.getFullYear();
+          const mm   = String(d.getMonth() + 1).padStart(2, "0");
+          const dd   = String(d.getDate()).padStart(2, "0");
+          const hh   = String(d.getHours()).padStart(2, "0");
+          const mi   = String(d.getMinutes()).padStart(2, "0");
+          return `${yyyy}/${mm}/${dd} ${hh}:${mi}`;
+        }
+
+        if (adminReportsList) {
+          storeRef
+            .collection("reports")
+            .orderBy("createdAt", "desc")
+            .limit(100)
+            .onSnapshot(
+              (snap) => {
+                adminReportsList.innerHTML = "";
+
+                if (snap.empty) {
+                  if (adminReportsEmpty) adminReportsEmpty.style.display = "block";
+                  return;
+                }
+                if (adminReportsEmpty) adminReportsEmpty.style.display = "none";
+
+                snap.forEach((doc) => {
+                  const data = doc.data() || {};
+
+                  const cat    = data.category || "その他";
+                  const msg    = (data.message || "").replace(/\n/g, "<br>");
+                  const name   = data.staffName || "（不明）";
+                  const status = data.status || "未対応";
+                  const dateText = data.createdAt
+                    ? formatReportDate(data.createdAt)
+                    : "";
+
+                  const item = document.createElement("div");
+                  item.className = "report-item";
+
+                  item.innerHTML = `
+                    <div class="report-header">
+                      <span class="badge">カテゴリ: ${cat}</span>
+                      <span class="badge badge-status">${status}</span>
+                    </div>
+                    <div class="report-body">${msg}</div>
+                    <div class="report-meta">
+                      <span>送信者：${name}</span>
+                      <span>${dateText}</span>
+                    </div>
+                    <div class="report-actions">
+                      <button type="button"
+                              class="btn-report-small js-report-done">
+                        対応済みにする
+                      </button>
+                      <button type="button"
+                              class="btn-report-small btn-report-delete js-report-delete">
+                        削除
+                      </button>
+                    </div>
+                  `;
+
+                  const doneBtn   = item.querySelector(".js-report-done");
+                  const deleteBtn = item.querySelector(".js-report-delete");
+
+                  // 「対応済みにする」ボタン
+                  doneBtn.addEventListener("click", async () => {
+                    try {
+                      await storeRef
+                        .collection("reports")
+                        .doc(doc.id)
+                        .update({
+                          status: "対応済み",
+                          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        });
+                    } catch (err) {
+                      console.error("status 更新エラー:", err);
+                      alert("ステータス更新に失敗しました。");
+                    }
+                  });
+
+                  // 「削除」ボタン
+                  deleteBtn.addEventListener("click", async () => {
+                    const ok = window.confirm("この報告を削除してもよろしいですか？");
+                    if (!ok) return;
+
+                    try {
+                      await storeRef
+                        .collection("reports")
+                        .doc(doc.id)
+                        .delete();
+                    } catch (err) {
+                      console.error("reports 削除エラー:", err);
+                      alert("削除に失敗しました。");
+                    }
+                  });
+
+                  adminReportsList.appendChild(item);
+                });
+              },
+              (err) => {
+                console.error("reports 読み込みエラー:", err);
+                if (adminReportsEmpty) {
+                  adminReportsEmpty.textContent = "報告の読み込みに失敗しました。";
+                  adminReportsEmpty.style.display = "block";
+                }
+              }
+            );
+        }
+
         // ★ ここで timeSlots を読み込み → その後にバーとタスクを構築
         loadTimeSlotsConfig().then(() => {
           initializeProgressBars();
@@ -2395,44 +3025,88 @@ body.app-ready .app {
         setupDailyResetAt7AM();
       } // startApp ここまで
 
-      // =============================
-      // ログインボタン押下
-      // =============================
-      function handleLogin() {
-        const id = (loginStoreIdInput?.value || "").trim();
-        const pass = (loginStorePassInput?.value || "").trim();
 
-        if (!id) {
-          alert("店舗IDを入力してください（例：nambucho）");
-          return;
-        }
-        if (!ALLOWED_STORES.includes(id)) {
-          alert("この店舗IDではチェックリストを利用できません。");
-          return;
-        }
-        const expected = STORE_PASSWORDS[id];
-        if (!expected) {
-          alert("この店舗IDにはパスワードが設定されていません。");
-          return;
-        }
-        if (pass !== expected) {
-          alert("パスワードが違います。");
-          return;
-        }
 
-                // ログイン成功
-        STORE_ID = id;
-        storeRef = db.collection("stores").doc(STORE_ID);
-        saveLoginCache(STORE_ID);
 
-        showApp();
 
-        // ★ ここで「読み込み中 → 準備完了」に切り替え
-        setAppReady();
 
-        startApp();
 
+
+
+
+   // =============================
+// ログインボタン押下（ID入力版）
+// =============================
+async function handleLogin() {
+  // 1) 入力欄の値を優先
+  const inputId = (loginStoreIdInput?.value || "").trim();
+  // 2) 入力が空なら URL / デフォルトから補完
+  const id = inputId || resolveStoreId();
+  const pass = (loginStorePassInput?.value || "").trim();
+
+  if (!id) {
+    alert("店舗IDを入力してください。");
+    return;
+  }
+  if (!pass) {
+    alert("パスワードを入力してください。");
+    return;
+  }
+
+  try {
+    const storeDocRef = db.collection("stores").doc(id);
+
+    // 🔑 Firestore 側のスタッフパスワード（owner.htmlで変更可能）
+    const authSnap = await storeDocRef
+      .collection("settings")
+      .doc("auth")
+      .get();
+
+    let expected = null;
+
+    // Firestore → まず優先
+    if (authSnap.exists) {
+      const authData = authSnap.data() || {};
+      if (authData.staffPassword) {
+        expected = authData.staffPassword;
       }
+    }
+
+    // Firestoreにまだ設定されていない場合 → 定数(STORE_PASSWORDS)でフォールバック
+    if (!expected) {
+      expected = STORE_PASSWORDS[id] || null;
+    }
+
+    if (!expected) {
+      alert("この店舗にはパスワードが設定されていません。");
+      return;
+    }
+
+    if (pass !== expected) {
+      alert("パスワードが違います。");
+      return;
+    }
+
+    // 🎉 ログイン成功！
+    STORE_ID = id;
+    storeRef = storeDocRef;
+    saveLoginCache(STORE_ID);
+
+    showApp();
+    setAppReady();
+    startApp();
+
+  } catch (err) {
+    console.error("ログイン処理エラー:", err);
+    alert("ログイン処理中にエラーが発生しました。時間をおいて再度お試しください。");
+  }
+}
+
+
+
+
+
+
 
       if (loginBtn) {
         loginBtn.addEventListener("click", handleLogin);
@@ -2445,27 +3119,78 @@ body.app-ready .app {
         });
       }
 
-     // =============================
+
+
+
+
+
+
+
+
+
+
+
+
+// ★ スタッフ用 ログアウト（店舗切り替え）
+      const staffLogoutBtn = document.getElementById("staffLogoutBtn");
+      if (staffLogoutBtn) {
+        staffLogoutBtn.addEventListener("click", () => {
+          try {
+            // ログイン関連のキャッシュを消す
+            localStorage.removeItem(STORE_ID_CACHE_KEY);
+            localStorage.removeItem(STORE_ID_TIME_KEY);
+
+            // 端末ラベルや文字サイズも一旦リセットしたいなら clear
+            // ※残したいなら上の2行だけでもOK
+            localStorage.clear();
+          } catch (e) {
+            console.warn("localStorage clear error:", e);
+          }
+
+          // 画面をリロード → ログイン画面に戻る
+          location.reload();
+        });
+      }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// =============================
 // 自動ログイン判定
 // =============================
 const cachedId = getCachedLoginStoreId();
 if (cachedId) {
+  // ✅ 15時間以内なら前回ログイン店舗でそのまま入る
   STORE_ID = cachedId;
   storeRef = db.collection("stores").doc(STORE_ID);
 
   showApp();
-
-  // ★ ここを追加：読み込み中クラスを外す
   setAppReady();
-
   startApp();
 } else {
+  // キャッシュが無い → ふつうにログイン画面からスタート
   showLogin();
-
-  // ★ ログイン画面を表示したタイミングでも読み込み中を解除してOK
   setAppReady();
 }
+
+
+
+
     });
   </script>
 </body>
 </html>
+
